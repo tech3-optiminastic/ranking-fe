@@ -28,10 +28,10 @@ export default function Home() {
       <section className="relative border-t border-border/60 bg-background/80 py-12 backdrop-blur-sm">
         <CornerDiamonds top />
         <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">
+          <p className="text-center text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">
             [ works with every major AI engine ]
           </p>
-          <div className="mt-6 flex flex-wrap items-center gap-x-12 gap-y-8 md:gap-x-16">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-8 md:gap-x-16">
             {LLM_LOGOS.map(({ name, src }) => (
               <div
                 key={name}
