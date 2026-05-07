@@ -19,6 +19,9 @@ import {
 } from "@/lib/stores/onboarding-store";
 import { useSession } from "@/lib/auth-client";
 import { routes } from "@/lib/config";
+import { redeemReferralCode } from "@/lib/api/referrals";
+
+const REFERRAL_PENDING_KEY = "signalor.referral.pendingCode";
 
 const STEP_CONTENT: Record<string, { title: string; description: string }> = {
   "auth-method": {
@@ -78,9 +81,33 @@ function SignUpContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { reset(); setAuthMode("sign-up"); }, []);
 
-  // Redirect when a valid session is detected (e.g. after OTP verify)
+  // Capture ?ref=CODE on first mount so we can redeem after sign-up completes.
   useEffect(() => {
-    if (!isPending && session) router.replace(routes.dashboard);
+    const ref = searchParams.get("ref");
+    if (ref && typeof window !== "undefined") {
+      localStorage.setItem(REFERRAL_PENDING_KEY, ref);
+    }
+  }, [searchParams]);
+
+  // Redirect when a valid session is detected (e.g. after OTP verify). If a
+  // referral code was stashed, redeem it before redirecting.
+  useEffect(() => {
+    if (isPending || !session) return;
+    const email = session.user?.email;
+    const pending =
+      typeof window !== "undefined"
+        ? localStorage.getItem(REFERRAL_PENDING_KEY)
+        : null;
+    if (email && pending) {
+      redeemReferralCode(pending, email)
+        .catch(() => {})
+        .finally(() => {
+          try { localStorage.removeItem(REFERRAL_PENDING_KEY); } catch {}
+          router.replace(routes.dashboard);
+        });
+      return;
+    }
+    router.replace(routes.dashboard);
   }, [isPending, session, router]);
 
   const { title, description } =
