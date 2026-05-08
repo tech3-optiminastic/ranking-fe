@@ -16,7 +16,7 @@ const TEASER_PLANS = [
     price: 19.99,
     tagline: "Solo brands getting started with GEO.",
     features: [
-      "1 project · 25 prompts",
+      "2 projects · 25 prompts",
       "Gemini & Google visibility",
       "GEO analysis & scoring",
       "PDF report exports",

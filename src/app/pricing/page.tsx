@@ -48,7 +48,7 @@ const PLANS: PlanConfig[] = [
     description: "Perfect for solo brands getting started with GEO.",
     icon: Zap,
     features: [
-      "1 project",
+      "2 projects",
       "Up to 25 prompts",
       "Gemini & Google prompt visibility",
       "GEO analysis & scoring",
