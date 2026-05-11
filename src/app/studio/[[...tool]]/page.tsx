@@ -11,7 +11,11 @@ import { NextStudio } from 'next-sanity/studio'
 import config from '../../../../sanity.config'
 import { sanityConfigured, sanityConfigError } from '../../../sanity/env'
 
-export const dynamic = 'force-static'
+// Studio is an interactive CMS dashboard — render it dynamically on every
+// request rather than trying to prerender. force-static + a catch-all
+// route was producing build artefacts that 500'd at runtime on Vercel.
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 export { metadata, viewport } from 'next-sanity/studio'
 
