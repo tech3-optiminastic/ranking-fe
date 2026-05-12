@@ -277,7 +277,6 @@ export default async function BlogPostPage({
     description: post.excerpt,
     path: `/blog/${post.slug}`,
     datePublished: post.publishedAt,
-    author: post.author,
   });
 
   const breadcrumbLd = breadcrumbJsonLd([
