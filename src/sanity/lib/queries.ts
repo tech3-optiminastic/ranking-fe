@@ -15,7 +15,9 @@ export const ALL_POSTS_QUERY = groq`
     excerpt,
     category,
     readingMinutes,
-    publishedAt
+    publishedAt,
+    author,
+    authorRole
   }
 `
 
@@ -27,6 +29,8 @@ export const POST_BY_SLUG_QUERY = groq`
     category,
     readingMinutes,
     publishedAt,
+    author,
+    authorRole,
     "coverImage": {
       "url": coverImage.asset->url,
       "alt": coverImage.alt

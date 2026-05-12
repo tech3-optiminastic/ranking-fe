@@ -12,6 +12,8 @@ export interface BlogPost {
   category: BlogCategory;
   readingMinutes: number;
   publishedAt: string;
+  author: string;
+  authorRole: string;
 }
 
 export const BLOG_CATEGORIES: BlogCategory[] = [
@@ -30,6 +32,8 @@ export const BLOG_FEATURED: BlogPost = {
   category: "Playbooks",
   readingMinutes: 9,
   publishedAt: "2026-04-18",
+  author: "Arkit K",
+  authorRole: "Signalor Studio",
 };
 
 export const BLOG_POSTS: BlogPost[] = [
@@ -41,7 +45,9 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Research",
     readingMinutes: 12,
     publishedAt: "2026-04-14",
-  },
+    author: "Signalor Research",
+    authorRole: "Data team",
+    },
   {
     slug: "llms-txt-what-it-is",
     title: "llms.txt: what it is, who honors it, and what to publish",
@@ -50,7 +56,9 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Guides",
     readingMinutes: 7,
     publishedAt: "2026-04-10",
-  },
+    author: "Arkit K",
+    authorRole: "Signalor Studio",
+    },
   {
     slug: "five-factor-ai-visibility",
     title: "The 5-factor AI visibility framework, explained",
@@ -59,7 +67,9 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "AI visibility",
     readingMinutes: 10,
     publishedAt: "2026-04-06",
-  },
+    author: "Signalor Research",
+    authorRole: "Data team",
+    },
   {
     slug: "schema-that-moves-the-needle",
     title: "The 4 JSON-LD schemas that actually move the GEO needle",
@@ -68,7 +78,9 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Playbooks",
     readingMinutes: 6,
     publishedAt: "2026-04-03",
-  },
+    author: "Arkit K",
+    authorRole: "Signalor Studio",
+    },
   {
     slug: "citation-source-attribution-shipped",
     title: "New: Citation source attribution (Phase 1 + 2 shipped)",
@@ -77,7 +89,9 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Product",
     readingMinutes: 4,
     publishedAt: "2026-04-21",
-  },
+    author: "Arkit K",
+    authorRole: "Signalor Studio",
+    },
   {
     slug: "perplexity-vs-chatgpt-visibility",
     title: "Perplexity vs ChatGPT: why your visibility split is wider than you think",
@@ -86,7 +100,9 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "AI visibility",
     readingMinutes: 8,
     publishedAt: "2026-03-30",
-  },
+    author: "Signalor Research",
+    authorRole: "Data team",
+    },
 ];
 
 export const BLOG_STATS = [

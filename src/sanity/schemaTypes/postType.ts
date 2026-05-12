@@ -59,6 +59,18 @@ export const postType = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: 'author',
+      title: 'Author name',
+      type: 'string',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'authorRole',
+      title: 'Author role / team',
+      type: 'string',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: 'coverImage',
       title: 'Cover image',
       type: 'image',
@@ -80,13 +92,14 @@ export const postType = defineType({
   preview: {
     select: {
       title: 'title',
+      author: 'author',
       publishedAt: 'publishedAt',
       category: 'category',
     },
-    prepare({ title, publishedAt, category }) {
+    prepare({ title, author, publishedAt, category }) {
       return {
         title: title ?? 'Untitled',
-        subtitle: [category, publishedAt].filter(Boolean).join(' · '),
+        subtitle: [category, author, publishedAt].filter(Boolean).join(' · '),
       }
     },
   },
