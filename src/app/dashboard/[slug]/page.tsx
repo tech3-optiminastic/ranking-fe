@@ -34,6 +34,7 @@ import { VisibilityByPlatformCard } from "@/components/dashboard/visibility-by-p
 import { CompetitorsCard } from "@/components/dashboard/competitors-card";
 import { PredictionSentimentRow } from "@/components/dashboard/prediction-sentiment-row";
 import { SentimentAnalysisCard } from "@/components/dashboard/sentiment-analysis-card";
+import { AiRecommendationCard } from "@/components/dashboard/ai-recommendation-card";
 import { WeeklyPerformanceSection } from "@/components/dashboard/weekly-performance-section";
 import { DomainAnalyticsPanel } from "@/components/analyzer/domain-analytics-panel";
 
@@ -355,6 +356,15 @@ export default function SignalorDashboard() {
             </div>
             <div className="col-span-5 min-h-0 h-full" data-tour-card="overview-sentiment">
               <SentimentAnalysisCard sentiment={sentiment} />
+            </div>
+          </div>
+
+          <div
+            className="grid grid-cols-12 items-stretch gap-3 mb-3"
+            data-tour-card="overview-citations"
+          >
+            <div className="col-span-12 min-h-0">
+              <AiRecommendationCard slug={slug} />
             </div>
           </div>
 
