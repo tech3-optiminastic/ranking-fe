@@ -322,6 +322,34 @@ export interface CitationTrendPoint {
   rate_pct: number;
 }
 
+export interface AiRecommendationEnginePoint {
+  engine: Engine;
+  total: number;
+  mentioned: number;
+  recommended: number;
+  cited: number;
+  recommendation_pct: number;
+}
+
+export interface AiRecommendationSample {
+  engine: Engine;
+  prompt: string;
+  quote: string;
+  sentiment: "positive" | "neutral" | "negative";
+}
+
+export interface AiRecommendationSummary {
+  total: number;
+  mentioned: number;
+  recommended: number;
+  cited: number;
+  mention_pct: number;
+  recommendation_pct: number;
+  citation_pct: number;
+  per_engine: AiRecommendationEnginePoint[];
+  samples: AiRecommendationSample[];
+}
+
 export async function getPromptTracks(slug: string): Promise<PromptTrack[]> {
   const { data } = await apiClientLong.get<PromptTrack[]>(
     `/api/analyzer/runs/s/${slug}/prompts/`,
@@ -357,6 +385,15 @@ export async function getCitationTrend(slug: string): Promise<CitationTrendPoint
 export async function getCitationSources(slug: string): Promise<CitationSourcesResponse> {
   const { data } = await apiClientLong.get<CitationSourcesResponse>(
     `/api/analyzer/runs/s/${slug}/citations/`,
+  );
+  return data;
+}
+
+export async function getAiRecommendationSummary(
+  slug: string,
+): Promise<AiRecommendationSummary> {
+  const { data } = await apiClientLong.get<AiRecommendationSummary>(
+    `/api/analyzer/runs/s/${slug}/ai-recommendation-summary/`,
   );
   return data;
 }
