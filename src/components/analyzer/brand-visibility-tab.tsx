@@ -64,14 +64,6 @@ function QuoraLogo() {
   );
 }
 
-function WikipediaLogo() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path fill="#000000" d="M12.09 13.119c-.936 1.932-2.217 4.548-2.853 5.728-.616 1.074-1.127.931-1.532.029L4.299 8.631H2.223c.016-.338.033-.67.05-1H6.22l3.328 7.027c.205.43.37.979.304 1.977.157-.532.278-1.115.508-1.625l2.22-4.81H10.7l.118-1h3.763l-2.491 2.9zm9.481-5.488h-2.08l-2.85 6.028c-.209.447-.313 1.047-.279 1.59.144-.6.348-1.197.597-1.79l2.27-5.828H22l-.43 1h-1.508l-2.27 6.028c-.426 1.034-.72 1.736-.875 2.106-.31.75-1.127.931-1.532.029l-2.852-6.028H11.62l.119-1h3.762l-2.49 2.9c-.046-.032-.096-.06-.15-.084zM7.92 18.919c-.616 1.074-1.127.931-1.532.029L2.573 9.631H.001l.43-1h2.06l3.297 6.96c.205.43.37.979.304 1.977.157-.532.278-1.115.508-1.625l2.22-4.81H6.955l.118-1h3.762l-2.915 6.786z"/>
-    </svg>
-  );
-}
-
 function LinkedInLogo() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -102,7 +94,6 @@ const PLATFORM_CONFIG: Array<{ key: string; label: string; icon: ReactNode }> = 
   { key: "Google",      label: "Google",    icon: <GoogleLogo /> },
   { key: "Reddit",      label: "Reddit",    icon: <RedditLogo /> },
   { key: "Quora",       label: "Quora",     icon: <QuoraLogo /> },
-  { key: "Wikipedia",   label: "Wikipedia", icon: <WikipediaLogo /> },
   { key: "LinkedIn",    label: "LinkedIn",  icon: <LinkedInLogo /> },
   { key: "YouTube",     label: "YouTube",   icon: <YouTubeLogo /> },
   { key: "X (Twitter)", label: "X",         icon: <XLogo /> },

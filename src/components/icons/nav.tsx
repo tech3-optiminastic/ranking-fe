@@ -92,19 +92,6 @@ export function TrackerIcon(props: IconProps) {
   );
 }
 
-// Wikipedia — open book, accent dot on the spine like a bookmark.
-export function WikipediaIcon(props: IconProps) {
-  return (
-    <svg {...svgBase(props)}>
-      <path d="M3 5a2 2 0 0 1 2-2h6.5v18H5a2 2 0 0 1-2-2V5z" />
-      <path d="M21 5a2 2 0 0 0-2-2h-6.5v18H19a2 2 0 0 0 2-2V5z" />
-      <path d="M6 8h3M6 11h3M6 14h2.5" />
-      <path d="M15 8h3M15 11h3M15 14h2.5" />
-      <circle cx="12" cy="6" r="0.9" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
 // Competitors — primary brand avatar foregrounded, rival avatar behind.
 export function CompetitorsIcon(props: IconProps) {
   return (

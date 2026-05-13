@@ -45,7 +45,6 @@ export {
   SitemapIcon,
   TasksIcon,
   TrackerIcon,
-  WikipediaIcon,
   CompetitorsIcon,
   ContentIcon,
   BacklinksIcon,

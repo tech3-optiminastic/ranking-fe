@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-// ── Shared skeleton for Actions / Backlinks / Wikipedia prompt pages ──────────
+// ── Shared skeleton for prompt tracking pages ─────────────────────────────────
 // Mirrors the PromptTracker layout: toolbar → KPI card → prompt cards
 
 export function PromptPageSkeleton() {
