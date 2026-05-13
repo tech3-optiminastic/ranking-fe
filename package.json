@@ -26,6 +26,7 @@
     ]
   },
   "dependencies": {
+    "@amplitude/unified": "^1.1.5",
     "@microsoft/clarity": "^1.0.2",
     "@radix-ui/react-select": "^2.2.6",
     "@sanity/icons": "^3.7.4",

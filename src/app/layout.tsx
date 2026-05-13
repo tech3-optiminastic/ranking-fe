@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { ClarityInit } from "@/components/analytics/clarity";
 import { ReferralCapture } from "@/components/analytics/referral-capture";
 import { AffiliateCapture } from "@/components/analytics/affiliate-capture";
+import { Amplitude } from "@/amplitude";
 import { QueryProvider } from "@/components/providers/query-provider";
 import {
   buildMetadata,
@@ -81,6 +82,7 @@ export default function RootLayout({
         className={`signalor-body ${fontSerif.variable} ${fontMono.variable} overflow-x-hidden antialiased`}
       >
         <ClarityInit />
+        <Amplitude />
         <Suspense fallback={null}>
           <ReferralCapture />
           <AffiliateCapture />
