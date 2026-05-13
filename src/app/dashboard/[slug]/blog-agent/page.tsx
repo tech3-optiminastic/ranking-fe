@@ -49,7 +49,11 @@ const WORD_COUNTS = [
 function formatDate(iso: string) {
   if (!iso) return "";
   try {
-    return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    return new Date(iso).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   } catch {
     return iso;
   }
@@ -64,7 +68,12 @@ function extractErrorMessage(err: unknown): string {
 
 function SectionCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("rounded-lg border border-black/[0.07] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]", className)}>
+    <div
+      className={cn(
+        "rounded-lg border border-black/[0.07] bg-white p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]",
+        className,
+      )}
+    >
       {children}
     </div>
   );
@@ -91,7 +100,8 @@ function ErrorNote({ message }: { message: string }) {
 
 function isWpComUrl(url: string): boolean {
   try {
-    const host = new URL(url.trim().startsWith("http") ? url.trim() : `https://${url.trim()}`).hostname;
+    const host = new URL(url.trim().startsWith("http") ? url.trim() : `https://${url.trim()}`)
+      .hostname;
     return host.endsWith(".wordpress.com") || host === "wordpress.com";
   } catch {
     return false;
@@ -119,7 +129,10 @@ function ConnectWordPressPanel({
   const wpComMode = siteUrl.trim().length > 3 && isWpComUrl(siteUrl);
 
   async function handleOAuthConnect() {
-    if (!siteUrl.trim()) { setError("Enter your WordPress.com site URL first."); return; }
+    if (!siteUrl.trim()) {
+      setError("Enter your WordPress.com site URL first.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -186,13 +199,13 @@ function ConnectWordPressPanel({
           <p className="text-sm font-semibold text-foreground">Connect your WordPress site</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {wpComMode
-              ? "This is a WordPress.com-hosted site — connect via OAuth."
-              : "Self-hosted WordPress uses an Application Password — no plugin needed."}
+              ? "This is a WordPress.com-hosted site, connect via OAuth."
+              : "Self-hosted WordPress uses an Application Password, no plugin needed."}
           </p>
         </div>
       </div>
 
-      {/* Site URL field — always shown */}
+      {/* Site URL field, always shown */}
       <div className="mb-4 space-y-3">
         <div>
           <FieldLabel>Site URL</FieldLabel>
@@ -200,18 +213,25 @@ function ConnectWordPressPanel({
             type="url"
             placeholder="https://yoursite.com or https://yoursite.wordpress.com"
             value={siteUrl}
-            onChange={(e) => { setSiteUrl(e.target.value); setError(null); }}
+            onChange={(e) => {
+              setSiteUrl(e.target.value);
+              setError(null);
+            }}
             className="w-full rounded-md border border-black/[0.1] bg-white px-3 py-2 text-sm outline-none ring-offset-2 placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
           />
         </div>
 
-        {/* WordPress.com — OAuth button */}
+        {/* WordPress.com, OAuth button */}
         {wpComMode && (
           <div className="rounded-md border border-blue-100 bg-blue-50 px-4 py-3">
             <p className="mb-2 text-xs font-medium text-blue-800">
-              WordPress.com-hosted sites use OAuth — no password needed.
+              WordPress.com-hosted sites use OAuth, no password needed.
             </p>
-            {error && <div className="mb-2"><ErrorNote message={error} /></div>}
+            {error && (
+              <div className="mb-2">
+                <ErrorNote message={error} />
+              </div>
+            )}
             <button
               type="button"
               onClick={handleOAuthConnect}
@@ -224,7 +244,7 @@ function ConnectWordPressPanel({
           </div>
         )}
 
-        {/* Self-hosted — Application Password fields */}
+        {/* Self-hosted, Application Password fields */}
         {!wpComMode && (
           <form onSubmit={handleSelfHostedSubmit} className="space-y-3">
             <div>
@@ -337,7 +357,10 @@ function CreatePanel({
       title,
       slug: slugify(title),
       meta_description: manMeta.trim(),
-      tags: manTags.split(",").map((t) => t.trim()).filter(Boolean),
+      tags: manTags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
       content_html: textToHtml(raw),
     });
   }
@@ -360,14 +383,28 @@ function CreatePanel({
           >
             {m === "manual" ? (
               <>
-                <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                <svg
+                  viewBox="0 0 16 16"
+                  className="h-3.5 w-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden
+                >
                   <path d="M2 12.5V14h1.5l7-7L9 5.5l-7 7zM13.7 4.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0l-1.1 1.1 3 3 1.1-1.1z" />
                 </svg>
                 Write yourself
               </>
             ) : (
               <>
-                <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+                <svg
+                  viewBox="0 0 16 16"
+                  className="h-3.5 w-3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden
+                >
                   <path d="M8 1v3M8 12v3M1 8h3M12 8h3M3.5 3.5l2 2M10.5 10.5l2 2M3.5 12.5l2-2M10.5 5.5l2-2" />
                 </svg>
                 Generate with AI
@@ -395,7 +432,9 @@ function CreatePanel({
           <div>
             <FieldLabel>Content</FieldLabel>
             <textarea
-              placeholder={"Write your blog post here.\n\nSeparate paragraphs with a blank line. No HTML needed."}
+              placeholder={
+                "Write your blog post here.\n\nSeparate paragraphs with a blank line. No HTML needed."
+              }
               value={manContent}
               onChange={(e) => setManContent(e.target.value)}
               rows={14}
@@ -403,12 +442,18 @@ function CreatePanel({
               required
             />
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              {manContent.trim().split(/\s+/).filter(Boolean).length} words · Blank lines create new paragraphs.
+              {manContent.trim().split(/\s+/).filter(Boolean).length} words · Blank lines create new
+              paragraphs.
             </p>
           </div>
 
           <div>
-            <FieldLabel>Meta description <span className="font-normal normal-case tracking-normal text-neutral-400">(optional)</span></FieldLabel>
+            <FieldLabel>
+              Meta description{" "}
+              <span className="font-normal normal-case tracking-normal text-neutral-400">
+                (optional)
+              </span>
+            </FieldLabel>
             <input
               type="text"
               placeholder="Short SEO summary under 155 chars"
@@ -420,7 +465,12 @@ function CreatePanel({
           </div>
 
           <div>
-            <FieldLabel>Tags <span className="font-normal normal-case tracking-normal text-neutral-400">(optional, comma-separated)</span></FieldLabel>
+            <FieldLabel>
+              Tags{" "}
+              <span className="font-normal normal-case tracking-normal text-neutral-400">
+                (optional, comma-separated)
+              </span>
+            </FieldLabel>
             <input
               type="text"
               placeholder="seo, ai, content marketing"
@@ -466,7 +516,9 @@ function CreatePanel({
                   className="w-full appearance-none rounded-md border border-black/[0.1] bg-white px-3 py-2 pr-8 text-sm outline-none ring-offset-2 focus:ring-2 focus:ring-ring"
                 >
                   {TONES.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
                   ))}
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -481,7 +533,9 @@ function CreatePanel({
                   className="w-full appearance-none rounded-md border border-black/[0.1] bg-white px-3 py-2 pr-8 text-sm outline-none ring-offset-2 focus:ring-2 focus:ring-ring"
                 >
                   {WORD_COUNTS.map((w) => (
-                    <option key={w.value} value={w.value}>{w.label}</option>
+                    <option key={w.value} value={w.value}>
+                      {w.label}
+                    </option>
                   ))}
                 </select>
                 <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -496,8 +550,12 @@ function CreatePanel({
             disabled={aiLoading || !topic.trim()}
             className="flex w-full items-center justify-center gap-2 rounded-md bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:opacity-90 disabled:opacity-50"
           >
-            {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            {aiLoading ? "Generating — this may take 20–40 s…" : "Generate with AI"}
+            {aiLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {aiLoading ? "Generating, this may take 20–40 s…" : "Generate with AI"}
           </button>
         </form>
       )}
@@ -560,7 +618,10 @@ function PreviewPanel({
       <SectionCard>
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm font-semibold text-foreground">Review & publish</p>
-          <button onClick={onDiscard} className="text-xs text-muted-foreground hover:text-foreground">
+          <button
+            onClick={onDiscard}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
             ← Generate new
           </button>
         </div>
@@ -594,7 +655,12 @@ function PreviewPanel({
               rows={2}
               className="w-full resize-none rounded-md border border-black/[0.1] bg-white px-3 py-2 text-xs outline-none ring-offset-2 focus:ring-2 focus:ring-ring"
             />
-            <p className={cn("mt-0.5 text-[10px]", metaDescription.length > 155 ? "text-red-500" : "text-muted-foreground")}>
+            <p
+              className={cn(
+                "mt-0.5 text-[10px]",
+                metaDescription.length > 155 ? "text-red-500" : "text-muted-foreground",
+              )}
+            >
               {metaDescription.length} / 155 chars
             </p>
           </div>
@@ -603,7 +669,10 @@ function PreviewPanel({
             <FieldLabel>Tags</FieldLabel>
             <div className="flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border border-black/[0.1] bg-white p-2">
               {tags.map((t) => (
-                <span key={t} className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600">
+                <span
+                  key={t}
+                  className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600"
+                >
                   {t}
                   <button
                     type="button"
@@ -619,7 +688,10 @@ function PreviewPanel({
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); }
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault();
+                    addTag();
+                  }
                   if (e.key === "Backspace" && !tagInput && tags.length) {
                     setTags((prev) => prev.slice(0, -1));
                   }
@@ -650,7 +722,11 @@ function PreviewPanel({
           ))}
         </div>
 
-        {error && <div className="mt-3"><ErrorNote message={error} /></div>}
+        {error && (
+          <div className="mt-3">
+            <ErrorNote message={error} />
+          </div>
+        )}
 
         <button
           type="button"
@@ -659,7 +735,9 @@ function PreviewPanel({
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-md bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:opacity-90 disabled:opacity-50"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          {loading ? "Publishing…" : `${publishStatus === "publish" ? "Publish" : "Save draft"} to WordPress`}
+          {loading
+            ? "Publishing…"
+            : `${publishStatus === "publish" ? "Publish" : "Save draft"} to WordPress`}
         </button>
       </SectionCard>
 
@@ -724,7 +802,7 @@ function RecentPostsSidebar({
       await deleteBlogPost(runSlug, postId);
       onPostDeleted(postId);
     } catch {
-      // silently ignore — post remains in list
+      // silently ignore, post remains in list
     } finally {
       setDeletingId(null);
     }
@@ -733,14 +811,20 @@ function RecentPostsSidebar({
   return (
     <div className="space-y-4">
       <SectionCard>
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Stats — last 30 days</p>
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+          Stats, last 30 days
+        </p>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <p className="text-2xl font-bold tabular-nums text-foreground">{wpData.total_posts ?? 0}</p>
+            <p className="text-2xl font-bold tabular-nums text-foreground">
+              {wpData.total_posts ?? 0}
+            </p>
             <p className="text-[11px] text-muted-foreground">Total posts</p>
           </div>
           <div>
-            <p className="text-2xl font-bold tabular-nums text-foreground">{wpData.published_posts_30d ?? 0}</p>
+            <p className="text-2xl font-bold tabular-nums text-foreground">
+              {wpData.published_posts_30d ?? 0}
+            </p>
             <p className="text-[11px] text-muted-foreground">Published</p>
           </div>
         </div>
@@ -748,9 +832,16 @@ function RecentPostsSidebar({
 
       <SectionCard>
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">Recent posts</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+            Recent posts
+          </p>
           {wpData.site_url && (
-            <a href={wpData.site_url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
+            <a
+              href={wpData.site_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground"
+            >
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}
@@ -763,11 +854,18 @@ function RecentPostsSidebar({
               <li key={post.id} className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="truncate text-xs font-medium text-foreground">{post.title}</p>
-                  <p className="text-[11px] text-muted-foreground">{formatDate(post.published_at)}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {formatDate(post.published_at)}
+                  </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1.5">
                   {post.url && (
-                    <a href={post.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
+                    <a
+                      href={post.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   )}
@@ -798,11 +896,13 @@ function HowItWorksSidebar() {
     "Enter a topic and choose your preferred tone and post length.",
     "AI generates a full SEO-optimised blog post in seconds.",
     "Edit the title, meta description, and tags if needed.",
-    "Publish live or save as a draft — directly from this page.",
+    "Publish live or save as a draft, directly from this page.",
   ];
   return (
     <SectionCard>
-      <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">How it works</p>
+      <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+        How it works
+      </p>
       <ol className="space-y-3">
         {steps.map((s, i) => (
           <li key={i} className="flex items-start gap-2.5 text-xs text-muted-foreground">
@@ -924,7 +1024,12 @@ export default function BlogAgentPage() {
       {/* Connection status bar */}
       <div className="flex items-center justify-between rounded-lg border border-black/[0.07] bg-white px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="flex items-center gap-2.5">
-          <div className={cn("h-2 w-2 rounded-full", isConnected ? "bg-emerald-500" : "bg-neutral-300")} />
+          <div
+            className={cn(
+              "h-2 w-2 rounded-full",
+              isConnected ? "bg-emerald-500" : "bg-neutral-300",
+            )}
+          />
           <span className="text-sm font-medium text-foreground">
             {isConnected ? wpData?.site_name || "WordPress" : "WordPress not connected"}
           </span>
@@ -975,21 +1080,33 @@ export default function BlogAgentPage() {
           </div>
           <div className="flex items-center gap-3 text-xs font-medium">
             {publishResult.post_url && (
-              <a href={publishResult.post_url} target="_blank" rel="noopener noreferrer"
-                className="text-emerald-700 underline hover:text-emerald-900">
+              <a
+                href={publishResult.post_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-700 underline hover:text-emerald-900"
+              >
                 View post
               </a>
             )}
             {publishResult.edit_url && (
-              <a href={publishResult.edit_url} target="_blank" rel="noopener noreferrer"
-                className="text-emerald-700 underline hover:text-emerald-900">
+              <a
+                href={publishResult.edit_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-700 underline hover:text-emerald-900"
+              >
                 Edit in WP
               </a>
             )}
           </div>
           <button
             type="button"
-            onClick={() => { setPublishResult(null); setDraft(null); setStep("generate"); }}
+            onClick={() => {
+              setPublishResult(null);
+              setDraft(null);
+              setStep("generate");
+            }}
             className="text-emerald-600 hover:text-emerald-800"
           >
             <X className="h-3.5 w-3.5" />
@@ -1019,16 +1136,21 @@ export default function BlogAgentPage() {
                 setStep("generate");
                 loadWpStatus();
               }}
-              onDiscard={() => { setDraft(null); setStep("generate"); }}
+              onDiscard={() => {
+                setDraft(null);
+                setStep("generate");
+              }}
             />
           )}
         </div>
 
         {/* Right: sidebar */}
         <div>
-          {isConnected && wpData
-            ? <RecentPostsSidebar wpData={wpData} runSlug={slug} onPostDeleted={handlePostDeleted} />
-            : <HowItWorksSidebar />}
+          {isConnected && wpData ? (
+            <RecentPostsSidebar wpData={wpData} runSlug={slug} onPostDeleted={handlePostDeleted} />
+          ) : (
+            <HowItWorksSidebar />
+          )}
         </div>
       </div>
     </div>
