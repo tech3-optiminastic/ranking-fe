@@ -70,7 +70,7 @@ export default function ErrorBoundary({
           </div>
 
           <p className="mt-12 text-xs text-muted-foreground">
-            Free GEO check -{" "}
+            Free GEO check ,{" "}
             <Link
               href={routes.analyzer}
               className="font-medium text-primary underline-offset-4 hover:underline"

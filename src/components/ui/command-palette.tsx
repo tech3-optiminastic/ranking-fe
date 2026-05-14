@@ -119,19 +119,19 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                 />
                 <PaletteItem
                   icon={MessageSquare}
-                  label="Prompts - Actions"
+                  label="Prompts, Actions"
                   desc="Add, recheck, and do the work"
                   onSelect={() => go(`${base}/prompts/actions`)}
                 />
                 <PaletteItem
                   icon={Eye}
-                  label="Visibility - Explorer"
+                  label="Visibility, Explorer"
                   desc="Rank prompts better + ideas"
                   onSelect={() => go(`${base}/visibility/explorer`)}
                 />
                 <PaletteItem
                   icon={MessageSquare}
-                  label="Prompts - History"
+                  label="Prompts, History"
                   desc="Track all engines and results"
                   onSelect={() => go(`${base}/prompts/history`)}
                 />

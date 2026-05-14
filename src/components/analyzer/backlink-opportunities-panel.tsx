@@ -179,7 +179,7 @@ export function BacklinkOpportunitiesPanel({ slug, trackId }: BacklinkOpportunit
       )}
 
       <p className="mt-3 text-[10px] leading-snug text-muted-foreground">
-        Suggestions are AI-generated. Verify each link before submitting - sites change their
+        Suggestions are AI-generated. Verify each link before submitting, sites change their
         listing/contribution policies over time.
       </p>
     </div>

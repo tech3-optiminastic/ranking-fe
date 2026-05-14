@@ -13,7 +13,7 @@ export default function SchemaValidatorToolPage() {
         eyebrow="[ free tool · schema validator ]"
         title="Check JSON-LD coverage in"
         titleAccent="seconds"
-        description="Paste any URL and we'll scan the page for Organization, Product, Article, FAQ, and other JSON-LD schemas - flagging missing, partial, or malformed entries."
+        description="Paste any URL and we'll scan the page for Organization, Product, Article, FAQ, and other JSON-LD schemas, flagging missing, partial, or malformed entries."
         form={<SchemaValidatorInline />}
         features={[
           {

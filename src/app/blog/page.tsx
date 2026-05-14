@@ -63,7 +63,7 @@ export default async function BlogPage() {
             </h1>
             <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
               Playbooks, research, and honest guides on GEO, citation attribution, llms.txt, and the
-              schemas that actually move the needle - written by operators shipping Signalor every
+              schemas that actually move the needle, written by operators shipping Signalor every
               day.
             </p>
             <div className="mt-6 flex flex-wrap gap-2">
@@ -96,7 +96,7 @@ export default async function BlogPage() {
           <div className="mx-auto max-w-7xl text-center">
             <p className="text-4xl font-bold tracking-tight text-foreground">No blogs yet!</p>
             <p className="mt-3 text-base font-light text-muted-foreground">
-              Check back soon - posts will appear here once published.
+              Check back soon, posts will appear here once published.
             </p>
           </div>
         </section>

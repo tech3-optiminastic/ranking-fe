@@ -13,7 +13,7 @@ export default function UrlAnalyzerToolPage() {
         eyebrow="[ free tool · url analyzer ]"
         title="Score any URL for"
         titleAccent="AI visibility"
-        description="Paste a domain and see how AI engines summarize, cite, or skip it. Free - no sign-up required for the summary."
+        description="Paste a domain and see how AI engines summarize, cite, or skip it. Free, no sign-up required for the summary."
         form={<UrlAnalyzerToolInline />}
         features={[
           {
@@ -23,7 +23,7 @@ export default function UrlAnalyzerToolPage() {
           },
           {
             title: "Per-engine view",
-            description: "See how each AI surface sees the page - cited, paraphrased, or absent.",
+            description: "See how each AI surface sees the page,cited, paraphrased, or absent.",
           },
           {
             title: "Fix list",
@@ -54,7 +54,7 @@ function PreviewPerEngine() {
     <div>
       <p className="text-sm font-semibold text-foreground">Per-engine AI probes</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        ChatGPT, Claude, Gemini, and Perplexity tested against your brand prompts - see every
+        ChatGPT, Claude, Gemini, and Perplexity tested against your brand prompts, see every
         response, mention, and citation.
       </p>
     </div>

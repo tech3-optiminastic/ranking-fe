@@ -19,7 +19,7 @@ const CURRENCIES: Record<CurrencyCode, Currency> = {
   INR: { code: "INR", symbol: "₹", rate: 90.5, decimals: 0, locale: "en-IN" },
 };
 
-// Eurozone + broader EU countries — all map to EUR
+// Eurozone + broader EU countries, all map to EUR
 const EUR_COUNTRIES = new Set([
   "AT",
   "BE",

@@ -111,7 +111,7 @@ function mergeRankedIdeas(input: {
     });
   });
 
-  // AI generator: keep at medium-low — ideas, not search evidence
+  // AI generator: keep at medium-low, ideas, not search evidence
   input.ai.forEach((text, idx) => {
     const score = Math.max(15, 55 - idx * 2);
     put({
@@ -301,7 +301,7 @@ export default function PromptsRecommendationsPage() {
           <div className="flex-1 min-w-0">
             <h1 className="text-lg font-bold text-foreground">Recommendations</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              How to rank your prompts so AI engines mention <span className="text-foreground font-medium">{brandName || "your brand"}</span> more often — plus ideas you can drop straight into the tracker.
+              How to rank your prompts so AI engines mention <span className="text-foreground font-medium">{brandName || "your brand"}</span> more often, plus ideas you can drop straight into the tracker.
             </p>
           </div>
         </div>
@@ -314,7 +314,7 @@ export default function PromptsRecommendationsPage() {
           <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
             How to rank your prompts so AI engines mention{" "}
             <span className="text-foreground font-medium">{brandName || "your brand"}</span> more
-            often - plus ideas you can drop straight into the tracker.
+            often, plus ideas you can drop straight into the tracker.
           </p>
         </div>
       </div>

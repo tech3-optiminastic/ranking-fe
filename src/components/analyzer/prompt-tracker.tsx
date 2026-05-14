@@ -25,7 +25,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -255,7 +254,7 @@ export function PromptTracker({
         const data = await getPromptRank(slug, trackId);
         setPromptRanks((p) => ({ ...p, [trackId]: data }));
       } catch {
-        // Silent — the card stays in its loading shape; user can re-expand.
+        // Silent, the card stays in its loading shape; user can re-expand.
       } finally {
         promptRankInflightRef.current.delete(trackId);
         setPromptRankLoading((p) => {
@@ -557,7 +556,7 @@ export function PromptTracker({
             <Lock className="size-3 shrink-0 text-muted-foreground" />
             <p className="min-w-0 flex-1 text-[11px] leading-snug text-muted-foreground">
               <span className="font-medium text-foreground">ChatGPT, Claude, Perplexity</span>
-              {" - "}Pro / Max.{" "}
+              {", "}Pro / Max.{" "}
               <span className="text-muted-foreground">Google and Bing on all plans.</span>
             </p>
             <Link
@@ -624,7 +623,7 @@ export function PromptTracker({
                     className={`flex size-10 shrink-0 items-center justify-center rounded-md border border-border bg-background ${ls.bg} ring-1 ${ls.ring}`}
                   >
                     <span className={`text-xs font-bold tabular-nums ${ls.text}`}>
-                      {hasResults ? score : "—"}
+                      {hasResults ? score : ","}
                     </span>
                   </div>
 
@@ -690,7 +689,7 @@ export function PromptTracker({
                     </div>
                   </div>
 
-                  {/* Engine status — brand logos */}
+                  {/* Engine status, brand logos */}
                   <div className="hidden shrink-0 items-center gap-1 sm:flex">
                     {enginesForUi.map((eng) => {
                       const res = track.results.filter((r) => r.engine === eng.key);
@@ -795,7 +794,7 @@ export function PromptTracker({
                                 <p
                                   className={`mt-0.5 text-lg font-semibold tabular-nums sm:text-xl ${bestPos > 0 ? "text-foreground" : "text-muted-foreground/50"}`}
                                 >
-                                  {bestPos > 0 ? `#${bestPos}` : "—"}
+                                  {bestPos > 0 ? `#${bestPos}` : ","}
                                 </p>
                                 <p className="mt-0.5 text-[10px] text-muted-foreground">
                                   {avgPos > 0 ? `Avg ${avgPos.toFixed(1)}` : "No rank data"}
@@ -1206,7 +1205,7 @@ export function PromptTracker({
         </div>
       )}
 
-      {/* Pagination controls — only when there's more than one page. */}
+      {/* Pagination controls, only when there's more than one page. */}
       {visibleTracks.length > PAGE_SIZE && (
         <div className="mt-3 flex items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
@@ -1554,7 +1553,6 @@ function BacklinksPreviewCard({ slug }: { slug: string }) {
   useEffect(() => {
     if (!slug) return;
     let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getBacklinkCatalog(slug)
       .then((r) => {
@@ -1594,7 +1592,7 @@ function BacklinksPreviewCard({ slug }: { slug: string }) {
           <div className="min-w-0">
             <p className="text-[12px] font-semibold text-foreground">Backlinks for this prompt</p>
             <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-              Top placements available right now - open the full page to filter, compare, and order.
+              Top placements available right now, open the full page to filter, compare, and order.
             </p>
           </div>
         </div>
@@ -1611,9 +1609,9 @@ function BacklinksPreviewCard({ slug }: { slug: string }) {
         {loading ? (
           [1, 2, 3].map((k) => (
             <div key={k} className="rounded-md border border-border/60 bg-card/60 p-2.5">
-              <Skeleton className="h-3 w-2/3" />
-              <Skeleton className="mt-1.5 h-2 w-1/3" />
-              <Skeleton className="mt-2 h-2 w-1/2" />
+              <div className="h-3 w-2/3 animate-pulse rounded bg-muted/70" />
+              <div className="mt-1.5 h-2 w-1/3 animate-pulse rounded bg-muted/50" />
+              <div className="mt-2 h-2 w-1/2 animate-pulse rounded bg-muted/40" />
             </div>
           ))
         ) : top.length === 0 ? (
@@ -1690,7 +1688,7 @@ const BACKLINK_SUBTABS: Array<{
   label: string;
   hint: string;
 }> = [
-  { key: "free", label: "Free opportunities", hint: "Submit yourself - no cost" },
+  { key: "free", label: "Free opportunities", hint: "Submit yourself, no cost" },
   { key: "buy", label: "Buy backlinks", hint: "Paid placements via providers" },
 ];
 
@@ -1849,7 +1847,11 @@ function WebRankingCard({
                     <span className="inline-flex size-4 shrink-0 items-center justify-center rounded-sm bg-muted/80 text-[9px] font-semibold tabular-nums text-muted-foreground/70">
                       {pos}
                     </span>
-                    <Skeleton className={`h-1.5 flex-1 ${isAuditing ? "" : "opacity-40"}`} />
+                    <div
+                      className={`h-1.5 flex-1 rounded bg-muted/60 ${
+                        isAuditing ? "animate-pulse" : ""
+                      }`}
+                    />
                   </li>
                 ))}
               </ul>
@@ -1953,7 +1955,7 @@ function EngineStatusIcon({
   );
 }
 
-/** KPI cell — optional orange left accent to match product theme. */
+/** KPI cell, optional orange left accent to match product theme. */
 function StatTile({
   label,
   value,

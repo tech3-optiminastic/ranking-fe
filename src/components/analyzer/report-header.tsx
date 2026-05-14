@@ -18,7 +18,7 @@ export function ReportHeader({ run }: ReportHeaderProps) {
           month: "long",
           day: "numeric",
         })}
-        {" - "}
+        {", "}
         {run.run_type === "full_site" ? "Full Site Audit" : "Single Page Analysis"}
       </p>
     </div>

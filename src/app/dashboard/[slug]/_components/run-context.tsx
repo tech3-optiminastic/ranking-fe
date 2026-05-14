@@ -72,7 +72,7 @@ export function RunProvider({ slug, children }: { slug: string; children: React.
         fMap[r.recommendation_id] = { status: r.status, message: r.message };
       setFixResults(fMap);
 
-      // Unblock rendering now — score history loads in the background
+      // Unblock rendering now, score history loads in the background
       setLoading(false);
 
       if (detail.email) {
@@ -89,10 +89,9 @@ export function RunProvider({ slug, children }: { slug: string; children: React.
       setError(err instanceof Error ? err.message : "Failed to load analysis");
       setLoading(false);
     }
-  }, [slug, router]);
+  }, [slug]);
 
   // Initial fetch
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     fetchData();
   }, [fetchData]);

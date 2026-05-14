@@ -24,7 +24,7 @@ export function IntegrationHero() {
                 in
               </span>
             </span>{" "}
-            your stack - make <AiChip /> see{" "}
+            your stack, make <AiChip /> see{" "}
             <span className="relative whitespace-nowrap text-[#e04a3d]">
               the same truth
               <span
@@ -37,7 +37,7 @@ export function IntegrationHero() {
 
           <p className="mt-5 max-w-lg text-base font-light leading-relaxed text-accent-foreground sm:text-lg">
             Connect Shopify and WordPress so GEO audits, scores, and recommendations use live
-            catalog and CMS data - not a stale crawl snapshot.
+            catalog and CMS data,not a stale crawl snapshot.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">

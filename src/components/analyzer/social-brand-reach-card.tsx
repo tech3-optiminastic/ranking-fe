@@ -146,7 +146,7 @@ function formatFollowers(n: number): string {
 }
 
 /* Country-name → ISO alpha-2 fallback for free-text run.country values
- * like "India", "United States", "USA". Only the most common entries — for
+ * like "India", "United States", "USA". Only the most common entries, for
  * everything else we rely on the TLD detector or fall back to the empty state. */
 const COUNTRY_NAME_TO_ALPHA2: Record<string, string> = {
   india: "IN",
@@ -877,7 +877,7 @@ export function SocialBrandReachCard({
             ))}
           {regionData.length === 0 && (
             <p className="text-[9px] leading-snug text-muted-foreground">
-              No geographic signals yet - run a visibility check.
+              No geographic signals yet, run a visibility check.
             </p>
           )}
           {!gaCountries && regionData.length > 0 && (

@@ -51,7 +51,7 @@ export function PricingHero({
 
         <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
           Every tier includes GEO scoring, recommendations, and exports. Upgrade for more projects,
-          prompts, AI engines, and integrations - pricing in GBP, billed monthly.
+          prompts, AI engines, and integrations,pricing in GBP, billed monthly.
         </p>
 
         <p className="mt-4 max-w-xl text-sm font-medium text-muted-foreground">
@@ -78,7 +78,7 @@ export function PricingHero({
               "mt-8 max-w-lg rounded-lg border border-emerald-200/80 bg-emerald-50/90 px-4 py-3 text-sm leading-relaxed text-emerald-950",
             )}
           >
-            You&apos;ve finished setup - choose a plan below to launch GEO analysis from the final
+            You&apos;ve finished setup, choose a plan below to launch GEO analysis from the final
             step.
           </p>
         ) : null}

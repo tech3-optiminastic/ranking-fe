@@ -40,12 +40,12 @@ export function WordPressConnectForm({ email, onConnected }: WordPressConnectFor
       );
 
       if (response?.oauth_url) {
-        // WordPress.com — redirect to OAuth page (same tab, like Shopify)
+        // WordPress.com, redirect to OAuth page (same tab, like Shopify)
         window.location.href = response.oauth_url;
         return;
       }
 
-      // Self-hosted — already connected
+      // Self-hosted, already connected
       onConnected();
     } catch (err: unknown) {
       const message =
@@ -81,7 +81,7 @@ export function WordPressConnectForm({ email, onConnected }: WordPressConnectFor
 
       {isWpcom ? (
         <div className="rounded-md border border-blue-500/30 bg-blue-500/10 p-3 text-sm text-blue-700 dark:text-blue-400">
-          WordPress.com detected - you&apos;ll be redirected to authorize via OAuth. No username or
+          WordPress.com detected, you&apos;ll be redirected to authorize via OAuth. No username or
           password needed here.
         </div>
       ) : (

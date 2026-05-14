@@ -114,7 +114,7 @@ export default function ProjectAnalyticsPage() {
                     {typeof gaIntegration.metadata?.property_name === "string" &&
                       gaIntegration.metadata.property_name && (
                         <span className="text-sm text-muted-foreground">
-                          - {gaIntegration.metadata.property_name}
+                          , {gaIntegration.metadata.property_name}
                         </span>
                       )}
                   </div>

@@ -47,7 +47,7 @@ export function AgentLogPanel({ slug }: { slug: string }) {
         <h3 className="mt-4 text-lg font-semibold text-foreground">AI crawler activity</h3>
         <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-muted-foreground">
           See which AI bots (GPTBot, ClaudeBot, PerplexityBot, and more) are actually reading your
-          pages - and when they first cite your content. Connect your CDN to stream request logs.
+          pages, and when they first cite your content. Connect your CDN to stream request logs.
         </p>
       </div>
 

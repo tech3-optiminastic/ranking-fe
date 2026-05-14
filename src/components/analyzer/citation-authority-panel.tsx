@@ -28,11 +28,8 @@ export function CitationAuthorityPanel({ slug, trackId }: CitationAuthorityPanel
 
   useEffect(() => {
     let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
-
     setError(null);
-
     setErrorCode(null);
 
     getPromptBacklinks(slug, trackId)
@@ -100,7 +97,7 @@ export function CitationAuthorityPanel({ slug, trackId }: CitationAuthorityPanel
         <div className="rounded-md border border-dashed border-border bg-muted/10 px-4 py-8 text-center">
           <p className="text-sm font-medium text-foreground">No citations yet for this prompt</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Run the prompt across the AI engines first - citation authority is measured against the
+            Run the prompt across the AI engines first, citation authority is measured against the
             domains they cite.
           </p>
         </div>
@@ -193,20 +190,20 @@ function BacklinkTableRow({
         </div>
       </td>
       <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
-        {row.citation_count > 0 ? row.citation_count : "—"}
+        {row.citation_count > 0 ? row.citation_count : ","}
       </td>
       <td className="px-3 py-2 text-right tabular-nums font-medium text-foreground">
-        {row.has_data ? formatNumber(row.referring_domains) : "—"}
+        {row.has_data ? formatNumber(row.referring_domains) : ","}
       </td>
       <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
-        {row.has_data ? formatNumber(row.backlinks) : "—"}
+        {row.has_data ? formatNumber(row.backlinks) : ","}
       </td>
       <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
-        {row.has_data ? row.rank : "—"}
+        {row.has_data ? row.rank : ","}
       </td>
       <td className="px-3 py-2 text-right tabular-nums">
         {gap === null || !row.has_data ? (
-          <span className="text-muted-foreground">—</span>
+          <span className="text-muted-foreground">,</span>
         ) : gap > 0 ? (
           <span className="font-medium text-amber-600 dark:text-amber-400">
             +{formatNumber(gap)}

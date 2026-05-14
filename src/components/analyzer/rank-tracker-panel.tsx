@@ -241,7 +241,7 @@ export function RankTrackerPanel({
               />
             ) : (
               <div className="rounded-xl border border-dashed border-border/60 bg-card/40 p-10 text-center text-sm text-muted-foreground">
-                Select a query on the left to see what&apos;s ranking.
+                Select a query on the left to see what's ranking.
               </div>
             )}
           </div>
@@ -275,10 +275,10 @@ function Header({
       <div className="min-w-0">
         <p className="text-[11px] uppercase tracking-[0.22em] text-neutral-500">Ranking</p>
         <h2 className="mt-0.5 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-          What&apos;s ranking for your brand
+          What's ranking for your brand
         </h2>
         <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-muted-foreground">
-          10 queries tailored to your brand - we fetch the top Google, Reddit, and Quora results and
+          10 queries tailored to your brand, we fetch the top Google, Reddit, and Quora results and
           flag where you (and your competitors) show up.
         </p>
       </div>
@@ -320,7 +320,7 @@ function EmptyState({ onStart, starting }: { onStart: () => void; starting: bool
       <div className="max-w-md">
         <p className="text-sm font-medium text-foreground">No rank audit yet</p>
         <p className="mt-1 text-[13px] text-muted-foreground">
-          Run one to see what&apos;s ranking for 10 queries tailored to your brand - across Google,
+          Run one to see what's ranking for 10 queries tailored to your brand, across Google,
           Reddit, and Quora.
         </p>
       </div>

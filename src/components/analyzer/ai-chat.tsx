@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { MessageSquare, Send, Loader2, X, Compass, ChevronLeft } from "@/components/icons";
 import { config } from "@/lib/config";
 
-/** Parse AI reply into formatted React elements — handles **bold**, headings, lists, numbered steps */
+/** Parse AI reply into formatted React elements, handles **bold**, headings, lists, numbered steps */
 function formatAiReply(text: string) {
   const lines = text.split("\n");
   const elements: React.ReactNode[] = [];
@@ -134,7 +134,7 @@ function renderInline(text: string): React.ReactNode {
       continue;
     }
 
-    // No more matches — push the rest
+    // No more matches, push the rest
     parts.push(<span key={key++}>{remaining}</span>);
     break;
   }
@@ -159,7 +159,7 @@ export function AiChat({ slug, brandName, open, onClose, initialMessage }: AiCha
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: `Hi! I'm your GEO assistant. I have full context of ${brandName || "your site"}'s analysis - scores, recommendations, and what to improve. Ask me anything!`,
+      content: `Hi! I'm your GEO assistant. I have full context of ${brandName || "your site"}'s analysis, scores, recommendations, and what to improve. Ask me anything!`,
     },
   ]);
   const [input, setInput] = useState("");

@@ -85,7 +85,7 @@ const FALLBACK_GUIDE_STEPS: RecommendationStep[] = [
   {
     n: 3,
     title: "Run the live check",
-    detail: "Tap Verify changes - we fetch your live page and confirm the fix.",
+    detail: "Tap Verify changes, we fetch your live page and confirm the fix.",
     xp: 0,
   },
 ];
@@ -94,7 +94,7 @@ type CircleVisual =
   | "idle"
   | "user_done"
   | "loading"
-  /** Muted check: step reached in the scan sequence — not "passed" until the server responds */
+  /** Muted check: step reached in the scan sequence, not "passed" until the server responds */
   | "pending_queue"
   | "scan_warn"
   | "scan_fail"
@@ -169,7 +169,7 @@ function StepStatusCircle({
           circleDisplay,
           "border-muted-foreground/35 bg-muted/60 text-muted-foreground",
         )}
-        title="Waiting on live page check - not verified yet"
+        title="Waiting on live page check, not verified yet"
       >
         <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
       </div>
@@ -224,7 +224,7 @@ function StepStatusCircle({
           "border-sky-500/70 bg-sky-500/10 text-sky-600 hover:bg-sky-500/20 dark:text-sky-400",
           "disabled:opacity-60",
         )}
-        title="Marked done on your side - tap to undo"
+        title="Marked done on your side, tap to undo"
       >
         <Check className="h-3.5 w-3.5" strokeWidth={3} />
       </Button>
@@ -268,7 +268,7 @@ function circleStateForStep(
   const scanning = isFixingThis && sweep && sweep.recId === recId;
   if (scanning) {
     // After the step-by-step sweep, keep the last circle spinning until the API returns
-    // (avoid flashing green — emerald only for server_ok after success).
+    // (avoid flashing green, emerald only for server_ok after success).
     if (sweep.index >= totalSteps) {
       if (stepIndex === totalSteps - 1) return "loading";
       return "pending_queue";
@@ -296,7 +296,7 @@ interface RecommendationsPanelProps {
   slug?: string;
   email?: string;
   orgId?: number;
-  /** "shopify" | "wordpress" | undefined — detected from run URL or integration */
+  /** "shopify" | "wordpress" | undefined, detected from run URL or integration */
   platform?: "shopify" | "wordpress";
   initialFixResults?: Record<number, { status: string; message: string }>;
   onFixResult?: (recId: number, result: { status: string; message: string }) => void;
@@ -491,7 +491,7 @@ export function RecommendationsPanel({
         return;
       }
 
-      // Manual fixes — show walkthrough, user will click Verify after doing it
+      // Manual fixes, show walkthrough, user will click Verify after doing it
       if (result.status === "manual") {
         const manual = {
           status: "manual",
@@ -503,17 +503,17 @@ export function RecommendationsPanel({
         return;
       }
 
-      // Step 2: Auto-fix applied — verify on live page
+      // Step 2: Auto-fix applied, verify on live page
       try {
         const verify = await verifyFix(slug, recId);
         const normalized = { status: verify.status, message: verify.message || result.message };
         setFixResults((prev) => ({ ...prev, [recId]: normalized }));
         onFixResult?.(recId, normalized);
       } catch {
-        // Fix applied but verify failed — still mark as success from plugin
+        // Fix applied but verify failed, still mark as success from plugin
         const partial = {
           status: result.status,
-          message: `${result.message} (verification pending - changes may take a moment to appear)`,
+          message: `${result.message} (verification pending, changes may take a moment to appear)`,
         };
         setFixResults((prev) => ({ ...prev, [recId]: partial }));
         onFixResult?.(recId, partial);
@@ -832,7 +832,7 @@ export function RecommendationsPanel({
                       </TableCell>
                       <TableCell className="hidden align-middle lg:table-cell">
                         <span className="line-clamp-2 text-xs text-muted-foreground">
-                          {rec.impact_estimate || "—"}
+                          {rec.impact_estimate || ","}
                         </span>
                       </TableCell>
                       <TableCell className="align-middle">{statusCell}</TableCell>
@@ -944,7 +944,7 @@ export function RecommendationsPanel({
                               </div>
                             )}
 
-                            {/* Manual: no steps data — show generic guidance */}
+                            {/* Manual: no steps data, show generic guidance */}
                             {!rec.can_auto_fix && (!rec.steps || rec.steps.length === 0) && (
                               <div className="mb-4 bg-muted/50 border border-border p-3">
                                 <p className="text-[11px] font-semibold text-foreground uppercase tracking-wide mb-2">
@@ -964,7 +964,7 @@ export function RecommendationsPanel({
                               </div>
                             )}
 
-                            {/* Fix result message — hide previous failure while live verify runs so Reason appears only after the step sweep finishes */}
+                            {/* Fix result message, hide previous failure while live verify runs so Reason appears only after the step sweep finishes */}
                             {fixResult && !(fixResult.status === "failed" && isFixing) && (
                               <div
                                 className={`rounded-lg px-3 py-2 text-xs mb-3 ${
@@ -1077,7 +1077,7 @@ export function RecommendationsPanel({
                               fixResult.status === "failed" ||
                               fixResult.status === "manual") && (
                               <div className="flex flex-wrap items-center gap-2">
-                                {/* Auto Fix — only for auto-fixable items that haven't returned manual */}
+                                {/* Auto Fix, only for auto-fixable items that haven't returned manual */}
                                 {rec.can_auto_fix &&
                                   slug &&
                                   email &&
@@ -1123,7 +1123,7 @@ export function RecommendationsPanel({
                                       </Button>
                                     </>
                                   )}
-                                {/* Verify + Ask in Chat — shown for manual results OR non-auto-fixable items */}
+                                {/* Verify + Ask in Chat, shown for manual results OR non-auto-fixable items */}
                                 {(fixResult?.status === "manual" || !rec.can_auto_fix) && (
                                   <>
                                     <Button
@@ -1214,7 +1214,7 @@ function ActionContent({ action }: { action: string }) {
                 {num}
               </span>
               <span className="font-medium text-foreground">
-                {trimmed.replace(/^STEP \d+ — ?/i, "")}
+                {trimmed.replace(/^STEP \d+, ?/i, "")}
               </span>
             </div>
           );

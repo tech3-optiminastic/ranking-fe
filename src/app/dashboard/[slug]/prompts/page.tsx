@@ -57,7 +57,7 @@ export default function PromptsOverviewPage() {
             </div>
             <p className="text-sm text-muted-foreground">
               See how AI models and search engines respond to queries about your brand.
-              Scored with the 2026 AI Visibility Framework - Authority, Content Quality &amp; Structural signals.
+              Scored with the 2026 AI Visibility Framework, Authority, Content Quality &amp; Structural signals.
             </p>
           </div>
 
@@ -96,7 +96,7 @@ export default function PromptsOverviewPage() {
         </h2>
         <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
           See how AI models and search engines respond to queries about your brand. Scored with the
-          2026 AI Visibility Framework - Authority, Content Quality &amp; Structural signals.
+          2026 AI Visibility Framework, Authority, Content Quality &amp; Structural signals.
         </p>
       </div>
 

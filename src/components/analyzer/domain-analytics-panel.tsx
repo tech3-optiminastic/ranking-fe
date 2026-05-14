@@ -173,7 +173,7 @@ export function DomainAnalyticsPanel({ slug }: DomainAnalyticsPanelProps) {
           </h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
             Estimated organic traffic for{" "}
-            <span className="font-medium text-foreground">{snapshot.domain}</span> - sourced from
+            <span className="font-medium text-foreground">{snapshot.domain}</span> , sourced from
             DataForSEO, no GA connection needed.
             {snapshot.synced_at ? ` · Synced ${relativeTime(snapshot.synced_at)}` : null}
           </p>
@@ -278,7 +278,7 @@ function KeywordsTable({ keywords }: { keywords: DomainAnalyticsSnapshot["top_ke
                 >
                   <td className="px-4 py-2 truncate max-w-[220px] text-foreground">{k.keyword}</td>
                   <td className="px-2 py-2 text-right tabular-nums text-muted-foreground">
-                    {k.position || "—"}
+                    {k.position || ","}
                   </td>
                   <td className="px-4 py-2 text-right tabular-nums text-muted-foreground">
                     {formatNumber(k.search_volume)}

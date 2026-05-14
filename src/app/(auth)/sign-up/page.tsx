@@ -51,7 +51,7 @@ const STEP_HERO: Record<OnboardingStep, { headline: string; sub: string; badge: 
   },
   "company-info": {
     headline: "Company details",
-    sub: "Almost done - add your organization.",
+    sub: "Almost done, add your organization.",
     badge: "Profile",
   },
   complete: {
@@ -91,7 +91,7 @@ function SignUpContent() {
 
   useEffect(() => {
     if (!isPending && session) {
-      // Sign-up complete — fire any pending referral redeem AND affiliate
+      // Sign-up complete, fire any pending referral redeem AND affiliate
       // attribution in parallel. Failures are non-blocking; the user still
       // reaches the dashboard.
       const email = session.user?.email;

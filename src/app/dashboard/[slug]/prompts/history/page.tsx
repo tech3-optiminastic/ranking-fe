@@ -129,7 +129,7 @@ export default function PromptsHistoryPage() {
               ) : (
                 <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-border">
                   <p className="text-xs text-muted-foreground text-center px-4">
-                    No trend data yet - recheck prompts to build history.
+                    No trend data yet, recheck prompts to build history.
                   </p>
                 </div>
               )}

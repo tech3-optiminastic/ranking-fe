@@ -123,7 +123,7 @@ export function SitemapAuditPanel({ slug }: { slug: string }) {
     return <SitemapAuditSkeleton />;
   }
 
-  // No audit yet — empty state
+  // No audit yet, empty state
   if (!audit) {
     return <EmptyAudit onStart={handleStart} starting={starting} error={error} />;
   }
@@ -163,7 +163,7 @@ export function SitemapAuditPanel({ slug }: { slug: string }) {
           <strong className="font-semibold">
             Showing first {audit.crawl_limit} of {audit.discovered_url_count}
           </strong>{" "}
-          URLs - lifting this cap is on the roadmap. Contact sales for full-site scans.
+          URLs , lifting this cap is on the roadmap. Contact sales for full-site scans.
         </div>
       ) : null}
     </div>
@@ -259,7 +259,7 @@ function SitemapAuditSkeleton() {
             key={i}
             className="flex items-center gap-2 border-b border-border/60 px-4 py-3 last:border-0"
           >
-            {/* URL col — path + title */}
+            {/* URL col, path + title */}
             <div className="shrink-0 space-y-1" style={{ width: "calc(30% - 8px)" }}>
               <Skeleton className="h-[12px] w-4/5 rounded" />
               <Skeleton className="h-[10px] w-3/5 rounded" />
@@ -274,7 +274,7 @@ function SitemapAuditSkeleton() {
               <Skeleton className="h-[11px] w-full rounded" />
               <Skeleton className="h-[10px] w-3/4 rounded" />
             </div>
-            {/* LCP / FCP / TTFB / Server — single line each */}
+            {/* LCP / FCP / TTFB / Server, single line each */}
             {[1, 2, 3, 4].map((j) => (
               <Skeleton
                 key={j}
@@ -381,7 +381,7 @@ function HeaderBar({
             Sitemap
           </p>
           <p className="truncate text-[13px] font-semibold text-foreground">
-            {audit.sitemap_url || "—"}
+            {audit.sitemap_url || ","}
           </p>
         </div>
       </div>
@@ -527,7 +527,7 @@ function VitalTile({
         <span className="text-muted-foreground">{icon}</span>
       </div>
       <p className={cn("mt-2 text-3xl font-bold tabular-nums", color)}>
-        {hasValue ? value : "—"}
+        {hasValue ? value : ","}
         {hasValue ? <span className="ml-1 text-sm font-semibold">{unit}</span> : null}
       </p>
       <div className="relative mt-4 h-1.5 overflow-hidden rounded-full bg-neutral-200">
@@ -710,7 +710,7 @@ function PagesTable({
         {running ? (
           <span className="inline-flex items-center gap-2">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            Crawling pages - results appear here as each URL finishes.
+            Crawling pages, results appear here as each URL finishes.
           </span>
         ) : (
           <>No {state} pages yet.</>
@@ -884,9 +884,9 @@ function PageDetails({ page }: { page: SitemapAuditPage }) {
           <dt className="text-muted-foreground">H1 count</dt>
           <dd className="font-medium">{page.h1_count}</dd>
           <dt className="text-muted-foreground">Canonical</dt>
-          <dd className="font-medium">{page.has_canonical ? "✓" : "—"}</dd>
+          <dd className="font-medium">{page.has_canonical ? "✓" : ","}</dd>
           <dt className="text-muted-foreground">Open Graph</dt>
-          <dd className="font-medium">{page.has_og ? "✓" : "—"}</dd>
+          <dd className="font-medium">{page.has_og ? "✓" : ","}</dd>
           <dt className="text-muted-foreground">noindex</dt>
           <dd className="font-medium">{page.is_noindex ? "yes" : "no"}</dd>
           <dt className="text-muted-foreground">GPTBot</dt>
@@ -932,7 +932,7 @@ function StatusPill({ code }: { code: number }) {
         cls,
       )}
     >
-      {code || "—"}
+      {code || ","}
     </span>
   );
 }
@@ -978,7 +978,7 @@ function vitalColor(value: number | null, [good, warn]: [number, number]): strin
 }
 
 function fmtMs(value: number | null): string {
-  if (value == null) return "—";
+  if (value == null) return ",";
   if (value >= 1000) return `${(value / 1000).toFixed(2)}s`;
   return `${Math.round(value)}ms`;
 }

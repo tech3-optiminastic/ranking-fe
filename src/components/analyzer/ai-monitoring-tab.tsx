@@ -156,7 +156,7 @@ export function AIMonitoringTab({ slug, brandName }: AIMonitoringTabProps) {
         ) : (
           <div className="flex h-20 items-center justify-center rounded-xl border border-dashed border-white/[0.08]">
             <p className="text-xs text-muted-foreground">
-              No trend data yet - re-check prompts periodically to build history
+              No trend data yet, re-check prompts periodically to build history
             </p>
           </div>
         )}

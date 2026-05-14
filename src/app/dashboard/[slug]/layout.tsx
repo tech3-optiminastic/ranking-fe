@@ -20,7 +20,9 @@ import {
   User,
   Settings,
   CreditCard,
+  PlugZap,
   ArrowLeft,
+  Bell,
   Building2,
   ChevronsUpDown,
   Check,
@@ -47,7 +49,7 @@ import { cn } from "@/lib/utils";
 import { DashboardAppFrame, type DashboardAppSection } from "./_components/dashboard-app-frame";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { DashboardTopBarActions } from "./_components/dashboard-top-bar-actions";
-import { TourProvider, useTour } from "@/components/onboarding/tour";
+import { TourProvider } from "@/components/onboarding/tour";
 import { ONBOARDING_STEPS } from "@/components/onboarding/onboarding-steps";
 
 type MainNavItem = {
@@ -96,6 +98,8 @@ const SETTINGS_NAV = [
   { icon: User, label: "Profile", path: "/settings/profile" },
   { icon: CreditCard, label: "Billing", path: "/settings/billing" },
   { icon: Gift, label: "Referrals", path: "/settings/referrals" },
+  { icon: PlugZap, label: "Integrations", path: "/settings/integrations" },
+  { icon: Bell, label: "Notifications", path: "/settings/notifications" },
 ];
 
 function sectionForDashboardPath(pathname: string, basePath: string): DashboardAppSection {
@@ -146,7 +150,7 @@ function sectionForDashboardPath(pathname: string, basePath: string): DashboardA
   if (rel.startsWith("/backlinks")) {
     return {
       title: "Backlinks",
-      hint: "Earn citations on the open web - free submission targets and paid placements.",
+      hint: "Earn citations on the open web, free submission targets and paid placements.",
       docsUrl: "https://docs.signalor.ai/backlinks",
     };
   }
@@ -216,10 +220,22 @@ function sectionForDashboardPath(pathname: string, basePath: string): DashboardA
       hint: "Plan, invoices, and payment method.",
     };
   }
+  if (rel.startsWith("/settings/integrations")) {
+    return {
+      title: "Integrations",
+      hint: "Workspace connections and API access.",
+    };
+  }
   if (rel.startsWith("/settings/referrals")) {
     return {
       title: "Referrals",
       hint: "Refer friends and earn discounts on your subscription.",
+    };
+  }
+  if (rel.startsWith("/settings/notifications")) {
+    return {
+      title: "Notifications",
+      hint: "Email and in-app alert preferences.",
     };
   }
   if (rel.startsWith("/settings")) {
@@ -229,23 +245,6 @@ function sectionForDashboardPath(pathname: string, basePath: string): DashboardA
     };
   }
   return { title: "Dashboard", hint: "" };
-}
-
-function RestartTourButton({ onClick }: { onClick?: () => void }) {
-  const { start } = useTour();
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        start();
-        onClick?.();
-      }}
-      className="flex w-full items-center gap-2.5 px-2 py-1.5 text-left text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-    >
-      <Compass className="size-3.5" />
-      Restart tour
-    </button>
-  );
 }
 
 function AnalysisGate({ children }: { children: React.ReactNode }) {
@@ -595,7 +594,6 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
                 <Settings className="size-3.5" />
                 Settings
               </Link>
-              <RestartTourButton onClick={() => setUserMenuOpen(false)} />
             </div>
           </div>
         ) : null}
@@ -654,10 +652,10 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
             {/* <footer className="mt-10 flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-0 py-6 text-[11px] text-muted-foreground">
               <p>Copyright &copy; 2026 Signalor Ltd.</p>
               <div className="flex flex-wrap items-center gap-4">
-                <a href="/privacy-policy" className="transition hover:text-foreground">
+                <a href="/policy" className="transition hover:text-foreground">
                   Privacy Policy
                 </a>
-                <a href="/terms-and-conditions" className="transition hover:text-foreground">
+                <a href="/terms" className="transition hover:text-foreground">
                   Terms & conditions
                 </a>
                 <a href="#" className="transition hover:text-foreground">

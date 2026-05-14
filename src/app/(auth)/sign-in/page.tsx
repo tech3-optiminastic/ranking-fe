@@ -33,7 +33,7 @@ const STEP_HERO: Record<
 > = {
   "auth-method": {
     headline: "Sign in",
-    sub: "Welcome back - continue with Google or use your email.",
+    sub: "Welcome back, continue with Google or use your email.",
     badge: "Sign in",
   },
   "otp-verify": {
@@ -53,7 +53,7 @@ export default function SignInPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
 
-  // Initialise store once on mount only — must not re-run on session refetch
+  // Initialise store once on mount only, must not re-run on session refetch
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     reset();

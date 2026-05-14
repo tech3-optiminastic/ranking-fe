@@ -47,7 +47,7 @@ export function LandingTestimonials() {
         </h2>
         <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
           Real outcomes from growth, content, and DTC teams shipping Signalor into their existing
-          workflow - not another dashboard to babysit.
+          workflow, not another dashboard to babysit.
         </p>
       </div>
 

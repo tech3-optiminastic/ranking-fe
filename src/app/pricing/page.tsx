@@ -24,7 +24,6 @@ import { PricingHero } from "@/components/pricing/pricing-hero";
 import { PricingStatsSection } from "@/components/pricing/pricing-stats-section";
 import { PRICING_FAQ_ITEMS } from "@/lib/pricing-marketing-content";
 import { Button } from "@/components/ui/button";
-import { CurrencyToggle } from "@/components/pricing/currency-toggle";
 import { cn } from "@/lib/utils";
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -129,12 +128,7 @@ function PricingPageInner() {
   const [checkoutDodoMode, setCheckoutDodoMode] = useState<DodoMode | null>(null);
   const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
   const [livePrices, setLivePrices] = useState<Record<string, DodoPlanPrice | null> | null>(null);
-  const {
-    currency,
-    ready: currencyReady,
-    country: detectedCountry,
-    selectCurrency,
-  } = useCurrency();
+  const { currency, ready: currencyReady, country: detectedCountry } = useCurrency();
 
   useEffect(() => {
     getPlanPrices()
@@ -150,7 +144,6 @@ function PricingPageInner() {
 
   useEffect(() => {
     if (isPending || !session) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentPlanId(null);
       return;
     }
@@ -241,17 +234,10 @@ function PricingPageInner() {
             </span>
           </h2>
           <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
-            Start free, upgrade when your GEO program outgrows the Starter slots - cancel any time.
+            Start free, upgrade when your GEO program outgrows the Starter slots,cancel any time.
           </p>
 
-          <div className="mt-8 flex items-center justify-between gap-4">
-            <p className="text-[13px] text-muted-foreground">
-              Prices shown in your local currency - charged in GBP at checkout.
-            </p>
-            <CurrencyToggle currency={currency} onSelect={selectCurrency} />
-          </div>
-
-          <div className="mt-8">
+          <div className="mt-10">
             {error ? (
               <div className="mb-10 max-w-lg mx-auto space-y-2">
                 <p className="rounded-lg border border-destructive/25 bg-destructive/5 px-4 py-3 text-center text-sm text-destructive">
@@ -275,7 +261,7 @@ function PricingPageInner() {
               </div>
             ) : null}
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-0 md:grid-cols-3">
               {PLANS.map((plan) => {
                 const isLoading = loadingPlan === plan.id;
                 const isCurrent = currentPlanId === plan.id;
@@ -312,7 +298,7 @@ function PricingPageInner() {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
                         });
-                  isApprox = !!useLocal;
+                  isApprox = !!useLocal; // localized total is an FX estimate
                 } else {
                   displaySymbol = currency.symbol;
                   displayCurrencyCode = currency.code;
@@ -326,30 +312,30 @@ function PricingPageInner() {
                   <div
                     key={plan.id}
                     className={cn(
-                      "relative flex flex-col rounded-2xl px-8 py-10",
+                      "relative flex flex-col px-8 py-10 md:px-10 md:py-12 border border-black/6",
                       isCurrent
-                        ? "border-2 border-emerald-500 bg-card shadow-[0_12px_40px_rgba(16,185,129,0.15)]"
+                        ? "bg-gradient-to-br from-emerald-50 via-white to-emerald-100/60 md:z-10 md:-my-2 md:shadow-[0_12px_40px_-12px_rgba(16,185,129,0.25)] ring-2 ring-emerald-500/40"
                         : plan.popular
-                          ? "border-2 border-primary bg-card shadow-[0_12px_40px_rgba(224,74,61,0.18)]"
-                          : "border border-border bg-card shadow-sm",
+                          ? "bg-gradient-to-br from-primary/5 via-white to-primary/10 md:z-10 md:-my-2 md:shadow-[0_12px_40px_-12px_rgba(224,74,61,0.25)]"
+                          : "bg-neutral-50/50",
                     )}
                   >
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                    <div className="mb-1 flex items-center gap-2.5">
+                      <h3 className="text-2xl font-bold tracking-tight text-foreground">
                         {plan.label}
                       </h3>
                       {isCurrent ? (
-                        <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 text-[10px] font-semibold text-white">
+                        <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 text-[11px] font-semibold text-white">
                           Current Plan
                         </span>
                       ) : plan.popular ? (
-                        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-primary">
+                        <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
                           Most Popular
                         </span>
                       ) : null}
                     </div>
 
-                    <p className="mt-2 text-[13px] font-light leading-relaxed text-muted-foreground">
+                    <p className="mt-2 max-w-[260px] text-[13px] font-light leading-relaxed text-muted-foreground">
                       {plan.description}
                     </p>
 
@@ -369,7 +355,7 @@ function PricingPageInner() {
                       </span>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      per month
+                      Per month
                       {live && isApprox
                         ? ` \u00B7 approx. \u2014 billed in ${live.currency.toUpperCase()}`
                         : isApprox && displayCurrencyCode
@@ -377,16 +363,11 @@ function PricingPageInner() {
                           : ""}
                     </p>
 
-                    <hr className="my-6 border-border" />
-
-                    <div className="flex flex-1 flex-col gap-3">
+                    <div className="mt-8 flex flex-1 flex-col gap-3">
                       {plan.features.map((f) => (
                         <div key={f} className="flex items-start gap-2.5">
                           <Check
-                            className={cn(
-                              "mt-0.5 h-4 w-4 shrink-0",
-                              plan.popular || isCurrent ? "text-primary" : "text-muted-foreground",
-                            )}
+                            className="mt-0.5 h-4 w-4 shrink-0 text-foreground"
                             strokeWidth={2.25}
                             aria-hidden
                           />
@@ -411,18 +392,18 @@ function PricingPageInner() {
                       ) : null}
                     </div>
 
-                    <div className="mt-8">
+                    <div className="mt-10">
                       <Button
                         type="button"
                         onClick={() => handleSubscribe(plan.id)}
                         disabled={!!loadingPlan || isCurrent}
                         className={cn(
-                          "h-12 w-full rounded-xl text-sm font-semibold",
+                          "h-12 w-full rounded-lg text-sm font-semibold shadow-sm",
                           isCurrent
                             ? "bg-emerald-600 text-white hover:brightness-110 disabled:opacity-100"
                             : plan.popular
                               ? "bg-primary text-white hover:brightness-110"
-                              : "border border-border bg-neutral-100 text-foreground hover:bg-neutral-200",
+                              : "border border-black/10 bg-white text-foreground hover:bg-neutral-50",
                         )}
                       >
                         {isLoading ? (
@@ -444,7 +425,7 @@ function PricingPageInner() {
             <p className="mt-10 text-center text-[11px] font-medium text-muted-foreground">
               {currency.code === "EUR"
                 ? "All prices in EUR. Secure payment. Cancel anytime."
-                : `Prices shown in ${currency.code} - indicative only. Charged in EUR at checkout. Cancel anytime.`}
+                : `Prices shown in ${currency.code}, indicative only. Charged in EUR at checkout. Cancel anytime.`}
             </p>
           </div>
         </div>

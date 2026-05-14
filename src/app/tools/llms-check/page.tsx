@@ -13,7 +13,7 @@ export default function LlmsCheckToolPage() {
         eyebrow="[ free tool · llm checker ]"
         title="See if AI can find and cite"
         titleAccent="your site"
-        description="Enter a domain and we'll check llms.txt, robots.txt AI-bot rules, sitemap, and on-page schema - an honest LLM-readiness score, free."
+        description="Enter a domain and we'll check llms.txt, robots.txt AI-bot rules, sitemap, and on-page schema, an honest LLM-readiness score, free."
         form={<LlmsCheckInline />}
         features={[
           {
@@ -34,7 +34,7 @@ export default function LlmsCheckToolPage() {
           { title: "Free forever", description: "Run unlimited checks without an account." },
         ]}
         previewEyebrow="[ what's inside the full report ]"
-        previewTitle="Go beyond readiness -"
+        previewTitle="Go beyond readiness ,"
         previewTitleAccent="real AI probes"
         previewDescription="The free tool shows crawlability and schema signals. Sign up or upgrade to run live probes across ChatGPT, Claude, Gemini, and Perplexity."
         previewRows={[

@@ -144,7 +144,7 @@ export function LandingPricingTeaser() {
           </span>
         </h2>
         <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
-          Cancel anytime. No setup fees, no seats, no surprise usage bills - just one clear monthly
+          Cancel anytime. No setup fees, no seats, no surprise usage bills, just one clear monthly
           number
           {baseCcy
             ? userCcy && userCcy !== baseCcy
@@ -159,8 +159,8 @@ export function LandingPricingTeaser() {
 
       <ScreenHR />
 
-      <div className="mx-auto max-w-7xl px-6 pb-14 lg:px-12">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="mx-auto max-w-7xl bg-black-10">
+        <div className="grid grid-cols-1 divide-y divide-black/6 md:grid-cols-3 md:divide-x md:divide-y-0">
           {TEASER_PLANS.map((p) => {
             const live = livePrices?.[p.id] ?? null;
             const localized = localizedPrice(live, userCcy);
@@ -175,39 +175,38 @@ export function LandingPricingTeaser() {
               <div
                 key={p.label}
                 className={cn(
-                  "relative flex flex-col gap-5 rounded-2xl px-7 py-10",
+                  "relative flex flex-col gap-5 px-6 py-10 md:px-8 md:py-12 lg:px-10",
                   p.popular
-                    ? "border-2 border-primary bg-card shadow-[0_12px_40px_rgba(224,74,61,0.15)]"
-                    : "border border-border bg-card shadow-sm",
+                    ? "bg-gradient-to-br from-primary/5 via-white to-primary/10"
+                    : "bg-white",
                 )}
               >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold tracking-tight text-foreground md:text-xl">
                     {p.label}
                   </h3>
                   {p.popular ? (
-                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-primary">
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                       Most Popular
                     </span>
                   ) : null}
                 </div>
-                <div>
-                  <div className="flex items-start">
-                    <span className="mt-1.5 text-base font-semibold text-foreground">{symbol}</span>
-                    <span
-                      className={cn(
-                        "ml-0.5 text-4xl font-bold tabular-nums tracking-tight transition-opacity duration-300",
-                        localized || currencyReady
-                          ? "text-foreground opacity-100"
-                          : "text-foreground opacity-40",
-                      )}
-                    >
-                      {amountLabel}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-sm text-muted-foreground">per month</p>
+                <div className="flex items-start">
+                  <span className="mt-1.5 text-base font-semibold text-foreground">{symbol}</span>
+                  <span
+                    className={cn(
+                      "ml-0.5 text-4xl font-bold tabular-nums tracking-tight transition-opacity duration-300",
+                      localized || currencyReady
+                        ? "text-foreground opacity-100"
+                        : "text-foreground opacity-40",
+                    )}
+                  >
+                    {amountLabel}
+                  </span>
+                  <span className="ml-2 mt-4 text-xs font-medium text-muted-foreground">
+                    / month
+                  </span>
                 </div>
-                <hr className="border-border" />
                 <p className="text-[13px] leading-relaxed text-muted-foreground">{p.tagline}</p>
                 <ul className="space-y-2.5">
                   {p.features.map((feature) => (
@@ -216,10 +215,7 @@ export function LandingPricingTeaser() {
                       className="flex items-start gap-2 text-[13px] leading-snug text-accent-foreground"
                     >
                       <Check
-                        className={cn(
-                          "mt-0.5 h-3.5 w-3.5 shrink-0",
-                          p.popular ? "text-primary" : "text-muted-foreground",
-                        )}
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary"
                         strokeWidth={2.5}
                         aria-hidden
                       />
@@ -229,15 +225,10 @@ export function LandingPricingTeaser() {
                 </ul>
                 <Link
                   href="/pricing"
-                  className={cn(
-                    "mt-auto inline-flex h-10 items-center justify-center rounded-xl text-sm font-semibold transition-colors",
-                    p.popular
-                      ? "bg-primary text-white hover:brightness-110"
-                      : "border border-border bg-neutral-100 text-foreground hover:bg-neutral-200",
-                  )}
+                  className="mt-auto inline-flex items-center gap-1 text-[12px] font-semibold text-primary hover:underline"
                 >
-                  Get started
-                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" aria-hidden />
+                  See full plan
+                  <ArrowRight className="h-3 w-3" aria-hidden />
                 </Link>
               </div>
             );

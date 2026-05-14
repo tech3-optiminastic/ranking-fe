@@ -4,7 +4,7 @@ import type { LucideIcon } from "@/components/icons";
 export const INTEGRATIONS_SITE = {
   title: "Recommendations",
   description:
-    "Prioritized fixes ranked by impact on your GEO score and citations - schema, structure, content, and trust in one queue.",
+    "Prioritized fixes ranked by impact on your GEO score and citations, schema, structure, content, and trust in one queue.",
 } as const;
 
 export const INTEGRATIONS_HERO = {
@@ -32,7 +32,7 @@ export const INTEGRATIONS_HUB_CARDS: {
     href: "/integration/shopify",
     title: "Shopify",
     description:
-      "One-click GEO fixes for product pages, schema, and content - live on your storefront without extra engineering.",
+      "One-click GEO fixes for product pages, schema, and content, live on your storefront without extra engineering.",
     Icon: Plug,
     cta: "Open Shopify app",
   },
@@ -65,7 +65,7 @@ export const INTEGRATIONS_CAPABILITY_ROWS = [
     icon: Plug,
     title: "CMS publishing",
     description:
-      "Ship approved schema, meta, and content fixes directly to Shopify and WordPress - no copy-paste tickets.",
+      "Ship approved schema, meta, and content fixes directly to Shopify and WordPress, no copy-paste tickets.",
   },
   {
     icon: Zap,
@@ -99,7 +99,7 @@ export const INTEGRATIONS_FEATURE_CELLS = [
   {
     title: "Prioritized fix queue",
     description:
-      "Every recommendation ranked by GEO impact and effort - ship what moves citations first, not what is easiest to click.",
+      "Every recommendation ranked by GEO impact and effort, ship what moves citations first, not what is easiest to click.",
     mock: {
       kind: "impactList" as const,
       items: [
@@ -133,7 +133,7 @@ export const INTEGRATIONS_FEATURE_CELLS = [
   {
     title: "Impact-ranked backlog",
     description:
-      "See every open recommendation alongside estimated GEO lift - so PMs, engineers, and SEOs work the same priority list.",
+      "See every open recommendation alongside estimated GEO lift, so PMs, engineers, and SEOs work the same priority list.",
     mock: {
       kind: "impactList" as const,
       items: [
@@ -178,7 +178,7 @@ export const INTEGRATIONS_FEATURE_CELLS = [
   {
     title: "Alert routing",
     description:
-      "Citation drops, new recommendations, and schema warnings fire into Slack, email, and issue trackers - before stakeholders notice.",
+      "Citation drops, new recommendations, and schema warnings fire into Slack, email, and issue trackers, before stakeholders notice.",
     mock: {
       kind: "alertList" as const,
       items: [
@@ -209,7 +209,7 @@ export const INTEGRATIONS_FEATURE_CELLS = [
   {
     title: "API & webhooks",
     description:
-      "Pull scores, recommendations, and run history into internal dashboards or external BI - with stable, typed endpoints.",
+      "Pull scores, recommendations, and run history into internal dashboards or external BI,with stable, typed endpoints.",
     mock: {
       kind: "citationBar" as const,
       leftLabel: "API coverage",
@@ -225,7 +225,7 @@ export const INTEGRATIONS_FEATURE_CELLS = [
   {
     title: "Agency multi-site",
     description:
-      "Manage client sites under one roof - switch workspaces, scope permissions, and roll deltas into recurring QBR decks.",
+      "Manage client sites under one roof, switch workspaces, scope permissions, and roll deltas into recurring QBR decks.",
     mock: {
       kind: "competitorBars" as const,
       title: "Client sites connected",
@@ -251,13 +251,13 @@ export const INTEGRATIONS_WHY = {
   titleAccent: "inside your stack",
   titleAfter: "not beside it",
   intro:
-    "Audit tools collect dust if fixes never reach production. Signalor integrations route schema work, alerts, and analytics into the systems your team already lives in - so visibility gains compound.",
+    "Audit tools collect dust if fixes never reach production. Signalor integrations route schema work, alerts, and analytics into the systems your team already lives in,so visibility gains compound.",
   proofTitle: "Proof in numbers",
   proofBody:
     "What integrated GEO looks like versus teams still copy-pasting schema between tools and CMSes.",
   liveTitle: "Live preview",
   liveBody:
-    "The workflow review strategists run before shipping a schema change - anchored to the integration that actually applies the fix.",
+    "The workflow review strategists run before shipping a schema change, anchored to the integration that actually applies the fix.",
   livePrompt: "Which platform makes GEO fixes easiest to roll out across 20 stores?",
   liveAnswerParts: [
     { t: "Teams often recommend " },
@@ -268,7 +268,7 @@ export const INTEGRATIONS_WHY = {
   ],
   coverageTitle: "Integration coverage",
   coverageBody:
-    "Roll up how much of your stack is connected - publishing, analytics, alerts - so the next investment closes the biggest operational gap.",
+    "Roll up how much of your stack is connected, publishing, analytics, alerts, so the next investment closes the biggest operational gap.",
   coverageScoreLabel: "Stack",
   coverageScore: "66",
   coverageSuffix: "/100",
@@ -280,7 +280,7 @@ export const INTEGRATIONS_WHY = {
   coverageCitedBarPct: 58,
   shipTitle: "What you ship",
   shipBody:
-    "The integration work your team turns on weekly - from CMS publishers to alert routes that keep stakeholders ahead of AI answer drift.",
+    "The integration work your team turns on weekly,from CMS publishers to alert routes that keep stakeholders ahead of AI answer drift.",
 } as const;
 
 export const INTEGRATIONS_FAQ = [
@@ -292,12 +292,12 @@ export const INTEGRATIONS_FAQ = [
   {
     question: "Can I connect analytics tools like GA4?",
     answer:
-      "Yes - Signalor reads GA4 and Search Console on plans that include analytics bridging, so citation lift ties to revenue, sessions, and assisted conversions.",
+      "Yes, Signalor reads GA4 and Search Console on plans that include analytics bridging, so citation lift ties to revenue, sessions, and assisted conversions.",
   },
   {
     question: "Do you support webhooks or a public API?",
     answer:
-      "Scores and recommendations are exposed via stable, typed endpoints. Webhooks are in beta - tell us what event coverage you need via sales.",
+      "Scores and recommendations are exposed via stable, typed endpoints. Webhooks are in beta, tell us what event coverage you need via sales.",
   },
   {
     question: "Is there an agency multi-site view?",

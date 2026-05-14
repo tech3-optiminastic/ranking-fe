@@ -27,7 +27,7 @@ export function ScoreBump() {
           <div>
             <p className="text-2xl font-bold text-[#22c55e]">+{scoreBump} pts</p>
             <p className="text-xs text-muted-foreground">
-              Re-analysis complete - score improved since last run
+              Re-analysis complete, score improved since last run
             </p>
           </div>
         </motion.div>

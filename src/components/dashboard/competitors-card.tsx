@@ -425,14 +425,12 @@ export function CompetitorsCard({
                       isLeading ? "text-emerald-600" : "text-primary",
                     )}
                   >
-                    #{yourRank ?? "—"}
+                    #{yourRank ?? ","}
                   </span>
                   <span className="text-[11px] text-muted-foreground">of {ranked.length}</span>
                 </div>
                 {isLeading ? (
-                  <p className="mt-1 text-[11px] font-medium text-emerald-700">
-                    You&apos;re leading 🎉
-                  </p>
+                  <p className="mt-1 text-[11px] font-medium text-emerald-700">You're leading 🎉</p>
                 ) : leader ? (
                   <p className="mt-1 text-[11px] text-muted-foreground">
                     <span
@@ -460,7 +458,7 @@ export function CompetitorsCard({
                       yourScore !== null ? scoreTextColor(yourScore) : "text-muted-foreground",
                     )}
                   >
-                    {yourScore !== null ? Math.round(yourScore) : "—"}
+                    {yourScore !== null ? Math.round(yourScore) : ","}
                   </span>
                   <span className="text-[11px] text-muted-foreground">/100</span>
                 </div>

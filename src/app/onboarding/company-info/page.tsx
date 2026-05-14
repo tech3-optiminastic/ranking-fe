@@ -54,7 +54,7 @@ const STEP_ORDER: Step[] = [
 const STEP_HERO: Record<Step, { headline: string; sub: string }> = {
   company: {
     headline: "Set up your workspace",
-    sub: "Tell us your brand name - we use it for your project and default prompts.",
+    sub: "Tell us your brand name, we use it for your project and default prompts.",
   },
   platform: {
     headline: "Choose your platform",
@@ -71,7 +71,7 @@ const STEP_HERO: Record<Step, { headline: string; sub: string }> = {
   },
   analytics: {
     headline: "Connect Analytics",
-    sub: "Optional - link Google Analytics to see AI referral traffic.",
+    sub: "Optional, link Google Analytics to see AI referral traffic.",
   },
   launch: {
     headline: "Launch analysis",
@@ -561,7 +561,7 @@ export default function CompanyInfoPage() {
             <div className="flex items-center justify-between gap-2">
               <div>Loading</div>
               <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
-                Step —/{totalSteps}
+                Step ,/{totalSteps}
               </span>
             </div>
           </CardTitle>
@@ -1056,7 +1056,7 @@ export default function CompanyInfoPage() {
                         </div>
                       ) : (
                         <>
-                          {/* Idle row — fixed height, single line with ellipsis */}
+                          {/* Idle row, fixed height, single line with ellipsis */}
                           <div className="flex h-full items-center gap-3 px-4">
                             <span className="w-4 shrink-0 text-right font-mono text-[11px] text-muted-foreground">
                               {idx + 1}
@@ -1066,7 +1066,7 @@ export default function CompanyInfoPage() {
                             </span>
                           </div>
 
-                          {/* Hover card — absolutely positioned, floats over rows, zero layout shift */}
+                          {/* Hover card, absolutely positioned, floats over rows, zero layout shift */}
                           <div
                             className={[
                               "absolute inset-x-0 top-0 z-20",

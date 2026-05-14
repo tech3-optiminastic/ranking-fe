@@ -43,7 +43,7 @@ export function TrafficOverviewCard({ data }: TrafficOverviewCardProps) {
           ))}
         </div>
         <p className="text-xs text-muted-foreground mt-4">
-          {data.date_start} - {data.date_end}
+          {data.date_start}, {data.date_end}
         </p>
       </CardContent>
     </Card>
