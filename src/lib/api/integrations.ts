@@ -369,6 +369,49 @@ export async function deleteBlogPost(runSlug: string, postId: number): Promise<v
   await apiClient.delete(`/api/analyzer/runs/s/${runSlug}/blog/posts/${postId}/`);
 }
 
+// ---------- Shopify Blog ----------
+
+export interface ShopifyBlogPost {
+  id: number;
+  title: string;
+  handle: string;
+  url: string;
+  published_at: string;
+  author: string;
+}
+
+export interface ShopifyBlogPostsResponse {
+  connected: boolean;
+  shop_name?: string;
+  shop_url?: string;
+  total_posts?: number;
+  published_posts_30d?: number;
+  posts: ShopifyBlogPost[];
+  error?: string;
+}
+
+export async function getShopifyBlogPosts(runSlug: string): Promise<ShopifyBlogPostsResponse> {
+  const { data } = await apiClient.get<ShopifyBlogPostsResponse>(
+    `/api/analyzer/runs/s/${runSlug}/shopify-blog/posts/`,
+  );
+  return data;
+}
+
+export async function publishShopifyBlogDraft(
+  runSlug: string,
+  draft: BlogDraft & { status: "draft" | "publish" },
+): Promise<BlogPublishResult> {
+  const { data } = await apiClient.post<BlogPublishResult>(
+    `/api/analyzer/runs/s/${runSlug}/shopify-blog/publish/`,
+    draft,
+  );
+  return data;
+}
+
+export async function deleteShopifyBlogPost(runSlug: string, postId: number): Promise<void> {
+  await apiClient.delete(`/api/analyzer/runs/s/${runSlug}/shopify-blog/posts/${postId}/`);
+}
+
 // ---------- Correlation ----------
 
 export interface CorrelationDataPoint {
