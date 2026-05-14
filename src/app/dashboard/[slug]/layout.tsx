@@ -652,10 +652,10 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
             {/* <footer className="mt-10 flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-0 py-6 text-[11px] text-muted-foreground">
               <p>Copyright &copy; 2026 Signalor Ltd.</p>
               <div className="flex flex-wrap items-center gap-4">
-                <a href="/privacy-policy" className="transition hover:text-foreground">
+                <a href="/policy" className="transition hover:text-foreground">
                   Privacy Policy
                 </a>
-                <a href="/terms-and-conditions" className="transition hover:text-foreground">
+                <a href="/terms" className="transition hover:text-foreground">
                   Terms & conditions
                 </a>
                 <a href="#" className="transition hover:text-foreground">
