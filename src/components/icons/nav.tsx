@@ -131,6 +131,20 @@ export function ContentIcon(props: IconProps) {
   );
 }
 
+// Blog Agent — document with a pen tip writing a "signal" dot.
+export function BlogAgentIcon(props: IconProps) {
+  return (
+    <svg {...svgBase(props)}>
+      <rect x="4" y="3" width="11" height="18" rx="1.5" />
+      <path d="M7 8h5" />
+      <path d="M7 12h5" />
+      <path d="M7 16h3" />
+      <path d="M16.5 12.5l3.5 3.5-3.5 3.5-2 .5.5-2z" />
+      <circle cx="20" cy="16" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 // Backlinks — two interlocked rings (clearer than a chain glyph at small sizes).
 export function BacklinksIcon(props: IconProps) {
   return (

@@ -41,6 +41,7 @@ import {
   WikipediaIcon,
   CompetitorsIcon,
   ContentIcon,
+  BlogAgentIcon,
   BacklinksIcon,
 } from "@/components/icons/nav";
 import LogoComp from "@/components/LogoComp";
@@ -96,6 +97,7 @@ const MAIN_NAV_GROUPS: MainNavGroup[] = [
     heading: "Optimisation",
     items: [
       { icon: ContentIcon, label: "Content", path: "/optimisation/content" },
+      { icon: BlogAgentIcon, label: "Blog Agent", path: "/blog-agent" },
       { icon: BacklinksIcon, label: "Backlinks", path: "/backlinks" },
     ],
   },
@@ -152,6 +154,12 @@ function sectionForDashboardPath(pathname: string, basePath: string): DashboardA
     return {
       title: "Content",
       hint: "Generate, refine, and ship AI-optimised content for your brand.",
+    };
+  }
+  if (rel.startsWith("/blog-agent")) {
+    return {
+      title: "Blog Agent",
+      hint: "Generate AI drafts or write yourself, then publish to your connected CMS.",
     };
   }
   if (rel.startsWith("/backlinks")) {
