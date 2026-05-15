@@ -19,7 +19,6 @@ const schemaValidatorJsonLd = {
   url: `${SITE_URL}/tools/schema-validator`,
   description:
     "Free Schema.org JSON-LD validator. Checks Organization, Product, Article, FAQ, HowTo, BreadcrumbList, and other types for completeness and validity.",
-  publisher: { "@id": `${SITE_URL}#organization` },
 };
 
 export default function SchemaValidatorLayout({ children }: { children: React.ReactNode }) {

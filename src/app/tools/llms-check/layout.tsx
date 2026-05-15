@@ -19,7 +19,6 @@ const llmsCheckJsonLd = {
   url: `${SITE_URL}/tools/llms-check`,
   description:
     "Free llms.txt validator. Verifies the llms.txt manifest, AI crawler rules in robots.txt (GPTBot, ClaudeBot, PerplexityBot, Google-Extended), sitemap presence, and on-page schema.",
-  publisher: { "@id": `${SITE_URL}#organization` },
 };
 
 export default function LlmsCheckLayout({ children }: { children: React.ReactNode }) {
