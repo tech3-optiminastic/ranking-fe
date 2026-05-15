@@ -29,7 +29,6 @@ const wordpressPluginJsonLd = {
   downloadUrl: `${SITE_URL}/downloads/signalor-geo.zip`,
   description:
     "Self-hosted WordPress plugin that surfaces Signalor GEO recommendations and applies one-click schema fixes inside the WordPress admin.",
-  publisher: { "@id": `${SITE_URL}#organization` },
 };
 
 export default function WordPressIntegrationPage() {

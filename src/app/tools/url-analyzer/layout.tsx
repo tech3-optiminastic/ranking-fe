@@ -19,7 +19,6 @@ const urlAnalyzerJsonLd = {
   url: `${SITE_URL}/tools/url-analyzer`,
   description:
     "Free GEO and AEO score for any public URL. Reports citation signals across ChatGPT, Claude, Gemini, Perplexity, and Google AI.",
-  publisher: { "@id": `${SITE_URL}#organization` },
 };
 
 export default function UrlAnalyzerLayout({ children }: { children: React.ReactNode }) {
