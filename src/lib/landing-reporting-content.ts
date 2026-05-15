@@ -247,7 +247,7 @@ export const REPORTING_FEATURE_CELLS = [
 export const REPORTING_FEATURES_FOOTER_CTAS = {
   primary: "Build a report",
   secondary: "Run free GEO audit",
-  secondaryHref: "/analyzer",
+  secondaryHref: "/sign-up",
 } as const;
 
 export const REPORTING_WHY = {

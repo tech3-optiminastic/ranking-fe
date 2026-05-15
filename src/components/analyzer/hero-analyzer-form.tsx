@@ -73,7 +73,7 @@ export function HeroAnalyzerForm() {
         run_type: "full_site",
         country,
       });
-      router.push(routes.analyzerResults(run.id));
+      router.push(routes.signUp);
     } catch {
       setError("Couldn’t start the audit. Check the URL and try again.");
       setLoading(false);

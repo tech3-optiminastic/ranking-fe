@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ArrowLeft, Home, Search } from "@/components/icons";
 import LogoComp from "@/components/LogoComp";
-import { routes } from "@/lib/config";
 
 export default function NotFound() {
   return (
@@ -73,11 +72,11 @@ export default function NotFound() {
             Go to homepage
           </Link>
           <Link
-            href={routes.analyzer}
+            href="/sign-up"
             className="inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-8 py-2.5 text-[13px] font-semibold text-foreground shadow-sm transition hover:bg-muted active:scale-[0.98]"
           >
             <Search className="size-4" />
-            Run free GEO audit
+            Get started
           </Link>
         </div>
 

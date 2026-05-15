@@ -36,12 +36,10 @@ const FOOTER_COLUMNS: FooterColumn[] = [
   {
     title: "Platform",
     links: [
+      { href: "/sign-up", label: "Get started" },
       { href: "/pricing", label: "Pricing" },
       { href: "/integration", label: "Integrations" },
       { href: "/prompt-tracking", label: "Prompt tracking" },
-      { href: "/analyzer", label: "Free GEO audit" },
-      { href: "/sign-up", label: "Get started" },
-      { href: "#features", label: "Product tour" },
     ],
   },
   {
