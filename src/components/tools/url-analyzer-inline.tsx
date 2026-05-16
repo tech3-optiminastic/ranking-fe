@@ -361,7 +361,7 @@ function GateCard({
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link
-            href={`${routes.signUp}?returnTo=${encodeURIComponent(`/analyzer/${detail.id}`)}`}
+            href={routes.signUp}
             className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:brightness-110"
           >
             Create a free account
@@ -407,15 +407,15 @@ function GateCard({
 
   return (
     <div className="rounded-sm border border-black/6 bg-neutral-50 p-5">
-      <p className="text-sm font-semibold text-foreground">Open your full report</p>
+      <p className="text-sm font-semibold text-foreground">Unlock your full report</p>
       <p className="mt-1 text-[13px] text-muted-foreground">
         Full pillar details, per-engine AI probes, recommendations, and monitoring.
       </p>
       <Link
-        href={routes.analyzerResults(detail.id)}
+        href={routes.signUp}
         className="mt-3 inline-flex items-center gap-1.5 rounded-sm bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm hover:brightness-110"
       >
-        Open report
+        Get started free
         <ArrowRight className="h-3.5 w-3.5" />
       </Link>
     </div>

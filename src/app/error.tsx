@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowLeft, Home, RefreshCw } from "@/components/icons";
 import LogoComp from "@/components/LogoComp";
 import { Button } from "@/components/ui/button";
-import { routes } from "@/lib/config";
 
 export default function ErrorBoundary({
   error,
@@ -68,16 +67,6 @@ export default function ErrorBoundary({
               </Link>
             </Button>
           </div>
-
-          <p className="mt-12 text-xs text-muted-foreground">
-            Free GEO check ,{" "}
-            <Link
-              href={routes.analyzer}
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Run an audit
-            </Link>
-          </p>
         </div>
       </main>
     </div>

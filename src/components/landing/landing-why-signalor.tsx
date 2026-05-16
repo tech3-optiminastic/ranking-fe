@@ -105,8 +105,8 @@ export function LandingWhySignalor() {
 
             <div className="mt-auto flex flex-wrap gap-3">
               <Button asChild className={`${LANDING_PRIMARY_CTA_CLASS} h-10 px-5`}>
-                <Link href="/analyzer">
-                  Run free GEO audit
+                <Link href="/sign-up">
+                  Get started
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
               </Button>

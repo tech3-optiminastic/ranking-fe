@@ -19,7 +19,6 @@ const competitorsToolJsonLd = {
   url: `${SITE_URL}/tools/competitors-analysis`,
   description:
     "Free competitor analysis for AI search. Ranks brands by co-mention frequency in live autocomplete and AI answer citations.",
-  publisher: { "@id": `${SITE_URL}#organization` },
 };
 
 export default function CompetitorsAnalysisLayout({ children }: { children: React.ReactNode }) {

@@ -29,7 +29,7 @@ export const CONTENT_SIGNALS_HUB_CARDS: {
 }[] = [
   {
     slug: "schema-coverage",
-    href: "/analyzer",
+    href: "/sign-up",
     title: "Schema coverage",
     description:
       "Detect missing or malformed JSON-LD across key templates so models see entities exactly the way you intend.",
@@ -38,7 +38,7 @@ export const CONTENT_SIGNALS_HUB_CARDS: {
   },
   {
     slug: "trust-signals",
-    href: "/analyzer",
+    href: "/sign-up",
     title: "Trust signals",
     description:
       "Evaluate authorship, citations, and credibility markers AI systems lean on when choosing whom to recommend.",
@@ -235,7 +235,7 @@ export const CONTENT_SIGNALS_FEATURE_CELLS = [
 export const CONTENT_SIGNALS_FEATURES_FOOTER_CTAS = {
   primary: "Score my content",
   secondary: "Run free GEO audit",
-  secondaryHref: "/analyzer",
+  secondaryHref: "/sign-up",
 } as const;
 
 export const CONTENT_SIGNALS_WHY = {

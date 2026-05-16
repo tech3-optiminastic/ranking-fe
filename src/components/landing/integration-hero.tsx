@@ -48,7 +48,7 @@ export function IntegrationHero() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="border-black/15 px-5">
-              <Link href="/analyzer">Run free GEO audit</Link>
+              <Link href="/sign-up">Get started</Link>
             </Button>
           </div>
 

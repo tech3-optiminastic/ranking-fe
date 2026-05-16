@@ -72,9 +72,9 @@ const MENUS: Record<
     label: "Solutions",
     items: [
       {
-        href: "/analyzer",
-        title: "GEO audit",
-        desc: "Paste a URL and get a full citability and technical GEO readout.",
+        href: "/sign-up",
+        title: "Get started",
+        desc: "Create your free account and start monitoring AI search visibility.",
         icon: Radar,
       },
       {

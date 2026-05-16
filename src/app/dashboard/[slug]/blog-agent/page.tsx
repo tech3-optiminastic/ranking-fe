@@ -21,19 +21,13 @@ import {
   generateBlogDraft,
   publishBlogDraft,
   deleteBlogPost,
-  getShopifyBlogPosts,
-  publishShopifyBlogDraft,
-  deleteShopifyBlogPost,
-  getIntegrationStatus,
   type BlogDraft,
   type BlogPostsResponse,
-  type ShopifyBlogPostsResponse,
 } from "@/lib/api/integrations";
 import { cn } from "@/lib/utils";
 
 type Step = "generate" | "preview";
 type Tone = "informative" | "conversational" | "authoritative" | "educational";
-type Platform = "wordpress" | "shopify";
 
 const TONES: { value: Tone; label: string }[] = [
   { value: "informative", label: "Informative" },
@@ -66,6 +60,8 @@ function extractErrorMessage(err: unknown): string {
   return e?.response?.data?.error ?? e?.message ?? "Something went wrong. Please try again.";
 }
 
+// ─── Shared UI ────────────────────────────────────────────────────────────────
+
 function SectionCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div
@@ -96,6 +92,8 @@ function ErrorNote({ message }: { message: string }) {
   );
 }
 
+// ─── Create panel (Write yourself + Generate with AI) ────────────────────────
+
 type CreateMode = "manual" | "ai";
 
 function textToHtml(text: string): string {
@@ -125,11 +123,15 @@ function CreatePanel({
   onManual: (draft: BlogDraft) => void;
 }) {
   const [mode, setMode] = useState<CreateMode>("manual");
+
+  // AI mode state
   const [topic, setTopic] = useState("");
   const [tone, setTone] = useState<Tone>("informative");
   const [wordCount, setWordCount] = useState(800);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // Manual mode state
   const [manTitle, setManTitle] = useState("");
   const [manContent, setManContent] = useState("");
   const [manMeta, setManMeta] = useState("");
@@ -167,6 +169,7 @@ function CreatePanel({
 
   return (
     <SectionCard>
+      {/* Mode toggle */}
       <div className="mb-5 flex gap-1 rounded-lg border border-black/[0.07] bg-neutral-50 p-1">
         {(["manual", "ai"] as CreateMode[]).map((m) => (
           <button
@@ -213,6 +216,7 @@ function CreatePanel({
         ))}
       </div>
 
+      {/* ── Manual mode ── */}
       {mode === "manual" && (
         <form onSubmit={handleManualContinue} className="space-y-3">
           <div>
@@ -226,6 +230,7 @@ function CreatePanel({
               required
             />
           </div>
+
           <div>
             <FieldLabel>Content</FieldLabel>
             <textarea
@@ -243,6 +248,7 @@ function CreatePanel({
               paragraphs.
             </p>
           </div>
+
           <div>
             <FieldLabel>
               Meta description{" "}
@@ -259,6 +265,7 @@ function CreatePanel({
               className="w-full rounded-md border border-black/[0.1] bg-white px-3 py-2 text-sm outline-none ring-offset-2 placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
             />
           </div>
+
           <div>
             <FieldLabel>
               Tags{" "}
@@ -274,6 +281,7 @@ function CreatePanel({
               className="w-full rounded-md border border-black/[0.1] bg-white px-3 py-2 text-sm outline-none ring-offset-2 placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
             />
           </div>
+
           <button
             type="submit"
             disabled={!manTitle.trim() || !manContent.trim()}
@@ -285,6 +293,7 @@ function CreatePanel({
         </form>
       )}
 
+      {/* ── AI mode ── */}
       {mode === "ai" && (
         <form onSubmit={handleAiSubmit} className="space-y-4">
           <div>
@@ -298,6 +307,7 @@ function CreatePanel({
               required
             />
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <FieldLabel>Tone</FieldLabel>
@@ -334,7 +344,9 @@ function CreatePanel({
               </div>
             </div>
           </div>
+
           {aiError && <ErrorNote message={aiError} />}
+
           <button
             type="submit"
             disabled={aiLoading || !topic.trim()}
@@ -356,13 +368,11 @@ function CreatePanel({
 function PreviewPanel({
   draft,
   runSlug,
-  platform,
   onPublished,
   onDiscard,
 }: {
   draft: BlogDraft;
   runSlug: string;
-  platform: Platform;
   onPublished: (result: { post_url: string; edit_url: string; status: string }) => void;
   onDiscard: () => void;
 }) {
@@ -387,18 +397,14 @@ function PreviewPanel({
     setError(null);
     setLoading(true);
     try {
-      const payload = {
+      const result = await publishBlogDraft(runSlug, {
         title,
         slug,
         meta_description: metaDescription,
         tags,
         content_html: contentHtml,
         status: publishStatus,
-      };
-      const result =
-        platform === "shopify"
-          ? await publishShopifyBlogDraft(runSlug, payload)
-          : await publishBlogDraft(runSlug, payload);
+      });
       onPublished(result);
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -406,8 +412,6 @@ function PreviewPanel({
       setLoading(false);
     }
   }
-
-  const platformLabel = platform === "shopify" ? "Shopify" : "WordPress";
 
   return (
     <div className="space-y-4">
@@ -432,6 +436,7 @@ function PreviewPanel({
               className="w-full rounded-md border border-black/[0.1] bg-white px-3 py-2 text-sm font-medium outline-none ring-offset-2 focus:ring-2 focus:ring-ring"
             />
           </div>
+
           <div>
             <FieldLabel>URL slug</FieldLabel>
             <input
@@ -441,6 +446,7 @@ function PreviewPanel({
               className="w-full rounded-md border border-black/[0.1] bg-neutral-50 px-3 py-2 font-mono text-xs outline-none ring-offset-2 focus:ring-2 focus:ring-ring"
             />
           </div>
+
           <div>
             <FieldLabel>Meta description</FieldLabel>
             <textarea
@@ -458,6 +464,7 @@ function PreviewPanel({
               {metaDescription.length} / 155 chars
             </p>
           </div>
+
           <div>
             <FieldLabel>Tags</FieldLabel>
             <div className="flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border border-black/[0.1] bg-white p-2">
@@ -496,6 +503,7 @@ function PreviewPanel({
           </div>
         </div>
 
+        {/* Publish mode toggle */}
         <div className="mt-4 grid grid-cols-2 gap-2">
           {(["draft", "publish"] as const).map((s) => (
             <button
@@ -529,10 +537,11 @@ function PreviewPanel({
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           {loading
             ? "Publishing…"
-            : `${publishStatus === "publish" ? "Publish" : "Save draft"} to ${platformLabel}`}
+            : `${publishStatus === "publish" ? "Publish" : "Save draft"} to WordPress`}
         </button>
       </SectionCard>
 
+      {/* Content editor / preview */}
       <SectionCard>
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-semibold text-foreground">Content</p>
@@ -554,12 +563,14 @@ function PreviewPanel({
             ))}
           </div>
         </div>
+
         {contentMode === "edit" ? (
           <textarea
             value={contentHtml}
             onChange={(e) => setContentHtml(e.target.value)}
             rows={18}
             className="w-full resize-y rounded-md border border-black/[0.1] bg-neutral-50 px-3 py-2.5 font-mono text-xs leading-relaxed outline-none ring-offset-2 focus:ring-2 focus:ring-ring"
+            placeholder="HTML content…"
           />
         ) : (
           <div
@@ -572,6 +583,8 @@ function PreviewPanel({
   );
 }
 
+// ─── Recent posts sidebar ─────────────────────────────────────────────────────
+
 function RecentPostsSidebar({
   wpData,
   runSlug,
@@ -579,9 +592,10 @@ function RecentPostsSidebar({
 }: {
   wpData: BlogPostsResponse;
   runSlug: string;
-  onPostDeleted: (id: number) => void;
+  onPostDeleted: (postId: number) => void;
 }) {
   const [deletingId, setDeletingId] = useState<number | null>(null);
+
   async function handleDelete(postId: number) {
     setDeletingId(postId);
     try {
@@ -615,6 +629,7 @@ function RecentPostsSidebar({
           </div>
         </div>
       </SectionCard>
+
       <SectionCard>
         <div className="mb-3 flex items-center justify-between">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
@@ -675,127 +690,14 @@ function RecentPostsSidebar({
   );
 }
 
-function ShopifyRecentPostsSidebar({
-  shopifyData,
-  runSlug,
-  onPostDeleted,
-}: {
-  shopifyData: ShopifyBlogPostsResponse;
-  runSlug: string;
-  onPostDeleted: (id: number) => void;
-}) {
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  async function handleDelete(postId: number) {
-    setDeletingId(postId);
-    try {
-      await deleteShopifyBlogPost(runSlug, postId);
-      onPostDeleted(postId);
-    } catch {
-      // silently ignore
-    } finally {
-      setDeletingId(null);
-    }
-  }
-
-  return (
-    <div className="space-y-4">
-      <SectionCard>
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-          Stats, last 30 days
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <p className="text-2xl font-bold tabular-nums text-foreground">
-              {shopifyData.total_posts ?? 0}
-            </p>
-            <p className="text-[11px] text-muted-foreground">Total posts</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold tabular-nums text-foreground">
-              {shopifyData.published_posts_30d ?? 0}
-            </p>
-            <p className="text-[11px] text-muted-foreground">Published</p>
-          </div>
-        </div>
-      </SectionCard>
-      <SectionCard>
-        <div className="mb-3 flex items-center justify-between">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
-            Recent posts
-          </p>
-          {shopifyData.shop_url && (
-            <a
-              href={shopifyData.shop_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          )}
-        </div>
-        {shopifyData.posts.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No posts found yet.</p>
-        ) : (
-          <ul className="space-y-2.5">
-            {shopifyData.posts.map((post) => (
-              <li key={post.id} className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="truncate text-xs font-medium text-foreground">{post.title}</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {formatDate(post.published_at)}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-1.5">
-                  {post.url && (
-                    <a
-                      href={post.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  )}
-                  <button
-                    onClick={() => handleDelete(post.id)}
-                    disabled={deletingId === post.id}
-                    className="text-muted-foreground hover:text-red-500 disabled:opacity-40"
-                  >
-                    {deletingId === post.id ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3 w-3" />
-                    )}
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </SectionCard>
-    </div>
-  );
-}
-
-function HowItWorksSidebar({ platform }: { platform: Platform }) {
-  const steps =
-    platform === "shopify"
-      ? [
-          "Connect your Shopify store during onboarding (or in Settings → Integrations).",
-          "Enter a topic and choose your preferred tone and post length.",
-          "AI generates a full SEO-optimised blog post in seconds.",
-          "Edit the title, meta description, and tags if needed.",
-          "Publish live or save as a draft, directly to your Shopify blog.",
-        ]
-      : [
-          "Connect your WordPress site during onboarding (or in Settings → Integrations).",
-          "Enter a topic and choose your preferred tone and post length.",
-          "AI generates a full SEO-optimised blog post in seconds.",
-          "Edit the title, meta description, and tags if needed.",
-          "Publish live or save as a draft, directly from this page.",
-        ];
-
+function HowItWorksSidebar() {
+  const steps = [
+    "Connect your WordPress site using an Application Password.",
+    "Enter a topic and choose your preferred tone and post length.",
+    "AI generates a full SEO-optimised blog post in seconds.",
+    "Edit the title, meta description, and tags if needed.",
+    "Publish live or save as a draft, directly from this page.",
+  ];
   return (
     <SectionCard>
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
@@ -843,11 +745,10 @@ export default function BlogAgentPage() {
   const { slug } = useParams<{ slug: string }>();
   const { run } = useRun();
 
-  const [platform, setPlatform] = useState<Platform>("wordpress");
   const [wpData, setWpData] = useState<BlogPostsResponse | null>(null);
-  const [shopifyData, setShopifyData] = useState<ShopifyBlogPostsResponse | null>(null);
   const [wpLoading, setWpLoading] = useState(true);
   const [step, setStep] = useState<Step>("generate");
+
   const [draft, setDraft] = useState<BlogDraft | null>(null);
   const [publishResult, setPublishResult] = useState<{
     post_url: string;
@@ -857,63 +758,22 @@ export default function BlogAgentPage() {
 
   const email = run?.email ?? "";
 
-  const loadStatus = useCallback(async () => {
+  const loadWpStatus = useCallback(async () => {
     if (!slug) return;
     setWpLoading(true);
     try {
-      const [wp, sh] = await Promise.allSettled([getBlogPosts(slug), getShopifyBlogPosts(slug)]);
-      const wpResult = wp.status === "fulfilled" ? wp.value : { connected: false, posts: [] };
-      const shResult = sh.status === "fulfilled" ? sh.value : { connected: false, posts: [] };
-      setWpData(wpResult);
-      setShopifyData(shResult);
-
-      if (wpResult.connected) {
-        setPlatform("wordpress");
-      } else if (shResult.connected) {
-        setPlatform("shopify");
-      } else {
-        let detected: Platform = "wordpress";
-        try {
-          const integrations = await getIntegrationStatus(email);
-          const hasShopify = integrations.some((i) => i.provider === "shopify" && i.is_active);
-          if (hasShopify) {
-            detected = "shopify";
-          } else {
-            const runUrl = run?.url ?? "";
-            if (runUrl.includes(".myshopify.com") || runUrl.includes("shopify.com")) {
-              detected = "shopify";
-            }
-          }
-        } catch {
-          // fallback stays "wordpress"
-        }
-        setPlatform(detected);
-      }
-      setStep("generate");
+      const data = await getBlogPosts(slug);
+      setWpData(data);
     } catch {
       setWpData({ connected: false, posts: [] });
-      setShopifyData({ connected: false, posts: [] });
     } finally {
       setWpLoading(false);
     }
-  }, [slug, email, run?.url]);
+  }, [slug]);
 
   useEffect(() => {
-    loadStatus();
-  }, [loadStatus]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("wordpress") === "connected") {
-      window.history.replaceState({}, "", window.location.pathname);
-      loadStatus();
-    } else if (params.get("shopify") === "connected") {
-      window.history.replaceState({}, "", window.location.pathname);
-      setPlatform("shopify");
-      loadStatus();
-    }
-  }, [loadStatus]);
+    loadWpStatus();
+  }, [loadWpStatus]);
 
   async function handleGenerate(topic: string, tone: Tone, wordCount: number) {
     setPublishResult(null);
@@ -928,28 +788,15 @@ export default function BlogAgentPage() {
     setStep("preview");
   }
 
-  function handleWpPostDeleted(postId: number) {
-    setWpData((prev) =>
-      prev
-        ? {
-            ...prev,
-            posts: prev.posts.filter((p) => p.id !== postId),
-            total_posts: Math.max(0, (prev.total_posts ?? 1) - 1),
-          }
-        : prev,
-    );
-  }
-
-  function handleShopifyPostDeleted(postId: number) {
-    setShopifyData((prev) =>
-      prev
-        ? {
-            ...prev,
-            posts: prev.posts.filter((p) => p.id !== postId),
-            total_posts: Math.max(0, (prev.total_posts ?? 1) - 1),
-          }
-        : prev,
-    );
+  function handlePostDeleted(postId: number) {
+    setWpData((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        posts: prev.posts.filter((p) => p.id !== postId),
+        total_posts: Math.max(0, (prev.total_posts ?? 1) - 1),
+      };
+    });
   }
 
   if (wpLoading) {
@@ -960,11 +807,7 @@ export default function BlogAgentPage() {
     );
   }
 
-  const activeData = platform === "shopify" ? shopifyData : wpData;
-  const isConnected = !!activeData?.connected;
-  const activeName =
-    platform === "shopify" ? shopifyData?.shop_name || "Shopify" : wpData?.site_name || "WordPress";
-  const activeUrl = platform === "shopify" ? shopifyData?.shop_url : wpData?.site_url;
+  const isConnected = !!wpData?.connected;
 
   return (
     <div className="mx-auto max-w-5xl space-y-5 p-5 lg:p-7">
@@ -977,18 +820,16 @@ export default function BlogAgentPage() {
             )}
           />
           <span className="text-sm font-medium text-foreground">
-            {isConnected
-              ? activeName
-              : `${platform === "shopify" ? "Shopify" : "WordPress"} not connected`}
+            {isConnected ? wpData?.site_name || "WordPress" : "WordPress not connected"}
           </span>
-          {isConnected && activeUrl && (
+          {isConnected && wpData?.site_url && (
             <a
-              href={activeUrl}
+              href={wpData.site_url}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden text-[11px] text-muted-foreground hover:text-foreground sm:inline"
             >
-              {activeUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+              {wpData.site_url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
             </a>
           )}
         </div>
@@ -1013,7 +854,7 @@ export default function BlogAgentPage() {
             <span className="font-semibold">
               {publishResult.status === "publish" ? "Published!" : "Saved as draft!"}
             </span>{" "}
-            Your post is now on {platform === "shopify" ? "Shopify" : "WordPress"}.
+            Your post is now on WordPress.
           </div>
           <div className="flex items-center gap-3 text-xs font-medium">
             {publishResult.post_url && (
@@ -1033,7 +874,7 @@ export default function BlogAgentPage() {
                 rel="noopener noreferrer"
                 className="text-emerald-700 underline hover:text-emerald-900"
               >
-                Edit
+                Edit in WP
               </a>
             )}
           </div>
@@ -1053,21 +894,21 @@ export default function BlogAgentPage() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_272px]">
         <div className="min-w-0 space-y-4">
-          {!isConnected && <NotConnectedPanel slug={slug} platform={platform} />}
+          {!isConnected && <NotConnectedPanel slug={slug} />}
 
           {step === "generate" && isConnected && (
             <CreatePanel onGenerate={handleGenerate} onManual={handleManual} />
           )}
+
           {step === "preview" && draft && (
             <PreviewPanel
               draft={draft}
               runSlug={slug}
-              platform={platform}
               onPublished={(result) => {
                 setPublishResult(result);
                 setDraft(null);
                 setStep("generate");
-                loadStatus();
+                loadWpStatus();
               }}
               onDiscard={() => {
                 setDraft(null);
@@ -1078,20 +919,10 @@ export default function BlogAgentPage() {
         </div>
 
         <div>
-          {platform === "shopify" && shopifyData?.connected ? (
-            <ShopifyRecentPostsSidebar
-              shopifyData={shopifyData}
-              runSlug={slug}
-              onPostDeleted={handleShopifyPostDeleted}
-            />
-          ) : platform === "wordpress" && wpData?.connected ? (
-            <RecentPostsSidebar
-              wpData={wpData}
-              runSlug={slug}
-              onPostDeleted={handleWpPostDeleted}
-            />
+          {isConnected && wpData ? (
+            <RecentPostsSidebar wpData={wpData} runSlug={slug} onPostDeleted={handlePostDeleted} />
           ) : (
-            <HowItWorksSidebar platform={platform} />
+            <HowItWorksSidebar />
           )}
         </div>
       </div>

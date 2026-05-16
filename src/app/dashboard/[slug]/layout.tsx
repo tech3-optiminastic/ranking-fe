@@ -64,15 +64,13 @@ const MAIN_NAV_GROUPS: MainNavGroup[] = [
   {
     items: [
       { icon: OverviewIcon, label: "Overview", path: "" },
-      // { icon: Compass, label: "Explorer", path: "/visibility/explorer" },
-      // { icon: GitFork, label: "Ranking", path: "/prompts/ranking" },
+      { icon: TasksIcon, label: "Tasks", path: "/recommendations" },
     ],
   },
   {
     heading: "Monitoring",
     items: [
       { icon: VisibilityIcon, label: "Visibility", path: "/visibility" },
-      { icon: TasksIcon, label: "Tasks", path: "/recommendations" },
       { icon: SitemapIcon, label: "Sitemap", path: "/sitemap" },
     ],
   },
@@ -290,7 +288,7 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, []);
-  const [isPro, setIsPro] = useState(false);
+  const [isPro, setIsPro] = useState<boolean | null>(null);
   const [orgDropdownOpen, setOrgDropdownOpen] = useState(false);
   const [switchingOrg, setSwitchingOrg] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -614,7 +612,7 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
         </button>
       </div>
 
-      {!isPro ? (
+      {isPro === false ? (
         <div className="rounded-md border border-border bg-background p-3">
           <p className="mb-0.5 text-[13px] font-semibold text-foreground">
             Boost Your AI Visibility
@@ -652,10 +650,10 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
             {/* <footer className="mt-10 flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-0 py-6 text-[11px] text-muted-foreground">
               <p>Copyright &copy; 2026 Signalor Ltd.</p>
               <div className="flex flex-wrap items-center gap-4">
-                <a href="/privacy-policy" className="transition hover:text-foreground">
+                <a href="/policy" className="transition hover:text-foreground">
                   Privacy Policy
                 </a>
-                <a href="/terms-and-conditions" className="transition hover:text-foreground">
+                <a href="/terms" className="transition hover:text-foreground">
                   Terms & conditions
                 </a>
                 <a href="#" className="transition hover:text-foreground">
