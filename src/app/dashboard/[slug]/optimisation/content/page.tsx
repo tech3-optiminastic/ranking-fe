@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, ExternalLink } from "@/components/icons";
@@ -42,30 +42,40 @@ export default function ContentOptimisationPage() {
   const [historyIdx, setHistoryIdx] = useState(-1);
   const navigatingFromHistory = useRef(false);
 
-  // Load pages once per project. Falls back to the run's home URL so the
-  // browser always has something to render on first open, even if the
-  // sitemap audit hasn't been run yet.
+  // Lock the domain from the run's base URL so users can only edit the path.
+  const baseUrl = useMemo(() => {
+    const raw = run?.url ?? "";
+    if (!raw) return "";
+    try {
+      return new URL(raw.includes("://") ? raw : `https://${raw}`).origin;
+    } catch {
+      return "";
+    }
+  }, [run?.url]);
+
+  // Set URL immediately from run?.url without waiting for the sitemap API.
+  // Normalize to include protocol so getPath() can strip the domain correctly.
+  const didInitUrl = useRef(false);
+  useEffect(() => {
+    if (didInitUrl.current || !run?.url) return;
+    didInitUrl.current = true;
+    const raw = run.url.trim();
+    setUrl(raw.includes("://") ? raw : `https://${raw}`);
+  }, [run?.url]);
+
+  // Load the sitemap page list (for the URL dropdown).
   useEffect(() => {
     if (!slug) return;
     let cancelled = false;
     getContentPages(slug)
       .then((p) => {
-        if (cancelled) return;
-        setPages(p);
-        if (!url) {
-          const initial = p[0]?.url || run?.url || "";
-          if (initial) setUrl(initial);
-        }
+        if (!cancelled) setPages(p);
       })
-      .catch(() => {
-        if (cancelled) return;
-        if (!url && run?.url) setUrl(run.url);
-      });
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, run?.url]);
+  }, [slug]);
 
   const loadPage = useCallback(
     async (target: string) => {
@@ -78,8 +88,14 @@ export default function ContentOptimisationPage() {
       try {
         const data = await getContentPageFields(slug, target);
         setPageFields(data);
+        if (!data.preview_image) {
+          setPageError(
+            "Visual preview unavailable — run `playwright install chromium` on the server to enable screenshots.",
+          );
+        }
       } catch (err: unknown) {
-        const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+        const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail;
         setPageError(detail || "Couldn't load this page.");
         setPageFields(null);
       } finally {
@@ -178,6 +194,7 @@ export default function ContentOptimisationPage() {
       <div data-tour-card="content-chrome">
         <BrowserChrome
           url={url}
+          baseUrl={baseUrl}
           pages={pages}
           canGoBack={historyIdx > 0}
           canGoForward={historyIdx >= 0 && historyIdx < history.length - 1}
@@ -195,8 +212,8 @@ export default function ContentOptimisationPage() {
             <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
               <AlertCircle className="size-3.5" />
               <span>
-                No plugin connected. Click any element to edit, but applying needs
-                WordPress or Shopify.
+                No plugin connected. Click any element to edit, but applying needs WordPress or
+                Shopify.
               </span>
               <Link
                 href={`/dashboard/${slug}/settings/integrations`}
@@ -206,9 +223,7 @@ export default function ContentOptimisationPage() {
               </Link>
             </div>
           ) : null}
-          {error ? (
-            <p className="text-[11px] text-rose-600 dark:text-rose-400">{error}</p>
-          ) : null}
+          {error ? <p className="text-[11px] text-rose-600 dark:text-rose-400">{error}</p> : null}
           {notice ? (
             <p className="text-[11px] text-emerald-600 dark:text-emerald-400">{notice}</p>
           ) : null}
@@ -226,6 +241,7 @@ export default function ContentOptimisationPage() {
             viewportWidth={pageFields?.preview_viewport_width || 1440}
             isLoading={pageLoading}
             emptyMessage={pageError || undefined}
+            onRetry={url ? () => loadPage(url) : undefined}
             selectedElementId={selectedElement?.id ?? null}
             onSelectElement={setSelectedElement}
           />
