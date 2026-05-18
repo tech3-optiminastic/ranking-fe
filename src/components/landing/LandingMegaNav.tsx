@@ -33,6 +33,16 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LANDING_PRIMARY_CTA_CLASS } from "@/components/landing/constants";
 import { useSession } from "@/lib/auth-client";
+import amplitude from "@/amplitude";
+
+function trackNav(event: string, props?: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+  try {
+    amplitude.track(event, props);
+  } catch {
+    /* noop — amplitude not yet initialized (no consent) */
+  }
+}
 
 type MegaKey = "solutions" | "features" | "freeTools" | "resources";
 
@@ -210,7 +220,10 @@ function MegaMenuLinkCell({
       <Link
         href={item.href}
         className="group flex gap-3 rounded-sm border border-transparent p-2 text-left transition-colors hover:bg-neutral-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1"
-        onClick={onNavigate}
+        onClick={() => {
+          trackNav("Nav: Item Clicked", { title: item.title, href: item.href });
+          onNavigate();
+        }}
       >
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-black/8 text-primary shadow-sm">
           <Icon className="h-[15px] w-[15px]" strokeWidth={1.75} aria-hidden />
@@ -396,7 +409,14 @@ function ResourceHoverCell({
         )}
         onPointerEnter={onHover}
         onFocus={onActivate}
-        onClick={onNavigate}
+        onClick={() => {
+          trackNav("Nav: Item Clicked", {
+            menu: "resources",
+            title: item.title,
+            href: item.href,
+          });
+          onNavigate();
+        }}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown" || e.key === "ArrowRight") {
             e.preventDefault();
@@ -709,7 +729,10 @@ export function LandingMegaNav() {
   const openMenu = useCallback(
     (key: MegaKey) => {
       cancelClose();
-      setOpen(key);
+      setOpen((prev) => {
+        if (prev !== key) trackNav("Nav: Mega Menu Opened", { menu: key, via: "hover" });
+        return key;
+      });
     },
     [cancelClose],
   );
@@ -717,7 +740,11 @@ export function LandingMegaNav() {
   const closeMenu = useCallback(() => setOpen(null), []);
 
   const toggleMenu = useCallback((key: MegaKey) => {
-    setOpen((prev) => (prev === key ? null : key));
+    setOpen((prev) => {
+      const next = prev === key ? null : key;
+      if (next) trackNav("Nav: Mega Menu Opened", { menu: next, via: "click" });
+      return next;
+    });
   }, []);
 
   useEffect(
@@ -820,6 +847,9 @@ export function LandingMegaNav() {
           <Link
             href="/pricing"
             className="rounded-md px-3 py-2 text-[14px] font-medium tracking-tight text-neutral-700 transition-colors hover:bg-neutral-50 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1"
+            onClick={() =>
+              trackNav("Nav: Pricing Clicked", { placement: "desktop", surface: "nav" })
+            }
           >
             Pricing
           </Link>
@@ -880,15 +910,36 @@ export function LandingMegaNav() {
       <div className="hidden shrink-0 items-center gap-2 lg:flex">
         {isAuthenticated ? (
           <Button asChild className={cn(LANDING_PRIMARY_CTA_CLASS, "px-4")}>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link
+              href="/dashboard"
+              onClick={() =>
+                trackNav("Nav: CTA Clicked", { cta: "dashboard", placement: "desktop" })
+              }
+            >
+              Dashboard
+            </Link>
           </Button>
         ) : (
           <>
             <Button asChild variant="link" className="px-4 text-neutral-700 hover:text-neutral-900">
-              <Link href="/sign-in">Log In</Link>
+              <Link
+                href="/sign-in"
+                onClick={() =>
+                  trackNav("Nav: CTA Clicked", { cta: "sign_in", placement: "desktop" })
+                }
+              >
+                Log In
+              </Link>
             </Button>
             <Button asChild className={cn(LANDING_PRIMARY_CTA_CLASS, "px-4")}>
-              <Link href="/sign-up">Sign Up</Link>
+              <Link
+                href="/sign-up"
+                onClick={() =>
+                  trackNav("Nav: CTA Clicked", { cta: "sign_up", placement: "desktop" })
+                }
+              >
+                Sign Up
+              </Link>
             </Button>
           </>
         )}
@@ -903,7 +954,13 @@ export function LandingMegaNav() {
           className="h-10 w-10 border-black/12 bg-white/90"
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMobileOpen((prev) => !prev)}
+          onClick={() =>
+            setMobileOpen((prev) => {
+              const next = !prev;
+              trackNav("Nav: Mobile Menu Toggled", { open: next });
+              return next;
+            })
+          }
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
@@ -942,7 +999,15 @@ export function LandingMegaNav() {
                           key={`${key}-${item.title}`}
                           href={item.href}
                           className="rounded-md px-2 py-1.5 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
-                          onClick={() => setMobileOpen(false)}
+                          onClick={() => {
+                            trackNav("Nav: Item Clicked", {
+                              menu: key,
+                              title: item.title,
+                              href: item.href,
+                              placement: "mobile",
+                            });
+                            setMobileOpen(false);
+                          }}
                         >
                           {item.title}
                         </Link>
@@ -953,7 +1018,10 @@ export function LandingMegaNav() {
                 <Link
                   href="/pricing"
                   className="mt-2 rounded-md px-2 py-2 text-sm font-medium text-neutral-800 transition-colors hover:bg-neutral-50"
-                  onClick={() => setMobileOpen(false)}
+                  onClick={() => {
+                    trackNav("Nav: Pricing Clicked", { placement: "mobile", surface: "nav" });
+                    setMobileOpen(false);
+                  }}
                 >
                   Pricing
                 </Link>
@@ -965,7 +1033,13 @@ export function LandingMegaNav() {
                     asChild
                     className={cn(LANDING_PRIMARY_CTA_CLASS, "w-full justify-center")}
                   >
-                    <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => {
+                        trackNav("Nav: CTA Clicked", { cta: "dashboard", placement: "mobile" });
+                        setMobileOpen(false);
+                      }}
+                    >
                       Dashboard
                     </Link>
                   </Button>
@@ -976,7 +1050,13 @@ export function LandingMegaNav() {
                       variant="outline"
                       className="w-full justify-center border-black/12 bg-white"
                     >
-                      <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
+                      <Link
+                        href="/sign-in"
+                        onClick={() => {
+                          trackNav("Nav: CTA Clicked", { cta: "sign_in", placement: "mobile" });
+                          setMobileOpen(false);
+                        }}
+                      >
                         Log In
                       </Link>
                     </Button>
@@ -984,7 +1064,13 @@ export function LandingMegaNav() {
                       asChild
                       className={cn(LANDING_PRIMARY_CTA_CLASS, "w-full justify-center")}
                     >
-                      <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
+                      <Link
+                        href="/sign-up"
+                        onClick={() => {
+                          trackNav("Nav: CTA Clicked", { cta: "sign_up", placement: "mobile" });
+                          setMobileOpen(false);
+                        }}
+                      >
                         Sign Up
                       </Link>
                     </Button>
