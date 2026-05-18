@@ -4,7 +4,7 @@ import path from "path";
 const CSP = [
   "default-src 'self'",
   // Next.js inline scripts + third-party analytics/tracking
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.amplitude.com https://www.clarity.ms https://c.bing.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.amplitude.com https://www.clarity.ms https://c.bing.com https://guide.signalor.ai",
   // Tailwind inline styles + Google Fonts
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // Sanity image CDN, analytics pixels, data URIs
@@ -24,13 +24,15 @@ const CSP = [
     "https://region1.google-analytics.com",
     "https://www.clarity.ms",
     "https://c.bing.com",
+    // GitBook embed widget
+    "https://guide.signalor.ai",
     // Local backend in dev
     ...(process.env.NODE_ENV === "development"
       ? ["http://localhost:8000", "http://127.0.0.1:8000"]
       : []),
   ].join(" "),
   // Dodo Payments redirects to their checkout URL; no frames needed from us
-  "frame-src https://checkout.dodopayments.com https://app.dodopayments.com",
+  "frame-src https://checkout.dodopayments.com https://app.dodopayments.com https://guide.signalor.ai",
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
