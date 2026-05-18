@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, DM_Serif_Display, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
-import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -10,6 +9,7 @@ import { ClarityInit } from "@/components/analytics/clarity";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { ReferralCapture } from "@/components/analytics/referral-capture";
 import { AffiliateCapture } from "@/components/analytics/affiliate-capture";
+import { GitBookWidget } from "@/components/analytics/gitbook-widget";
 import { Amplitude } from "@/amplitude";
 import { CookieConsentBanner } from "@/components/cookies/cookie-consent";
 import { QueryProvider } from "@/components/providers/query-provider";
@@ -107,19 +107,7 @@ export default function RootLayout({
         <CookieConsentBanner />
         <Analytics />
         <SpeedInsights />
-        <Script
-          src="https://guide.signalor.ai/~gitbook/embed/script.js"
-          strategy="afterInteractive"
-          onLoad={() => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const gb = (window as any).GitBook;
-            if (typeof gb === "function") {
-              gb("configure", {
-                button: { label: "Ask AI", icon: "assistant" },
-              });
-            }
-          }}
-        />
+        <GitBookWidget />
       </body>
     </html>
   );
