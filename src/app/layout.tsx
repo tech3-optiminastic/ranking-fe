@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, DM_Serif_Display, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -106,6 +107,10 @@ export default function RootLayout({
         <CookieConsentBanner />
         <Analytics />
         <SpeedInsights />
+        <Script
+          src="https://guide.signalor.ai/~gitbook/embed/script.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
