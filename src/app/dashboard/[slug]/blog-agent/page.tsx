@@ -718,16 +718,15 @@ function HowItWorksSidebar() {
   );
 }
 
-function NotConnectedPanel({ slug, platform }: { slug: string; platform: Platform }) {
-  const label = platform === "shopify" ? "Shopify" : "WordPress";
+function NotConnectedPanel({ slug }: { slug: string }) {
   return (
     <SectionCard>
       <div className="flex flex-col items-start gap-3">
         <div>
           <p className="text-sm font-semibold text-foreground">Connect your blog to get started</p>
           <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-            Blog publishing is set up during onboarding. Once your {label} is connected, drafts you
-            generate here can be published in one click.
+            Blog publishing is set up during onboarding. Once your Shopify or WordPress is
+            connected, drafts you generate here can be published in one click.
           </p>
         </div>
         <Link
@@ -838,7 +837,7 @@ export default function BlogAgentPage() {
           {isConnected && (
             <button
               type="button"
-              onClick={loadStatus}
+              onClick={loadWpStatus}
               title="Refresh"
               className="rounded p-1 text-muted-foreground hover:bg-neutral-50 hover:text-foreground"
             >

@@ -41,6 +41,8 @@ const CSP = [
   [
     "connect-src 'self'",
     "https://api.signalor.ai",
+    "https://staging-api.signalor.ai",
+    "https://staging.api.signalor.ai",
     "https://staging.signalor.ai",
     "https://cdn.sanity.io",
     "https://api.amplitude.com",
