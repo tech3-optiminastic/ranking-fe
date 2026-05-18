@@ -8,26 +8,23 @@ import { sanityConfigured, sanityConfigError } from "../../../sanity/env";
 // crashes Next.js' default SSR pass for Client Components. Loading it via
 // next/dynamic with ssr:false skips the server-render entirely — the page
 // returns a tiny shell from the server and Sanity boots up in the browser.
-const NextStudio = dynamic(
-  () => import("next-sanity/studio").then((m) => m.NextStudio),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-          fontFamily: "system-ui, sans-serif",
-          color: "#64748b",
-        }}
-      >
-        Loading Sanity Studio…
-      </div>
-    ),
-  },
-);
+const NextStudio = dynamic(() => import("next-sanity/studio").then((m) => m.NextStudio), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        fontFamily: "system-ui, sans-serif",
+        color: "#64748b",
+      }}
+    >
+      Loading Sanity Studio…
+    </div>
+  ),
+});
 
 export function StudioClient() {
   if (!sanityConfigured) {

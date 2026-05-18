@@ -99,7 +99,6 @@ export function useCurrency(): {
     // This avoids SSR hydration mismatches while still giving instant detection.
     const tzCode = detectFromTimezone();
     if (tzCode && !manualOverride.current) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrency(CURRENCIES[tzCode]);
 
       setReady(true);
@@ -136,9 +135,10 @@ export function useCurrency(): {
     };
   }, []);
 
-  const selectCurrency = (code: CurrencyCode) => {
+  function selectCurrency(code: CurrencyCode) {
+    manualOverride.current = true;
     setCurrency(CURRENCIES[code]);
-  };
+  }
 
   return { currency, ready, country, selectCurrency };
 }
