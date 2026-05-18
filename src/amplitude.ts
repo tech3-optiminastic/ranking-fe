@@ -10,8 +10,25 @@ function initOnce() {
   if (inited) return;
   if (typeof window === "undefined") return;
   inited = true;
-  amplitude.initAll("9c3b450cf48a3c4ad11a7799efd9d7c6", {
-    analytics: { autocapture: true },
+  amplitude.initAll("14542be394561e71412581eba013eddf", {
+    analytics: {
+      autocapture: {
+        attribution: true,
+        fileDownloads: true,
+        formInteractions: true,
+        pageViews: true,
+        sessions: true,
+        elementInteractions: true,
+        networkTracking: true,
+        webVitals: true,
+        frustrationInteractions: {
+          thrashedCursor: true,
+          errorClicks: true,
+          deadClicks: true,
+          rageClicks: true,
+        },
+      },
+    },
     sessionReplay: { sampleRate: 1 },
   });
 }
