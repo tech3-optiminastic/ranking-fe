@@ -199,23 +199,32 @@ export default function CompanyInfoPage() {
     if (!isPending && !session) router.replace(routes.signIn);
   }, [isPending, session, router]);
 
-  // Proactively bounce to /pricing if the user is already at their project
-  // limit, so they don't fill the form only to hit a dead-end 403 on submit.
+  // Proactively bounce when the user is already at their project limit so
+  // they don't fill the form and hit a dead-end 403 on submit. We check
+  // usage + subscription together: only push to /pricing when they aren't
+  // already paying. Paid users at-limit go to /dashboard (delete a project),
+  // otherwise /pricing → here → /pricing → here … bounces forever because
+  // /pricing re-routes paid users back to `returnTo`.
   useEffect(() => {
-    if (isPending || !session?.user?.email) return;
+    const email = session?.user?.email;
+    if (isPending || !email) return;
     let cancelled = false;
-    getUsage(session.user.email)
-      .then((u) => {
-        if (cancelled) return;
-        if (u.at_limit?.projects) {
-          router.replace(`/pricing?returnTo=${encodeURIComponent(routes.onboardingCompanyInfo)}`);
-        }
-      })
-      .catch(() => {});
+    Promise.all([
+      getUsage(email).catch(() => null),
+      getSubscriptionStatus(email).catch(() => null),
+    ]).then(([u, s]) => {
+      if (cancelled) return;
+      if (!u?.at_limit?.projects) return;
+      if (s?.is_active) {
+        router.replace(routes.dashboard);
+      } else {
+        router.replace(`/pricing?returnTo=${encodeURIComponent(routes.onboardingCompanyInfo)}`);
+      }
+    });
     return () => {
       cancelled = true;
     };
-  }, [isPending, session, router]);
+  }, [isPending, session?.user?.email, router]);
 
   // Handle return from Shopify OAuth / app install
   useLayoutEffect(() => {
