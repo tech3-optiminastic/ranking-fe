@@ -635,19 +635,40 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
 
   return (
     <RunProvider slug={slug}>
-      <AnalysisGate>
-        <TourProvider steps={ONBOARDING_STEPS} basePath={basePath}>
-          <DashboardAppFrame
-            section={section}
-            sidebarBrand={sidebarBrand}
-            sidebarBelowHeaderRow={sidebarBelowHeaderRow}
-            sidebarNav={sidebarNav}
-            sidebarBottom={sidebarBottom}
-            topBarActions={topBarActions}
-            breadcrumbs={[]}
-          >
-            <div className="animate-enter">{children}</div>
-            {/* <footer className="mt-10 flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-0 py-6 text-[11px] text-muted-foreground">
+      {/* Mobile gate — full-screen message shown below md breakpoint */}
+      <div className="flex min-h-screen flex-col items-center justify-center gap-5 bg-background px-8 text-center md:hidden">
+        <LogoComp
+          size={28}
+          compact
+          animated={false}
+          className="text-sm font-bold tracking-tight text-foreground"
+        />
+        <div className="space-y-2">
+          <h2 className="text-base font-semibold text-foreground">
+            Open on desktop for best experience
+          </h2>
+          <p className="max-w-xs text-[13px] leading-relaxed text-muted-foreground">
+            Signalor works best on a larger screen. Please open it in a desktop browser or switch to
+            desktop mode.
+          </p>
+        </div>
+      </div>
+
+      {/* Dashboard — hidden on mobile, visible md+ */}
+      <div className="hidden md:block">
+        <AnalysisGate>
+          <TourProvider steps={ONBOARDING_STEPS} basePath={basePath}>
+            <DashboardAppFrame
+              section={section}
+              sidebarBrand={sidebarBrand}
+              sidebarBelowHeaderRow={sidebarBelowHeaderRow}
+              sidebarNav={sidebarNav}
+              sidebarBottom={sidebarBottom}
+              topBarActions={topBarActions}
+              breadcrumbs={[]}
+            >
+              <div className="animate-enter">{children}</div>
+              {/* <footer className="mt-10 flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-border px-0 py-6 text-[11px] text-muted-foreground">
               <p>Copyright &copy; 2026 Signalor Ltd.</p>
               <div className="flex flex-wrap items-center gap-4">
                 <a href="/policy" className="transition hover:text-foreground">
@@ -661,9 +682,9 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
                 </a>
               </div>
             </footer> */}
-          </DashboardAppFrame>
+            </DashboardAppFrame>
 
-          {/* <AiChat
+            {/* <AiChat
             slug={slug}
             brandName={activeOrg?.name || organizations[0]?.name}
             open={chatOpen}
@@ -674,7 +695,7 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
             initialMessage={chatInitialMessage}
           /> */}
 
-          {/* {!chatOpen ? (
+            {/* {!chatOpen ? (
             <button
               type="button"
               onClick={() => setChatOpen(true)}
@@ -685,10 +706,14 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
             </button>
           ) : null} */}
 
-          <CommandPalette open={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
-          <ScoreBump />
-        </TourProvider>
-      </AnalysisGate>
+            <CommandPalette
+              open={commandPaletteOpen}
+              onClose={() => setCommandPaletteOpen(false)}
+            />
+            <ScoreBump />
+          </TourProvider>
+        </AnalysisGate>
+      </div>
     </RunProvider>
   );
 }
