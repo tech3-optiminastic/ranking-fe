@@ -79,6 +79,7 @@ export function DashboardAppFrame({
   sidebarNav,
   sidebarBottom,
   topBarActions,
+  mobileFallback,
   brandHref = "/dashboard",
 }: {
   children: React.ReactNode;
@@ -89,6 +90,7 @@ export function DashboardAppFrame({
   sidebarNav: React.ReactNode;
   sidebarBottom: React.ReactNode;
   topBarActions?: React.ReactNode;
+  mobileFallback?: React.ReactNode;
   brandHref?: string;
 }) {
   const pathname = usePathname();
@@ -139,39 +141,47 @@ export function DashboardAppFrame({
     <div className="flex h-dvh flex-col bg-muted/40 text-foreground dark:bg-background">
       <ThemeHotkeyBinder />
 
-      {/* Mobile Topbar */}
-
-      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b border-border/40 bg-white px-3 shadow-sm backdrop-blur-md dark:bg-zinc-950 md:hidden">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-9 shrink-0"
-          aria-expanded={mobileOpen}
-          aria-label="Open menu"
-          onClick={() => setMobileOpen(true)}
+      {/* Mobile — either full-screen fallback or the default topbar */}
+      {mobileFallback ? (
+        <div
+          className="flex flex-col items-center justify-center gap-5 px-8 text-center md:hidden"
+          style={{ position: "fixed", inset: 0, zIndex: 9999, background: "var(--background)" }}
         >
-          <Menu className="size-5" />
-        </Button>
-
-        <div className="min-w-0 flex-1">
-          <DashboardBreadcrumbNav
-            items={breadcrumbs}
-            className="mb-0.5 max-w-[min(100%,14rem)] sm:max-w-none"
-          />
-          <p className="truncate text-sm font-semibold text-foreground">{section.title}</p>
-
-          {section.hint ? (
-            <p className="truncate text-[10px] text-muted-foreground">{section.hint}</p>
-          ) : null}
+          {mobileFallback}
         </div>
+      ) : (
+        <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b border-border/40 bg-white px-3 shadow-sm backdrop-blur-md dark:bg-zinc-950 md:hidden">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-9 shrink-0"
+            aria-expanded={mobileOpen}
+            aria-label="Open menu"
+            onClick={() => setMobileOpen(true)}
+          >
+            <Menu className="size-5" />
+          </Button>
 
-        {topBarActions ? (
-          <div className="flex shrink-0 items-center gap-1">{topBarActions}</div>
-        ) : null}
+          <div className="min-w-0 flex-1">
+            <DashboardBreadcrumbNav
+              items={breadcrumbs}
+              className="mb-0.5 max-w-[min(100%,14rem)] sm:max-w-none"
+            />
+            <p className="truncate text-sm font-semibold text-foreground">{section.title}</p>
 
-        <DashboardThemeToggle />
-      </header>
+            {section.hint ? (
+              <p className="truncate text-[10px] text-muted-foreground">{section.hint}</p>
+            ) : null}
+          </div>
+
+          {topBarActions ? (
+            <div className="flex shrink-0 items-center gap-1">{topBarActions}</div>
+          ) : null}
+
+          <DashboardThemeToggle />
+        </header>
+      )}
 
       {/* Desktop Layout, min-h-0 so nested overflow + flex stretch match the viewport */}
 
