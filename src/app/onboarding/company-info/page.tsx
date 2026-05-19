@@ -336,8 +336,12 @@ export default function CompanyInfoPage() {
           .replace(/^https?:\/\//, "")
           .replace(/\/$/, "")
           .trim();
-        if (!domain || !/^[a-zA-Z0-9][a-zA-Z0-9\-_.]+\.[a-zA-Z]{2,}$/.test(domain)) {
-          setError("Please enter a valid Shopify domain (e.g. your-store.myshopify.com).");
+        const domainInvalid =
+          !domain ||
+          !/^[a-zA-Z0-9][a-zA-Z0-9\-_.]+\.[a-zA-Z]{2,}$/.test(domain) ||
+          !domain.includes(".");
+        if (domainInvalid) {
+          setError("Please use a valid domain (e.g. your-store.myshopify.com).");
           setLoading(false);
           setStatusMsg("");
           return;
@@ -346,10 +350,15 @@ export default function CompanyInfoPage() {
       } else {
         url = wpSiteUrl.trim();
         if (!url.startsWith("http")) url = `https://${url}`;
+        let urlInvalid = false;
         try {
-          new URL(url);
+          const parsed = new URL(url);
+          if (!parsed.hostname.includes(".")) urlInvalid = true;
         } catch {
-          setError("Please enter a valid website URL (e.g. yoursite.com).");
+          urlInvalid = true;
+        }
+        if (urlInvalid) {
+          setError("Please use a valid URL (e.g. yoursite.com).");
           setLoading(false);
           setStatusMsg("");
           return;
@@ -374,7 +383,14 @@ export default function CompanyInfoPage() {
         setStep("install");
       }
     } catch (err) {
-      setError(fmtErr(err));
+      const msg = fmtErr(err);
+      setError(
+        msg === "Failed. Please try again."
+          ? platform === "shopify"
+            ? "Please use a valid Shopify domain (e.g. your-store.myshopify.com)."
+            : "Please use a valid URL (e.g. yoursite.com)."
+          : msg,
+      );
     } finally {
       setLoading(false);
       setStatusMsg("");
@@ -742,8 +758,8 @@ export default function CompanyInfoPage() {
                     .replace(/^https?:\/\//, "")
                     .replace(/\/$/, "")
                     .trim();
-                  if (d && !/^[a-zA-Z0-9][a-zA-Z0-9\-_.]+\.[a-zA-Z]{2,}$/.test(d))
-                    setShopDomainErr("Use a valid domain (e.g. your-store.myshopify.com)");
+                  if (!d.includes(".") || !/^[a-zA-Z0-9][a-zA-Z0-9\-_.]+\.[a-zA-Z]{2,}$/.test(d))
+                    setShopDomainErr("Please use a valid domain (e.g. your-store.myshopify.com)");
                 }}
                 required
                 autoFocus
@@ -822,11 +838,14 @@ export default function CompanyInfoPage() {
                   const raw = wpSiteUrl.trim();
                   if (!raw) return;
                   const url = raw.startsWith("http") ? raw : `https://${raw}`;
+                  let invalid = false;
                   try {
-                    new URL(url);
+                    const parsed = new URL(url);
+                    if (!parsed.hostname.includes(".")) invalid = true;
                   } catch {
-                    setWpUrlErr("Use a valid URL (e.g. yoursite.com)");
+                    invalid = true;
                   }
+                  if (invalid) setWpUrlErr("Please use a valid URL (e.g. yoursite.com)");
                 }}
                 required
                 autoFocus
