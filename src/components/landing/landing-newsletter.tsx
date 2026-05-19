@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Check } from "@/components/icons";
-import { BLOG_NEWSLETTER } from "@/lib/landing-blog-content";
 
 export function LandingNewsletter() {
   const [submitted, setSubmitted] = useState(false);
@@ -18,18 +17,14 @@ export function LandingNewsletter() {
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           {/* Left — heading + subtitle */}
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Stay in the loop
-            </p>
             <h2
               id="newsletter-heading"
-              className="mt-1 text-lg font-bold tracking-tight text-foreground"
+              className="text-lg font-bold tracking-tight text-foreground"
             >
-              {BLOG_NEWSLETTER.title}
+              Subscribe to our newsletter
             </h2>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              One email every Thursday — a GEO tactic, a prompt trend, or a schema fix you can ship
-              the same day.
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              New GEO tactics every Thursday — one email, one tactic, zero fluff.
             </p>
           </div>
 
