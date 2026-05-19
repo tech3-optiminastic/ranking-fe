@@ -6,6 +6,7 @@ import { LandingHowItWorks } from "@/components/landing/landing-how-it-works";
 import { LandingTestimonials } from "@/components/landing/landing-testimonials";
 import { LandingIntegrationsStrip } from "@/components/landing/landing-integrations-strip";
 import { LandingPricingTeaser } from "@/components/landing/landing-pricing-teaser";
+import { LandingNewsletter } from "@/components/landing/landing-newsletter";
 import { LandingFaq } from "@/components/landing/landing-faq";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
@@ -138,6 +139,7 @@ export default function Home() {
       <LandingWhySignalor />
       <LandingIntegrationsStrip />
       <LandingPricingTeaser />
+      <LandingNewsletter />
       <LandingFaq items={HOMEPAGE_FAQ} />
       <LandingFooter />
     </LandingMarketingShell>
