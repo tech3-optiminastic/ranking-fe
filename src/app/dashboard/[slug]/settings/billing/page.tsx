@@ -344,12 +344,12 @@ function InvoicesSection({ email }: { email: string }) {
                           month: "short",
                           year: "numeric",
                         })
-                      : ","}
+                      : "—"}
                   </td>
                   <td className="px-3 py-2.5 font-medium tabular-nums text-neutral-900">
                     {row.amount != null
                       ? `${row.currency ?? ""} ${row.amount.toFixed(2)}`.trim()
-                      : ","}
+                      : "—"}
                   </td>
                   <td className="px-3 py-2.5">
                     <InvoiceStatusPill status={row.status} />
@@ -376,7 +376,7 @@ function InvoicesSection({ email }: { email: string }) {
 }
 
 function InvoiceStatusPill({ status }: { status: string | null }) {
-  if (!status) return <span className="text-accent-foreground">,</span>;
+  if (!status) return <span className="text-accent-foreground">—</span>;
   const s = status.toLowerCase();
   let cls = "bg-neutral-100 text-neutral-700 border-black/10";
   if (s === "succeeded" || s === "paid" || s === "completed") {
