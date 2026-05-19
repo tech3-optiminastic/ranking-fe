@@ -69,17 +69,80 @@ export interface CreatorStatsResponse {
 export async function applyToCreatorsProgram(
   payload: CreatorApplyPayload,
 ): Promise<CreatorApplyResponse> {
-  const { data } = await apiClient.post<CreatorApplyResponse>(
-    "/api/partners/apply/",
-    payload,
-  );
+  const { data } = await apiClient.post<CreatorApplyResponse>("/api/partners/apply/", payload);
   return data;
 }
 
 export async function getCreatorStats(code: string): Promise<CreatorStatsResponse> {
-  const { data } = await apiClient.get<CreatorStatsResponse>(
-    "/api/partners/stats/",
-    { params: { code } },
+  const { data } = await apiClient.get<CreatorStatsResponse>("/api/partners/stats/", {
+    params: { code },
+  });
+  return data;
+}
+
+export interface CreatorExistsResponse {
+  exists: boolean;
+  code?: string;
+  status?: string;
+}
+
+export async function checkCreatorExists(email: string): Promise<CreatorExistsResponse> {
+  const { data } = await apiClient.get<CreatorExistsResponse>("/api/partners/exists/", {
+    params: { email },
+  });
+  return data;
+}
+
+export interface CreatorMeStats {
+  attributions_total: number;
+  attributions_active: number;
+  pending: CreatorStatsBucket;
+  locked: CreatorStatsBucket;
+  paid: CreatorStatsBucket;
+  lock_window_days: number;
+  recent_commissions: CommissionRow[];
+}
+
+export interface CreatorMeResponse {
+  email: string;
+  code: string;
+  name: string;
+  country: string;
+  social_platforms: SocialEntry[];
+  audience_size: AudienceSize;
+  payout_method: PayoutMethod;
+  payout_details: string;
+  status: string;
+  commission_percent: number;
+  created_at: string;
+  share_url: string;
+  dashboard_url: string;
+  stats: CreatorMeStats;
+}
+
+export async function getMyCreatorProfile(email: string): Promise<CreatorMeResponse> {
+  const { data } = await apiClient.get<CreatorMeResponse>("/api/partners/me/", {
+    params: { email },
+  });
+  return data;
+}
+
+export interface CreatorUpdatePayload {
+  email: string;
+  name?: string;
+  country?: string;
+  social_platforms?: SocialEntry[];
+  audience_size?: AudienceSize;
+  payout_method?: PayoutMethod;
+  payout_details?: string;
+}
+
+export async function updateMyCreatorProfile(
+  payload: CreatorUpdatePayload,
+): Promise<Omit<CreatorMeResponse, "stats" | "created_at">> {
+  const { data } = await apiClient.patch<Omit<CreatorMeResponse, "stats" | "created_at">>(
+    "/api/partners/me/",
+    payload,
   );
   return data;
 }

@@ -112,10 +112,7 @@ function ProgramFaq() {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-3">
       {items.map((item) => (
-        <details
-          key={item.q}
-          className="group rounded-xl border border-black/8 bg-white px-5 py-4"
-        >
+        <details key={item.q} className="group rounded-xl border border-black/8 bg-white px-5 py-4">
           <summary className="flex cursor-pointer list-none items-center justify-between text-[14px] font-semibold text-foreground">
             {item.q}
             <ChevronDown className="size-4 text-neutral-400 transition-transform group-open:rotate-180" />
@@ -128,13 +125,10 @@ function ProgramFaq() {
 }
 
 function PrimaryCta({ size = "lg" }: { size?: "lg" | "sm" }) {
-  const sizing =
-    size === "lg"
-      ? "h-12 px-6 text-[14px]"
-      : "h-10 px-5 text-[13px]";
+  const sizing = size === "lg" ? "h-12 px-6 text-[14px]" : "h-10 px-5 text-[13px]";
   return (
     <Link
-      href="/creators-program/apply"
+      href="/creator/sign-up?returnTo=%2Fcreators-program%2Fapply"
       className={`inline-flex items-center gap-2 rounded-md bg-foreground font-semibold text-background shadow-sm hover:opacity-90 ${sizing}`}
     >
       Join the program
@@ -174,6 +168,15 @@ export default function CreatorsProgramPage() {
               How it works
             </Link>
           </div>
+          <p className="mt-4 text-[12px] text-neutral-500">
+            Already a creator?{" "}
+            <Link
+              href="/creator/sign-in"
+              className="font-semibold text-foreground underline decoration-neutral-300 underline-offset-2 hover:decoration-foreground"
+            >
+              Sign in
+            </Link>
+          </p>
         </div>
       </section>
 

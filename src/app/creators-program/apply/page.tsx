@@ -1,14 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth-client";
 import {
   applyToCreatorsProgram,
+  checkCreatorExists,
   type AudienceSize,
   type CreatorApplyResponse,
   type PayoutMethod,
@@ -100,25 +103,14 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="mb-1.5 block text-[12px] font-semibold text-neutral-700">
-      {children}
-    </label>
+    <label className="mb-1.5 block text-[12px] font-semibold text-neutral-700">{children}</label>
   );
 }
 
-function CountrySelect({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (code: string) => void;
-}) {
+function CountrySelect({ value, onChange }: { value: string; onChange: (code: string) => void }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const selected = useMemo(
-    () => COUNTRIES.find((c) => c.code === value),
-    [value],
-  );
+  const selected = useMemo(() => COUNTRIES.find((c) => c.code === value), [value]);
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return COUNTRIES;
@@ -205,8 +197,7 @@ function SocialPlatformsField({
   value: SocialEntry[];
   onChange: (next: SocialEntry[]) => void;
 }) {
-  const handleFor = (platform: string) =>
-    value.find((e) => e.platform === platform)?.handle ?? "";
+  const handleFor = (platform: string) => value.find((e) => e.platform === platform)?.handle ?? "";
 
   const togglePlatform = (platform: string) => {
     const exists = value.some((e) => e.platform === platform);
@@ -218,9 +209,7 @@ function SocialPlatformsField({
   };
 
   const updateHandle = (platform: string, handle: string) => {
-    onChange(
-      value.map((e) => (e.platform === platform ? { ...e, handle } : e)),
-    );
+    onChange(value.map((e) => (e.platform === platform ? { ...e, handle } : e)));
   };
 
   const enabled = new Set(value.map((e) => e.platform));
@@ -273,12 +262,13 @@ function SocialPlatformsField({
 }
 
 function ApplyForm({
+  lockedEmail,
   onSuccess,
 }: {
+  lockedEmail: string;
   onSuccess: (res: CreatorApplyResponse) => void;
 }) {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [country, setCountry] = useState("");
   const [socials, setSocials] = useState<SocialEntry[]>([]);
   const [audience, setAudience] = useState<AudienceSize>("");
@@ -287,14 +277,12 @@ function ApplyForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const activePayout =
-    PAYOUT_METHODS.find((p) => p.value === payoutMethod) ?? PAYOUT_METHODS[0];
+  const activePayout = PAYOUT_METHODS.find((p) => p.value === payoutMethod) ?? PAYOUT_METHODS[0];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     if (!name.trim()) return setError("Add your name.");
-    if (!email.trim()) return setError("Add your email.");
     if (!country) return setError("Pick a country.");
     const trimmedSocials = socials
       .map((s) => ({ ...s, handle: s.handle.trim() }))
@@ -308,7 +296,7 @@ function ApplyForm({
     try {
       const res = await applyToCreatorsProgram({
         name: name.trim(),
-        email: email.trim().toLowerCase(),
+        email: lockedEmail,
         country,
         social_platforms: trimmedSocials,
         audience_size: audience || undefined,
@@ -317,8 +305,7 @@ function ApplyForm({
       });
       onSuccess(res);
     } catch (err) {
-      const detail =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
       setError(detail || "Couldn't submit your application. Try again.");
     } finally {
       setSubmitting(false);
@@ -341,13 +328,12 @@ function ApplyForm({
           />
         </div>
         <div>
-          <FieldLabel>Email</FieldLabel>
+          <FieldLabel>Email (from your account)</FieldLabel>
           <Input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@domain.com"
-            className="h-10 border-black/12 bg-white text-[13px]"
+            value={lockedEmail}
+            disabled
+            className="h-10 cursor-not-allowed border-black/12 bg-neutral-100 text-[13px] text-neutral-600"
           />
         </div>
       </div>
@@ -524,7 +510,49 @@ function SuccessCard({ result }: { result: CreatorApplyResponse }) {
 }
 
 export default function CreatorsApplyPage() {
+  const router = useRouter();
+  const { data: session, isPending } = useSession();
   const [result, setResult] = useState<CreatorApplyResponse | null>(null);
+  const [checking, setChecking] = useState(true);
+
+  // Gate: must be signed in. Already a creator → straight to dashboard.
+  useEffect(() => {
+    if (isPending) return;
+    const email = session?.user?.email;
+    if (!email) {
+      router.replace(`/creator/sign-up?returnTo=${encodeURIComponent("/creators-program/apply")}`);
+      return;
+    }
+    let cancelled = false;
+    checkCreatorExists(email)
+      .then((res) => {
+        if (cancelled) return;
+        if (res.exists) {
+          router.replace("/creator-dashboard");
+        } else {
+          setChecking(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setChecking(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isPending, session, router]);
+
+  if (isPending || checking || !session?.user?.email) {
+    return (
+      <LandingMarketingShell>
+        <section className="flex min-h-[60vh] items-center justify-center px-6 py-16">
+          <Loader2 className="size-6 animate-spin text-neutral-400" />
+        </section>
+        <LandingFooter />
+      </LandingMarketingShell>
+    );
+  }
+
+  const lockedEmail = session.user.email.toLowerCase();
 
   return (
     <LandingMarketingShell>
@@ -540,18 +568,22 @@ export default function CreatorsApplyPage() {
           <div className="mt-6 text-center">
             <Eyebrow>apply</Eyebrow>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              {result ? "Welcome to the program" : "Join the Creators Program"}
+              {result ? "Welcome to the program" : "Tell us about you"}
             </h1>
             <p className="mx-auto mt-3 max-w-xl text-[14px] leading-relaxed text-neutral-600">
               {result
                 ? "Your creator link is live. Share it anywhere and start earning."
-                : "Tell us about you and we'll mint your creator link instantly. Already applied? Submit the same email to update your details — your code stays the same."}
+                : "We'll mint your creator link instantly. You can edit your profile and payout later from the dashboard."}
             </p>
           </div>
         </div>
 
         <div className="mt-10">
-          {result ? <SuccessCard result={result} /> : <ApplyForm onSuccess={setResult} />}
+          {result ? (
+            <SuccessCard result={result} />
+          ) : (
+            <ApplyForm lockedEmail={lockedEmail} onSuccess={setResult} />
+          )}
         </div>
       </section>
 
