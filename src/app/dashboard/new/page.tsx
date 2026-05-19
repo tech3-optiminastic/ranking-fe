@@ -14,15 +14,18 @@ export default function NewProjectPage() {
   const [orgId, setOrgId] = useState<number | undefined>();
   const [orgName, setOrgName] = useState<string | undefined>();
 
+  const newEmail = session?.user?.email;
   useEffect(() => {
     if (isPending) return;
-    if (!session) {
+    if (!newEmail) {
       router.push(routes.signIn);
       return;
     }
 
-    getOrganizations(session.user.email)
+    let cancelled = false;
+    getOrganizations(newEmail)
       .then((orgs) => {
+        if (cancelled) return;
         if (orgs.length === 0) {
           router.replace(routes.onboardingCompanyInfo);
           return;
@@ -31,8 +34,13 @@ export default function NewProjectPage() {
         setOrgName(orgs[0].name);
         setReady(true);
       })
-      .catch(() => setReady(true));
-  }, [isPending, session, router]);
+      .catch(() => {
+        if (!cancelled) setReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isPending, newEmail, router]);
 
   if (!ready) {
     return (
@@ -55,11 +63,7 @@ export default function NewProjectPage() {
         </header>
 
         <div className="flex flex-1 items-center justify-center py-4 md:py-12">
-          <UrlInputForm
-            email={session?.user?.email ?? ""}
-            orgId={orgId}
-            orgName={orgName}
-          />
+          <UrlInputForm email={session?.user?.email ?? ""} orgId={orgId} orgName={orgName} />
         </div>
       </div>
     </div>

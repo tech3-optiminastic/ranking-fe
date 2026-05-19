@@ -516,18 +516,32 @@ export default function CreatorsApplyPage() {
   const [checking, setChecking] = useState(true);
 
   // Gate: must be signed in. Already a creator → straight to dashboard.
+  // Email-keyed so we don't re-fire on every session ref churn from
+  // better-auth.
+  const applyEmail = session?.user?.email;
   useEffect(() => {
     if (isPending) return;
-    const email = session?.user?.email;
-    if (!email) {
+    if (!applyEmail) {
       router.replace(`/creator/sign-up?returnTo=${encodeURIComponent("/creators-program/apply")}`);
       return;
     }
     let cancelled = false;
-    checkCreatorExists(email)
+    checkCreatorExists(applyEmail)
       .then((res) => {
         if (cancelled) return;
         if (res.exists) {
+          // Guard against bouncing with /creator-dashboard's 404 → apply
+          // redirect if the two endpoints ever disagree (e.g. caching).
+          const flagKey = "signalor:creator-bounce";
+          if (typeof window !== "undefined" && sessionStorage.getItem(flagKey)) {
+            setChecking(false);
+            return;
+          }
+          try {
+            sessionStorage.setItem(flagKey, "1");
+          } catch {
+            /* ignore */
+          }
           router.replace("/creator-dashboard");
         } else {
           setChecking(false);
@@ -539,7 +553,7 @@ export default function CreatorsApplyPage() {
     return () => {
       cancelled = true;
     };
-  }, [isPending, session, router]);
+  }, [isPending, applyEmail, router]);
 
   if (isPending || checking || !session?.user?.email) {
     return (

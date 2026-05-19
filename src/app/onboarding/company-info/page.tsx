@@ -196,9 +196,10 @@ export default function CompanyInfoPage() {
   const [statusMsg, setStatusMsg] = useState("");
   const [atLimitNotice, setAtLimitNotice] = useState<{ planLabel: string } | null>(null);
 
+  const sessionEmailForGate = session?.user?.email;
   useEffect(() => {
-    if (!isPending && !session) router.replace(routes.signIn);
-  }, [isPending, session, router]);
+    if (!isPending && !sessionEmailForGate) router.replace(routes.signIn);
+  }, [isPending, sessionEmailForGate, router]);
 
   // When the user is already at their project limit, surface a banner so
   // they can't fill the form and hit a 403 on submit. We intentionally do

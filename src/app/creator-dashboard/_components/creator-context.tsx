@@ -19,10 +19,11 @@ export function CreatorProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<CreatorMeResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshEmail = session?.user?.email;
   const refresh = useCallback(async () => {
-    if (!session?.user?.email) return;
+    if (!refreshEmail) return;
     try {
-      const data = await getMyCreatorProfile(session.user.email);
+      const data = await getMyCreatorProfile(refreshEmail);
       setProfile(data);
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
@@ -31,17 +32,18 @@ export function CreatorProvider({ children }: { children: React.ReactNode }) {
         router.replace("/creators-program/apply");
       }
     }
-  }, [session, router]);
+  }, [refreshEmail, router]);
 
+  const userEmail = session?.user?.email;
   useEffect(() => {
     if (isPending) return;
-    if (!session?.user?.email) {
+    if (!userEmail) {
       router.replace("/creator/sign-in");
       return;
     }
     let cancelled = false;
     setLoading(true);
-    getMyCreatorProfile(session.user.email)
+    getMyCreatorProfile(userEmail)
       .then((data) => {
         if (cancelled) return;
         setProfile(data);
@@ -50,6 +52,16 @@ export function CreatorProvider({ children }: { children: React.ReactNode }) {
         if (cancelled) return;
         const status = (err as { response?: { status?: number } })?.response?.status;
         if (status === 404) {
+          // Guard against bouncing with /creators-program/apply: if we've
+          // already redirected to apply once this tab and somehow ended up
+          // back here, stop instead of looping.
+          const flagKey = "signalor:creator-bounce";
+          if (typeof window !== "undefined" && sessionStorage.getItem(flagKey)) return;
+          try {
+            sessionStorage.setItem(flagKey, "1");
+          } catch {
+            /* ignore */
+          }
           router.replace("/creators-program/apply");
         }
       })
@@ -59,7 +71,7 @@ export function CreatorProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [isPending, session, router]);
+  }, [isPending, userEmail, router]);
 
   return (
     <CreatorContext.Provider value={{ profile, loading, refresh }}>

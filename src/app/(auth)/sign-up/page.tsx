@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -72,6 +72,11 @@ function SignUpContent() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
+  // Guards the post-signup attribution effect against re-firing when
+  // better-auth returns a fresh `session` reference on rerender — without
+  // this, redeemReferralCode and attributePartner (both non-idempotent
+  // POSTs) could be called multiple times before the redirect completes.
+  const postSignupRan = useRef(false);
   const errorParam = searchParams.get("error");
 
   // Capture ?ref=CODE / ?aff=CODE on first mount.
@@ -89,17 +94,15 @@ function SignUpContent() {
     }
   }, [searchParams]);
 
+  const signedInEmail = session?.user?.email;
   useEffect(() => {
-    if (!isPending && session) {
+    if (!isPending && signedInEmail) {
+      if (postSignupRan.current) return;
+      postSignupRan.current = true;
+
       // Sign-up complete, fire any pending referral redeem AND affiliate
       // attribution in parallel. Failures are non-blocking; the user still
       // reaches the dashboard.
-      const email = session.user?.email;
-      if (!email) {
-        router.replace(routes.dashboard);
-        return;
-      }
-
       const pendingReferral =
         typeof window !== "undefined" ? localStorage.getItem(REFERRAL_PENDING_KEY) : null;
 
@@ -114,7 +117,7 @@ function SignUpContent() {
       const tasks: Promise<unknown>[] = [];
       if (pendingReferral) {
         tasks.push(
-          redeemReferralCode(pendingReferral, email)
+          redeemReferralCode(pendingReferral, signedInEmail)
             .catch(() => {})
             .finally(() => {
               try {
@@ -124,7 +127,7 @@ function SignUpContent() {
         );
       }
       if (affiliateActive && affiliateCode) {
-        tasks.push(attributePartner(affiliateCode, email).catch(() => {}));
+        tasks.push(attributePartner(affiliateCode, signedInEmail).catch(() => {}));
       }
 
       if (tasks.length === 0) {
@@ -137,9 +140,11 @@ function SignUpContent() {
       });
       return;
     }
-    reset();
-    setAuthMode("sign-up");
-  }, [reset, setAuthMode, isPending, session, router]);
+    if (!isPending && !signedInEmail) {
+      reset();
+      setAuthMode("sign-up");
+    }
+  }, [reset, setAuthMode, isPending, signedInEmail, router]);
 
   const { title, description } = STEP_CONTENT[step] ?? STEP_CONTENT["auth-method"];
   const hero = STEP_HERO[step] ?? STEP_HERO["auth-method"];
