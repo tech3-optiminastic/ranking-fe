@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mail, Check } from "@/components/icons";
-import { ScreenHR } from "@/components/ui/intersection-diamonds";
+import { Check } from "@/components/icons";
 import { BLOG_NEWSLETTER } from "@/lib/landing-blog-content";
 
 export function LandingNewsletter() {
@@ -14,75 +13,47 @@ export function LandingNewsletter() {
   }
 
   return (
-    <section className="relative bg-background" aria-labelledby="newsletter-heading">
-      <ScreenHR />
-      <div className="mx-auto max-w-7xl px-6 py-14 lg:px-12 lg:py-16">
-        {/* Primary-colored card */}
-        <div className="relative overflow-hidden rounded-2xl bg-primary px-10 py-12 lg:px-14 lg:py-14">
-          {/* Subtle texture rings */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full"
-            style={{ background: "rgba(255,255,255,0.07)" }}
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-20 -right-10 h-52 w-52 rounded-full"
-            style={{ background: "rgba(255,255,255,0.05)" }}
-          />
-
-          <div className="relative grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-            {/* Left — heading + description */}
-            <div>
-              <h2
-                id="newsletter-heading"
-                className="text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-4xl"
-              >
-                Subscribe to
-                <br />
-                our newsletter
-              </h2>
-              <p className="mt-4 max-w-sm text-sm font-light leading-relaxed text-white/75">
-                {BLOG_NEWSLETTER.description}
-              </p>
-            </div>
-
-            {/* Right — form */}
-            <div>
-              <p className="mb-3 text-sm font-semibold text-white">Stay Informed</p>
-
-              {submitted ? (
-                <div className="flex items-center gap-2 rounded-lg border border-white/30 bg-white/15 px-4 py-3.5">
-                  <Check className="h-4 w-4 shrink-0 text-white" aria-hidden />
-                  <p className="text-sm font-medium text-white">
-                    You&apos;re subscribed — see you Thursday.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  <form className="flex items-center gap-2" onSubmit={handleSubmit}>
-                    <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-white/20 bg-white/95 px-3 py-2.5 shadow-sm">
-                      <Mail className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-                      <input
-                        type="email"
-                        required
-                        placeholder="Enter your email"
-                        className="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="shrink-0 rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
-                      style={{ background: "color-mix(in srgb, var(--primary) 55%, black)" }}
-                    >
-                      {BLOG_NEWSLETTER.cta}
-                    </button>
-                  </form>
-                  <p className="mt-2.5 text-[11px] text-white/60">No spam. Unsubscribe anytime.</p>
-                </>
-              )}
-            </div>
+    <section className="border-b border-border bg-background" aria-labelledby="newsletter-heading">
+      <div className="mx-auto max-w-7xl px-6 py-10 lg:px-12">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+          {/* Left — heading + subtitle */}
+          <div className="min-w-0">
+            <h2
+              id="newsletter-heading"
+              className="text-lg font-bold tracking-tight text-foreground"
+            >
+              {BLOG_NEWSLETTER.title}
+            </h2>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              {BLOG_NEWSLETTER.description}
+            </p>
           </div>
+
+          {/* Right — form or success */}
+          {submitted ? (
+            <div className="flex shrink-0 items-center gap-2 text-sm font-medium text-primary">
+              <Check className="h-4 w-4" aria-hidden />
+              Subscribed — see you Thursday.
+            </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit}
+              className="flex w-full shrink-0 items-center gap-2 sm:w-auto"
+            >
+              <input
+                type="email"
+                required
+                placeholder="Your email here…"
+                className="h-9 min-w-0 flex-1 rounded-md border border-border bg-muted/40 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 sm:w-60"
+              />
+              <button
+                type="submit"
+                className="h-9 shrink-0 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+              >
+                Subscribe
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </section>
