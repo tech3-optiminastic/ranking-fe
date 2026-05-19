@@ -1,4 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#FF4A00"/>
-  <path d="M16,20 L48,20 L16,44 L48,44" stroke="white" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Zapier asterisk: 4 rotated pill bars forming 8 arms -->
+  <g transform="translate(32,32)" fill="#1a1a1a">
+    <rect x="-7" y="-27" width="14" height="54" rx="7"/>
+    <rect x="-27" y="-7" width="54" height="14" rx="7"/>
+    <rect x="-7" y="-27" width="14" height="54" rx="7" transform="rotate(45)"/>
+    <rect x="-7" y="-27" width="14" height="54" rx="7" transform="rotate(-45)"/>
+  </g>
+  <!-- Center rounded-square cutout -->
+  <rect x="25" y="25" width="14" height="14" rx="4" fill="white"/>
 </svg>
