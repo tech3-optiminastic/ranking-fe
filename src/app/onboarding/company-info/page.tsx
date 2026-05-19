@@ -192,6 +192,8 @@ export default function CompanyInfoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
+  const [shopDomainErr, setShopDomainErr] = useState("");
+  const [wpUrlErr, setWpUrlErr] = useState("");
 
   useEffect(() => {
     if (!isPending && !session) router.replace(routes.signIn);
@@ -313,6 +315,8 @@ export default function CompanyInfoPage() {
   function handlePlatformSelect(p: Platform) {
     setPlatform(p);
     setError("");
+    setShopDomainErr("");
+    setWpUrlErr("");
     setStep("url");
   }
 
@@ -729,11 +733,23 @@ export default function CompanyInfoPage() {
                 id="onboarding-shop-domain"
                 placeholder="your-store.myshopify.com"
                 value={shopDomain}
-                onChange={(e) => setShopDomain(e.target.value)}
+                onChange={(e) => {
+                  setShopDomain(e.target.value);
+                  if (shopDomainErr) setShopDomainErr("");
+                }}
+                onBlur={() => {
+                  const d = shopDomain
+                    .replace(/^https?:\/\//, "")
+                    .replace(/\/$/, "")
+                    .trim();
+                  if (d && !/^[a-zA-Z0-9][a-zA-Z0-9\-_.]+\.[a-zA-Z]{2,}$/.test(d))
+                    setShopDomainErr("Use a valid domain (e.g. your-store.myshopify.com)");
+                }}
                 required
                 autoFocus
-                className="h-9 rounded-md border-neutral-200 bg-white text-[13px]"
+                className={`h-9 rounded-md bg-white text-[13px] ${shopDomainErr ? "border-destructive focus-visible:ring-destructive/20" : "border-neutral-200"}`}
               />
+              {shopDomainErr && <p className="text-[11px] text-destructive">{shopDomainErr}</p>}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="onboarding-store-password" className="text-[12px] font-medium">
@@ -798,11 +814,25 @@ export default function CompanyInfoPage() {
                 id="onboarding-wp-url"
                 placeholder="yoursite.com"
                 value={wpSiteUrl}
-                onChange={(e) => setWpSiteUrl(e.target.value)}
+                onChange={(e) => {
+                  setWpSiteUrl(e.target.value);
+                  if (wpUrlErr) setWpUrlErr("");
+                }}
+                onBlur={() => {
+                  const raw = wpSiteUrl.trim();
+                  if (!raw) return;
+                  const url = raw.startsWith("http") ? raw : `https://${raw}`;
+                  try {
+                    new URL(url);
+                  } catch {
+                    setWpUrlErr("Use a valid URL (e.g. yoursite.com)");
+                  }
+                }}
                 required
                 autoFocus
-                className="h-9 rounded-md border-neutral-200 bg-white text-[13px]"
+                className={`h-9 rounded-md bg-white text-[13px] ${wpUrlErr ? "border-destructive focus-visible:ring-destructive/20" : "border-neutral-200"}`}
               />
+              {wpUrlErr && <p className="text-[11px] text-destructive">{wpUrlErr}</p>}
             </div>
             {error ? <p className={ERR_BOX}>{error}</p> : null}
             {statusMsg ? (
