@@ -646,9 +646,9 @@ export default function DashboardSlugLayout({ children }: { children: React.Reac
             topBarActions={topBarActions}
             breadcrumbs={[]}
             mobileFallback={
-              <div className="space-y-2">
+              <div className="space-y-2 flex justify-center items-center flex-col">
                 <LogoComp
-                  size={28}
+                  size={36}
                   compact
                   animated={false}
                   className="mx-auto text-sm font-bold tracking-tight text-foreground"
