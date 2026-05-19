@@ -48,6 +48,8 @@ export function BrowserChrome({
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
+  const currentPath = getPath(url, baseUrl);
+
   useEffect(() => {
     if (!open) return;
     function onClick(e: MouseEvent) {
@@ -58,8 +60,6 @@ export function BrowserChrome({
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, [open]);
-
-  const path = getPath(url, baseUrl);
 
   return (
     <div className="flex items-center gap-2 border-b border-border bg-background px-3 py-2">
@@ -101,23 +101,25 @@ export function BrowserChrome({
         {isLoading ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
       </button>
 
-      {/* URL display — read-only, not editable */}
+      {/* URL bar — domain locked, path editable */}
       <div className="relative flex-1" ref={wrapperRef}>
-        <div className="flex h-9 items-center gap-1.5 rounded-full border border-border bg-muted/35 px-3 select-none">
+        <div className="flex h-9 items-center gap-1.5 rounded-full border border-border bg-muted/35 px-3">
           <Globe2 className="size-3.5 shrink-0 text-muted-foreground" />
           {baseUrl ? (
             <>
               <span
-                className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded bg-muted/60 px-1.5 py-0.5 text-[12px] font-medium text-muted-foreground/80"
+                className="flex shrink-0 select-none items-center gap-1 whitespace-nowrap rounded bg-muted/60 px-1.5 py-0.5 text-[12px] font-medium text-muted-foreground/80"
                 title="Domain locked to your project URL"
               >
                 <Lock className="size-2.5 shrink-0" />
                 {baseUrl}
               </span>
-              <span className="min-w-0 truncate text-[13px] text-foreground">{path || "/"}</span>
+              <span className="min-w-0 truncate text-[13px] text-foreground select-none">
+                {currentPath || "/"}
+              </span>
             </>
           ) : (
-            <span className="min-w-0 truncate text-[13px] text-muted-foreground">
+            <span className="min-w-0 truncate text-[13px] text-muted-foreground select-none">
               {url || "No URL configured"}
             </span>
           )}
