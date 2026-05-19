@@ -21,9 +21,8 @@ export function LandingHero() {
           </h1>
 
           <p className="mt-5 max-w-lg text-base font-light leading-relaxed text-accent-foreground sm:text-lg">
-            Measure how AI engines describe your brand, where competitors are winning citations, and
-            exactly what to fix next. Audit, scoring, and execution-ready recommendations in one
-            workflow.
+            See how ChatGPT, Claude, Gemini, and Perplexity describe your brand. Find what to fix.
+            Ship it.
           </p>
 
           {/* <HeroAnalyzerForm /> */}

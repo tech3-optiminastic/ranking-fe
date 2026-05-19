@@ -11,26 +11,22 @@ const FEATURE_ROWS = [
   {
     icon: Gauge,
     title: "GEO score",
-    description:
-      "One 0–100 read on how well AI systems understand, trust, and cite your site, not vanity traffic.",
+    description: "One 0–100 read on how AI engines trust and cite your site.",
   },
   {
     icon: Link2,
     title: "Citation & prompt signals",
-    description:
-      "See which pages and sources show up in answers so you can double down on what models actually use.",
+    description: "See which pages AI models actually use. Double down on what works.",
   },
   {
     icon: ListChecks,
     title: "Prioritized fixes",
-    description:
-      "Plain-language tasks ordered by impact: schema, structure, and content tweaks that move citations.",
+    description: "Plain-language tasks ranked by impact. Schema, structure, content.",
   },
   {
     icon: Layers,
     title: "Multi-engine view",
-    description:
-      "Track how ChatGPT, Perplexity, Gemini, and others treat your brand, in one place, updated continuously.",
+    description: "ChatGPT, Claude, Gemini, Perplexity — one view, always fresh.",
   },
 ] as const;
 
@@ -64,9 +60,8 @@ export function LandingWhySignalor() {
           </span>
         </h2>
         <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
-          Over 40% of searches now happen inside AI tools, and those tools don&apos;t rank links,
-          they cite sources. Signalor runs a full GEO audit of your website, scoring AI citability,
-          structured data, and where you win or lose against competitors.
+          Over 40% of searches now happen inside AI tools. Those tools cite sources, not links.
+          Signalor scores your citability and shows where you win or lose against competitors.
         </p>
       </div>
 
@@ -81,7 +76,7 @@ export function LandingWhySignalor() {
                 Proof in numbers
               </h3>
               <p className="mt-3 max-w-sm text-sm font-light leading-relaxed text-accent-foreground md:text-[15px]">
-                Benchmarks from teams using Signalor to grow citations and tighten GEO execution.
+                From teams using Signalor to grow citations.
               </p>
             </div>
 
@@ -127,8 +122,8 @@ export function LandingWhySignalor() {
                 Citation attribution
               </h3>
               <p className="mt-3 max-w-sm text-sm font-light leading-relaxed text-accent-foreground md:text-[15px]">
-                See exactly which URLs AI engines cite for your prompts, yours, your rivals&apos;,
-                and everyone else. The page to fix, not a guess.
+                See exactly which URLs AI engines cite — yours, your rivals&rsquo;,
+                everyone&rsquo;s. No guessing.
               </p>
             </div>
 
@@ -209,8 +204,7 @@ export function LandingWhySignalor() {
                 Competitor delta
               </h3>
               <p className="mt-3 max-w-sm text-sm font-light leading-relaxed text-accent-foreground md:text-[15px]">
-                Track which prompts you win back from rivals week over week, so you see the content
-                sprint paying off, not just static scores.
+                Track which prompts you win back from rivals every week. See the work pay off.
               </p>
             </div>
 
@@ -275,8 +269,7 @@ export function LandingWhySignalor() {
                 What you ship
               </h3>
               <p className="mt-3 max-w-sm text-sm font-light leading-relaxed text-accent-foreground md:text-[15px]">
-                The product surfaces you use every week, from score to fixes to engine-by-engine
-                visibility.
+                Every surface you use weekly — score, fixes, engine-by-engine visibility.
               </p>
             </div>
 
