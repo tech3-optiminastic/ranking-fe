@@ -667,12 +667,12 @@ function LoginPreview({
         </p>
       </div>
       <Link
-        href={isAuthenticated ? "/dashboard" : "/sign-in"}
+        href={isAuthenticated ? "/dashboard" : "/sign-up"}
         className="inline-flex items-center justify-center gap-1 rounded-md bg-primary px-2 py-1.5 text-[12px] font-semibold tracking-tight text-primary-foreground shadow-sm transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1"
         onClick={onNavigate}
       >
         <LogIn className="h-3 w-3" strokeWidth={2} aria-hidden />
-        {isAuthenticated ? "Go to Dashboard" : "Sign in"}
+        {isAuthenticated ? "Go to Dashboard" : "Get started"}
       </Link>
     </>
   );
@@ -926,7 +926,7 @@ export function LandingMegaNav() {
               <Link href="/sign-in">Log In</Link>
             </Button>
             <Button asChild className={cn(LANDING_PRIMARY_CTA_CLASS, "px-4")}>
-              <Link href="/sign-up">Sign Up</Link>
+              <Link href="/sign-up">Get started</Link>
             </Button>
           </>
         )}
@@ -1023,7 +1023,7 @@ export function LandingMegaNav() {
                       className={cn(LANDING_PRIMARY_CTA_CLASS, "w-full justify-center")}
                     >
                       <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
-                        Sign Up
+                        Get started
                       </Link>
                     </Button>
                   </>
