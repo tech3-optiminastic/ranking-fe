@@ -216,7 +216,7 @@ export default function CompanyInfoPage() {
           setPlatform("shopify");
           setAppInstalled(true);
           setStep("prompts");
-          genPrompts(d.companyName, d.siteUrl);
+          if (!d.prompts?.length) genPrompts(d.companyName, d.siteUrl);
           sessionStorage.removeItem("signalor_onboarding");
         }
       } catch {
@@ -328,11 +328,28 @@ export default function CompanyInfoPage() {
     try {
       let url: string;
       if (platform === "shopify") {
-        const domain = shopDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+        const domain = shopDomain
+          .replace(/^https?:\/\//, "")
+          .replace(/\/$/, "")
+          .trim();
+        if (!domain || !/^[a-zA-Z0-9][a-zA-Z0-9\-_.]+\.[a-zA-Z]{2,}$/.test(domain)) {
+          setError("Please enter a valid Shopify domain (e.g. your-store.myshopify.com).");
+          setLoading(false);
+          setStatusMsg("");
+          return;
+        }
         url = `https://${domain}`;
       } else {
         url = wpSiteUrl.trim();
         if (!url.startsWith("http")) url = `https://${url}`;
+        try {
+          new URL(url);
+        } catch {
+          setError("Please enter a valid website URL (e.g. yoursite.com).");
+          setLoading(false);
+          setStatusMsg("");
+          return;
+        }
       }
       setSiteUrl(url);
 
@@ -415,7 +432,7 @@ export default function CompanyInfoPage() {
       await connectWordPress(session.user.email, siteUrl, wpApiKey.trim(), "");
       setAppInstalled(true);
       setStep("prompts");
-      genPrompts(companyName.trim(), siteUrl);
+      if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
     } catch (err) {
       setError(fmtErr(err));
     } finally {
@@ -427,7 +444,7 @@ export default function CompanyInfoPage() {
   // Skip install step (user can install later)
   function handleSkipInstall() {
     setStep("prompts");
-    genPrompts(companyName.trim(), siteUrl);
+    if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
   }
 
   async function genPrompts(brand: string, url: string) {
@@ -451,10 +468,13 @@ export default function CompanyInfoPage() {
         ]);
     } catch {
       setPrompts([
-        `Best tools in this space?`,
-        `Which solution do experts recommend?`,
-        `Compare top options`,
+        `What are the best ${brand} alternatives?`,
+        `Is ${brand} worth it?`,
+        `Compare ${brand} with competitors`,
+        `What do experts say about ${brand}?`,
+        `Best tools similar to ${brand}`,
       ]);
+      setError("Couldn't auto-generate prompts — showing defaults. Edit or add your own.");
     } finally {
       setLoadingPrompts(false);
     }
@@ -468,7 +488,11 @@ export default function CompanyInfoPage() {
     setEditText(prompts[i]);
   }
   function saveEdit(i: number) {
-    if (editText.trim()) setPrompts((p) => p.map((v, j) => (j === i ? editText.trim() : v)));
+    if (editText.trim()) {
+      setPrompts((p) => p.map((v, j) => (j === i ? editText.trim() : v)));
+    } else {
+      setPrompts((p) => p.filter((_, j) => j !== i));
+    }
     setEditingIdx(null);
     setEditText("");
   }
@@ -739,6 +763,7 @@ export default function CompanyInfoPage() {
                 className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium"
                 onClick={() => {
                   setStep("platform");
+                  setOrgId(null);
                   setError("");
                 }}
               >
@@ -793,6 +818,7 @@ export default function CompanyInfoPage() {
                 className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium"
                 onClick={() => {
                   setStep("platform");
+                  setOrgId(null);
                   setError("");
                 }}
               >
@@ -889,6 +915,7 @@ export default function CompanyInfoPage() {
                 variant="outline"
                 className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium"
                 onClick={() => {
+                  sessionStorage.removeItem("signalor_onboarding");
                   setStep("url");
                   setError("");
                 }}
@@ -1152,7 +1179,7 @@ export default function CompanyInfoPage() {
               <Button
                 type="button"
                 onClick={() => setStep("analytics")}
-                disabled={loadingPrompts || prompts.length === 0}
+                disabled={loadingPrompts || prompts.filter(Boolean).length === 0}
                 className="auth-cta-btn h-9 min-w-0 flex-[2] rounded-md text-[13px] font-medium text-white hover:text-white"
               >
                 Continue <ArrowRight className="h-4 w-4" />
