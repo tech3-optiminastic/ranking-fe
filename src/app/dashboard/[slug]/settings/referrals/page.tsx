@@ -94,7 +94,7 @@ export default function ReferralsSettingsPage() {
                 helper="Anyone who signs up through this link is credited to you."
               >
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <div className="flex-1 overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-[12.5px] text-neutral-700">
+                  <div className="flex-1 overflow-x-auto rounded-md border border-black/8 bg-neutral-50 px-3 py-2 font-mono text-[12.5px] text-neutral-700">
                     <span className="text-neutral-400">
                       {SITE_BASE.replace(/^https?:\/\//, "")}
                     </span>
@@ -124,7 +124,7 @@ export default function ReferralsSettingsPage() {
                 helper="Short code embedded in the link above. Useful for verbal sharing."
               >
                 <span className="inline-flex items-center gap-1.5">
-                  <span className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-1.5 font-mono text-[13px] font-semibold tracking-tight text-neutral-900">
+                  <span className="rounded-md border border-black/8 bg-neutral-50 px-3 py-1.5 font-mono text-[13px] font-semibold tracking-tight text-neutral-900">
                     {data.code}
                   </span>
                 </span>
@@ -155,7 +155,7 @@ export default function ReferralsSettingsPage() {
               description="Lifetime totals across every referral you've sent."
             />
 
-            <div className="grid grid-cols-2 divide-x divide-y divide-neutral-200 sm:grid-cols-4 sm:divide-y-0">
+            <div className="grid grid-cols-2 divide-x divide-y divide-black/6 sm:grid-cols-4 sm:divide-y-0">
               <StatTile label="Total invites" value={data.stats.total} />
               <StatTile label="Pending" value={data.stats.pending} tone="muted" />
               <StatTile label="Subscribed" value={data.stats.paid} tone="positive" indicator />
@@ -173,7 +173,7 @@ export default function ReferralsSettingsPage() {
             <SettingsCard.Body>
               {data.referrals.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 py-10 text-center">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-400">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-neutral-50 text-neutral-400">
                     <Gift className="h-4 w-4" strokeWidth={1.75} />
                   </span>
                   <p className="text-[12.5px] font-medium text-neutral-700">No referrals yet</p>
@@ -184,7 +184,7 @@ export default function ReferralsSettingsPage() {
               ) : (
                 <div className="-mx-6 -my-5 overflow-hidden">
                   <table className="w-full text-left text-[12.5px]">
-                    <thead className="border-b border-neutral-200 bg-neutral-50/60 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-neutral-500">
+                    <thead className="border-b border-black/8 bg-neutral-50/60 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-neutral-500">
                       <tr>
                         <th className="px-6 py-2.5">Email</th>
                         <th className="px-3 py-2.5">Status</th>
@@ -192,7 +192,7 @@ export default function ReferralsSettingsPage() {
                         <th className="px-6 py-2.5">Subscribed</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-neutral-200">
+                    <tbody className="divide-y divide-black/6">
                       {data.referrals.map((r) => (
                         <tr
                           key={r.referee_email}

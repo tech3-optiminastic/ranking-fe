@@ -40,7 +40,7 @@ export function SentimentAnalysisCard({ sentiment }: { sentiment: DashboardSenti
     : [];
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col rounded-xl border border-neutral-100 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_22px_rgba(15,23,42,0.08)]">
+    <div className="flex h-full min-h-0 w-full flex-col rounded-sm border border-black/6 bg-white p-4">
       {/* Header */}
       <div className="mb-3 shrink-0">
         <p className="text-sm font-semibold text-foreground">Sentiment Analysis</p>

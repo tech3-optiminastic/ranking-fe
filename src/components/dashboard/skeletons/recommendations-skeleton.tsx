@@ -20,10 +20,7 @@ export function RecommendationsSkeleton() {
 
       {/* recommendation cards */}
       {[1, 2, 3, 4, 5].map((i) => (
-        <div
-          key={i}
-          className="rounded-xl border border-neutral-100 bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.04)]"
-        >
+        <div key={i} className="rounded-sm border border-black/6 bg-white p-4">
           <div className="flex items-start gap-3">
             <Skeleton className="mt-0.5 h-5 w-5 shrink-0 rounded-md" />
             <div className="min-w-0 flex-1 space-y-2">

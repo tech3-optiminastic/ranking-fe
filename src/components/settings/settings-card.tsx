@@ -20,8 +20,10 @@
 import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-const CARD_CLS =
-  "rounded-xl border border-neutral-200 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.03)]";
+// Chrome aligned to the landing page's "lined and tight" aesthetic:
+// flat rounded-sm, hairline border-black/6, no soft layered shadow. Matches
+// the cells used in landing-features-grid / landing-why-signalor.
+const CARD_CLS = "rounded-sm border border-black/6 bg-white";
 
 export function SettingsCard({ children, className }: { children: ReactNode; className?: string }) {
   return <section className={cn(CARD_CLS, className)}>{children}</section>;
@@ -29,11 +31,14 @@ export function SettingsCard({ children, className }: { children: ReactNode; cla
 
 function CardHeader({
   title,
+  eyebrow,
   description,
   action,
   className,
 }: {
   title: string;
+  /** Optional [ eyebrow ] tag rendered above the title to match the landing voice. */
+  eyebrow?: string;
   description?: string;
   action?: ReactNode;
   className?: string;
@@ -41,11 +46,16 @@ function CardHeader({
   return (
     <header
       className={cn(
-        "flex items-start justify-between gap-3 border-b border-neutral-200 px-6 py-5",
+        "flex items-start justify-between gap-3 border-b border-black/6 px-6 py-5",
         className,
       )}
     >
       <div className="min-w-0">
+        {eyebrow ? (
+          <p className="mb-2 text-[10.5px] font-medium uppercase tracking-[0.22em] text-neutral-400">
+            [ {eyebrow} ]
+          </p>
+        ) : null}
         <h3 className="text-[15px] font-semibold tracking-tight text-neutral-900">{title}</h3>
         {description ? (
           <p className="mt-1 text-[13px] font-light leading-relaxed text-neutral-500">
@@ -69,7 +79,7 @@ function CardBody({
   divided?: boolean;
 }) {
   return (
-    <div className={cn(divided ? "divide-y divide-neutral-200 px-6" : "px-6 py-5", className)}>
+    <div className={cn(divided ? "divide-y divide-black/6 px-6" : "px-6 py-5", className)}>
       {children}
     </div>
   );
@@ -79,7 +89,7 @@ function CardFooter({ children, className }: { children: ReactNode; className?: 
   return (
     <footer
       className={cn(
-        "flex items-center justify-between gap-3 border-t border-neutral-200 px-6 py-4",
+        "flex items-center justify-between gap-3 border-t border-black/6 px-6 py-4",
         className,
       )}
     >
@@ -164,7 +174,7 @@ export function StatusPill({
           ? "border-rose-200 bg-rose-50 text-rose-700"
           : tone === "primary"
             ? "border-primary/20 bg-primary/5 text-primary"
-            : "border-neutral-200 bg-neutral-50 text-neutral-600";
+            : "border-black/8 bg-neutral-50 text-neutral-600";
   return (
     <span
       className={cn(
@@ -185,10 +195,10 @@ export const BTN_PRIMARY =
   "inline-flex items-center justify-center gap-1.5 rounded-md bg-neutral-900 px-3.5 py-2 text-[12.5px] font-medium tracking-tight text-white shadow-[0_1px_2px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.08)] transition-colors duration-150 hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const BTN_OUTLINE =
-  "inline-flex items-center justify-center gap-1.5 rounded-md border border-neutral-200 bg-white px-3.5 py-2 text-[12.5px] font-medium tracking-tight text-neutral-900 shadow-sm transition-colors duration-150 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-1.5 rounded-md border border-black/12 bg-white px-3.5 py-2 text-[12.5px] font-medium tracking-tight text-neutral-900 shadow-sm transition-colors duration-150 hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const BTN_DANGER =
   "inline-flex items-center justify-center gap-1.5 rounded-md bg-rose-600 px-3.5 py-2 text-[12.5px] font-medium tracking-tight text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-colors duration-150 hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const INPUT_CLS =
-  "w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-[13px] text-neutral-900 placeholder:text-neutral-400 transition-colors duration-150 focus:border-neutral-400 focus:outline-none focus:ring-4 focus:ring-neutral-900/[0.04] disabled:bg-neutral-50 disabled:text-neutral-400";
+  "w-full rounded-sm border border-black/10 bg-white px-3 py-2 text-[13px] text-neutral-900 placeholder:text-neutral-400 transition-colors duration-150 focus:border-black/30 focus:outline-none focus:ring-4 focus:ring-black/[0.04] disabled:bg-neutral-50 disabled:text-neutral-400";

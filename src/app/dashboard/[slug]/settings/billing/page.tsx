@@ -146,7 +146,7 @@ export default function BillingSettingsPage() {
                 helper="Determines projects, prompt cap, and which AI engines are included."
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-md border border-neutral-200 bg-gradient-to-b from-white to-neutral-50 text-primary shadow-sm">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-md border border-black/8 bg-gradient-to-b from-white to-neutral-50 text-primary shadow-sm">
                     <PlanIcon className="h-4 w-4" strokeWidth={1.75} />
                   </span>
                   <div>
@@ -183,7 +183,7 @@ export default function BillingSettingsPage() {
                           "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium tracking-tight transition-colors",
                           allowed
                             ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                            : "border-neutral-200 bg-neutral-50 text-neutral-400 line-through",
+                            : "border-black/8 bg-neutral-50 text-neutral-400 line-through",
                         )}
                       >
                         <EngineBadge engine={eng} size={14} />
@@ -333,7 +333,7 @@ function InvoicesSection({ email }: { email: string }) {
           </p>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-8 text-center">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-400">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-neutral-50 text-neutral-400">
               <FileDown className="h-4 w-4" strokeWidth={1.75} />
             </span>
             <p className="text-[12.5px] font-medium text-neutral-700">No invoices yet</p>
@@ -344,7 +344,7 @@ function InvoicesSection({ email }: { email: string }) {
         ) : (
           <div className="-mx-6 -my-5 overflow-hidden">
             <table className="w-full text-left text-[12.5px]">
-              <thead className="border-b border-neutral-200 bg-neutral-50/60 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-neutral-500">
+              <thead className="border-b border-black/8 bg-neutral-50/60 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-neutral-500">
                 <tr>
                   <th className="px-6 py-2.5">Date</th>
                   <th className="px-3 py-2.5">Amount</th>
@@ -352,7 +352,7 @@ function InvoicesSection({ email }: { email: string }) {
                   <th className="px-6 py-2.5 text-right">Receipt</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-200">
+              <tbody className="divide-y divide-black/6">
                 {items.map((row) => (
                   <tr key={row.payment_id} className="transition-colors hover:bg-neutral-50/40">
                     <td className="px-6 py-3 text-neutral-900">
@@ -377,7 +377,7 @@ function InvoicesSection({ email }: { email: string }) {
                         href={`${config.apiBaseUrl}/api/payments/invoice/?email=${encodeURIComponent(email)}&payment_id=${encodeURIComponent(row.payment_id)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-[11.5px] font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 hover:text-neutral-900"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-black/8 bg-white px-2.5 py-1.5 text-[11.5px] font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 hover:text-neutral-900"
                       >
                         <FileDown className="h-3.5 w-3.5" strokeWidth={1.75} />
                         PDF

@@ -506,7 +506,7 @@ export function CompetitorTable({
 
           {locked ? (
             <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
-              <div className="max-w-xs rounded-xl border border-border bg-card px-4 py-3 text-center shadow-lg">
+              <div className="max-w-xs rounded-sm border border-border bg-card px-4 py-3 text-center shadow-lg">
                 <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary/12">
                   <Lock className="h-4 w-4 text-primary" />
                 </div>

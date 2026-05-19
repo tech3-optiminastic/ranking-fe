@@ -1278,7 +1278,7 @@ export function PromptTracker({
               }}
             >
               <div
-                className="flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+                className="flex w-full max-w-md flex-col overflow-hidden rounded-sm border border-border bg-card shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
                 role="dialog"
                 aria-modal="true"

@@ -90,7 +90,7 @@ export function SiteBacklinkOpportunitiesPanel({ slug }: Props) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-border bg-card px-4 py-8">
+      <div className="rounded-sm border border-border bg-card px-4 py-8">
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           Loading…
@@ -103,7 +103,7 @@ export function SiteBacklinkOpportunitiesPanel({ slug }: Props) {
 
   return (
     <div
-      className="rounded-xl border border-border bg-card px-4 py-5"
+      className="rounded-sm border border-border bg-card px-4 py-5"
       data-tour-card="backlinks-free-panel"
     >
       <div className="mb-3 flex items-center justify-between gap-3">

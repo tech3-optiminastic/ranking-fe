@@ -83,7 +83,7 @@ export function GeoScoreCard({
   const segments = buildSegments(displayScore);
 
   return (
-    <div className="relative col-span-3 flex h-full flex-col rounded-xl border border-neutral-100 bg-white px-4 pb-4 pt-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+    <div className="relative col-span-3 flex h-full flex-col rounded-sm border border-black/6 bg-white px-4 pb-4 pt-3.5">
       {sparkle ? <Sparkles /> : null}
 
       {/* Title */}

@@ -4,7 +4,11 @@ import { useMemo } from "react";
 import type { BrandVisibility } from "@/lib/api/analyzer";
 import { FEATURE_COLORS } from "./constants";
 
-export function VisibilityByPlatformCard({ brandVis }: { brandVis: BrandVisibility | null | undefined }) {
+export function VisibilityByPlatformCard({
+  brandVis,
+}: {
+  brandVis: BrandVisibility | null | undefined;
+}) {
   const visibilityCards = useMemo(() => {
     if (!brandVis) return [];
     return [
@@ -77,7 +81,7 @@ export function VisibilityByPlatformCard({ brandVis }: { brandVis: BrandVisibili
   }, [brandVis]);
 
   return (
-    <div className="col-span-4 flex h-full min-h-0 flex-col rounded-xl border border-neutral-100 bg-white p-3 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+    <div className="col-span-4 flex h-full min-h-0 flex-col rounded-sm border border-black/6 bg-white p-3">
       <p className="mb-2 shrink-0 text-sm font-semibold text-foreground">Visibility by Platform</p>
       {visibilityCards.length > 0 ? (
         <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-2">
@@ -100,33 +104,62 @@ export function VisibilityByPlatformCard({ brandVis }: { brandVis: BrandVisibili
               >
                 <div className="flex min-h-0 flex-1 flex-col">
                   <div className="mb-2 flex shrink-0 items-center justify-between">
-                    <p className={card.featured ? "text-xs font-medium text-white" : "text-xs font-medium text-foreground/80"}>
+                    <p
+                      className={
+                        card.featured
+                          ? "text-xs font-medium text-white"
+                          : "text-xs font-medium text-foreground/80"
+                      }
+                    >
                       {card.label}
                     </p>
                     <span
                       className="rounded-full p-0.5"
-                      style={card.featured
-                        ? { border: "1px solid rgba(255,255,255,0.35)", backgroundColor: "rgba(255,255,255,0.2)" }
-                        : { border: "1px solid #e5e7eb", backgroundColor: "#f9fafb" }}
+                      style={
+                        card.featured
+                          ? {
+                              border: "1px solid rgba(255,255,255,0.35)",
+                              backgroundColor: "rgba(255,255,255,0.2)",
+                            }
+                          : { border: "1px solid #e5e7eb", backgroundColor: "#f9fafb" }
+                      }
                     >
                       {card.icon}
                     </span>
                   </div>
-                  <p className={`text-[26px] font-bold leading-none tracking-tight ${card.featured ? "text-white" : "text-foreground"}`}>
+                  <p
+                    className={`text-[26px] font-bold leading-none tracking-tight ${card.featured ? "text-white" : "text-foreground"}`}
+                  >
                     {card.value}
                   </p>
                   <div className="mt-auto flex shrink-0 flex-wrap items-center gap-1 pt-1.5">
                     <span
                       className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold"
-                      style={card.featured
-                        ? { backgroundColor: isPositive ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)", color: "white" }
-                        : isPositive
-                          ? { backgroundColor: "rgba(34,197,94,0.1)", color: "#16a34a" }
-                          : { backgroundColor: "rgba(228,96,85,0.1)", color: FEATURE_COLORS.orange }}
+                      style={
+                        card.featured
+                          ? {
+                              backgroundColor: isPositive
+                                ? "rgba(255,255,255,0.25)"
+                                : "rgba(0,0,0,0.25)",
+                              color: "white",
+                            }
+                          : isPositive
+                            ? { backgroundColor: "rgba(34,197,94,0.1)", color: "#16a34a" }
+                            : {
+                                backgroundColor: "rgba(228,96,85,0.1)",
+                                color: FEATURE_COLORS.orange,
+                              }
+                      }
                     >
                       {isPositive ? "↑" : "↓"} {deltaPct}%
                     </span>
-                    <span className={card.featured ? "text-[10px] font-medium text-white/80" : "text-[10px] text-muted-foreground"}>
+                    <span
+                      className={
+                        card.featured
+                          ? "text-[10px] font-medium text-white/80"
+                          : "text-[10px] text-muted-foreground"
+                      }
+                    >
                       Visibility score
                     </span>
                   </div>
