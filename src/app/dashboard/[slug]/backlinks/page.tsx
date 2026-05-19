@@ -26,7 +26,7 @@ export default function BacklinksPage() {
       </div>
 
       <div
-        className="flex flex-wrap items-center gap-1 border-b border-border"
+        className="inline-flex items-center rounded-lg border border-border"
         data-tour-card="backlinks-tabs"
       >
         <TabButton
@@ -68,7 +68,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "relative -mb-px flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-[13px] font-semibold transition-colors",
+        "flex items-center gap-1.5 border-b-2 px-4 py-3 text-[13px] font-semibold transition-colors first:rounded-l-[7px] last:rounded-r-[7px]",
         active
           ? "border-primary text-foreground"
           : "border-transparent text-muted-foreground hover:text-foreground",
