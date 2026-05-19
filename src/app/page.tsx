@@ -139,8 +139,8 @@ export default function Home() {
       <LandingWhySignalor />
       <LandingIntegrationsStrip />
       <LandingPricingTeaser />
-      <LandingNewsletter />
       <LandingFaq items={HOMEPAGE_FAQ} />
+      <LandingNewsletter />
       <LandingFooter />
     </LandingMarketingShell>
   );
