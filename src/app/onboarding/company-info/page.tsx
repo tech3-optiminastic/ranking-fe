@@ -26,7 +26,6 @@ import {
   Loader2,
   ArrowRight,
   ArrowLeft,
-  ShoppingBag,
   Globe,
   Plus,
   X,
@@ -35,7 +34,6 @@ import {
   Download,
   ExternalLink,
   CheckCircle2,
-  BarChart3,
 } from "@/components/icons";
 
 type Platform = "shopify" | "wordpress";
@@ -643,17 +641,27 @@ export default function CompanyInfoPage() {
                   id: "shopify" as Platform,
                   label: "Shopify",
                   desc: "Connect via app install",
-                  icon: <ShoppingBag className="h-5 w-5" />,
+                  icon: (
+                    <img
+                      src="/logos/shopify.svg"
+                      alt="Shopify"
+                      className="h-5 w-5 object-contain"
+                    />
+                  ),
                   wrap: "bg-[#96bf48]/10",
-                  accent: "text-[#96bf48]",
                 },
                 {
                   id: "wordpress" as Platform,
                   label: "WordPress",
                   desc: "Connect via plugin",
-                  icon: <Globe className="h-5 w-5" />,
+                  icon: (
+                    <img
+                      src="/logos/wordpress.svg"
+                      alt="WordPress"
+                      className="h-5 w-5 object-contain"
+                    />
+                  ),
                   wrap: "bg-[#21759b]/10",
-                  accent: "text-[#21759b]",
                 },
               ].map((p) => (
                 <button
@@ -662,8 +670,10 @@ export default function CompanyInfoPage() {
                   onClick={() => handlePlatformSelect(p.id)}
                   className="flex w-full items-center gap-4 rounded-xl border border-black/8 bg-white p-4 text-left shadow-[0_2px_14px_rgba(0,0,0,0.045)] transition hover:border-black/12 hover:bg-neutral-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.99]"
                 >
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center ${p.wrap}`}>
-                    <span className={p.accent}>{p.icon}</span>
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${p.wrap}`}
+                  >
+                    {p.icon}
                   </div>
                   <div>
                     <p className="text-[13px] font-medium text-foreground">{p.label}</p>
@@ -820,7 +830,7 @@ export default function CompanyInfoPage() {
             <div className={`${PANEL} p-5`}>
               <div className="mb-5 flex items-start gap-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#96bf48]/10">
-                  <ShoppingBag className="h-5 w-5 text-[#96bf48]" />
+                  <img src="/logos/shopify.svg" alt="Shopify" className="h-5 w-5 object-contain" />
                 </div>
                 <div>
                   <p className="mb-1 text-[13px] font-medium text-foreground">
@@ -1013,8 +1023,10 @@ export default function CompanyInfoPage() {
         {/* ── Step 5: Prompts ── */}
         {step === "prompts" && (
           <div className="space-y-3">
-            <p className="text-center text-[12px] text-muted-foreground">
-              Brand <span className="font-medium text-foreground">{companyName}</span>
+            <p className="flex items-center justify-center gap-1.5 text-center text-[12px] text-muted-foreground">
+              Brand
+              {siteUrl && <SiteFavicon url={siteUrl} />}
+              <span className="font-medium text-foreground">{companyName}</span>
             </p>
 
             {loadingPrompts ? (
@@ -1154,8 +1166,12 @@ export default function CompanyInfoPage() {
           <div className="space-y-3">
             <div className={`${PANEL} p-5`}>
               <div className="mb-5 flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e8710a]/10">
-                  <BarChart3 className="h-5 w-5 text-[#e8710a]" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg overflow-hidden">
+                  <img
+                    src="/logos/google-analytics.svg"
+                    alt="Google Analytics"
+                    className="h-10 w-10 object-contain"
+                  />
                 </div>
                 <div>
                   <p className="mb-1 text-[13px] font-medium text-foreground">Google Analytics</p>
