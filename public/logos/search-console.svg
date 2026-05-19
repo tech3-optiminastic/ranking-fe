@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <!-- Search Console: magnifying glass, monochrome -->
-  <circle cx="26" cy="26" r="14" stroke="#1a1a1a" stroke-width="6" fill="none"/>
-  <line x1="36" y1="36" x2="53" y2="53" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="26" cy="26" r="14" stroke="#000" stroke-width="6" fill="none"/>
+  <line x1="36" y1="36" x2="53" y2="53" stroke="#000" stroke-width="6" stroke-linecap="round"/>
 </svg>
