@@ -75,7 +75,7 @@ function IntegrationCell({ tile, index }: { tile: IntegrationTile; index: number
         width={40}
         height={40}
         decoding="async"
-        className="h-10 w-10 object-contain opacity-90 transition hover:opacity-100"
+        className={`h-10 w-10 object-contain transition ${tile.comingSoon ? "" : "opacity-80 hover:opacity-100"}`}
       />
       <p className="text-[11px] font-semibold text-neutral-700">{tile.name}</p>
       {tile.comingSoon ? (

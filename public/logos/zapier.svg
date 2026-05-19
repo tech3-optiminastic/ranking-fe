@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <!-- Zapier asterisk: 4 rotated pill bars forming 8 arms -->
-  <g transform="translate(32,32)" fill="#1a1a1a">
+  <g transform="translate(32,32)" fill="#000">
     <rect x="-7" y="-27" width="14" height="54" rx="7"/>
     <rect x="-27" y="-7" width="54" height="14" rx="7"/>
     <rect x="-7" y="-27" width="14" height="54" rx="7" transform="rotate(45)"/>
