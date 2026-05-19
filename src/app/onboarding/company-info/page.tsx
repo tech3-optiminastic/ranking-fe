@@ -194,17 +194,18 @@ export default function CompanyInfoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
+  const [atLimitNotice, setAtLimitNotice] = useState<{ planLabel: string } | null>(null);
 
   useEffect(() => {
     if (!isPending && !session) router.replace(routes.signIn);
   }, [isPending, session, router]);
 
-  // Proactively bounce when the user is already at their project limit so
-  // they don't fill the form and hit a dead-end 403 on submit. We check
-  // usage + subscription together: only push to /pricing when they aren't
-  // already paying. Paid users at-limit go to /dashboard (delete a project),
-  // otherwise /pricing → here → /pricing → here … bounces forever because
-  // /pricing re-routes paid users back to `returnTo`.
+  // When the user is already at their project limit, surface a banner so
+  // they can't fill the form and hit a 403 on submit. We intentionally do
+  // NOT redirect here — paid+at_limit and /pricing's returnTo would bounce
+  // forever, and /dashboard sends them back to onboarding when the first
+  // org has no runs. Unpaid+at_limit goes to /pricing once; the session
+  // flag in /pricing prevents that path from re-bouncing.
   useEffect(() => {
     const email = session?.user?.email;
     if (isPending || !email) return;
@@ -214,9 +215,12 @@ export default function CompanyInfoPage() {
       getSubscriptionStatus(email).catch(() => null),
     ]).then(([u, s]) => {
       if (cancelled) return;
-      if (!u?.at_limit?.projects) return;
+      if (!u?.at_limit?.projects) {
+        setAtLimitNotice(null);
+        return;
+      }
       if (s?.is_active) {
-        router.replace(routes.dashboard);
+        setAtLimitNotice({ planLabel: s.plan_label || s.plan || "your" });
       } else {
         router.replace(`/pricing?returnTo=${encodeURIComponent(routes.onboardingCompanyInfo)}`);
       }
@@ -658,6 +662,21 @@ export default function CompanyInfoPage() {
       </CardHeader>
 
       <CardContent className="space-y-4 px-0 pt-5">
+        {atLimitNotice ? (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-[12px] leading-relaxed text-amber-900">
+            <p className="font-medium">
+              You&rsquo;re at the project limit for {atLimitNotice.planLabel}.
+            </p>
+            <p className="mt-0.5 text-amber-800">
+              Remove a project from{" "}
+              <Link href={routes.dashboard} className="font-semibold underline hover:no-underline">
+                your dashboard
+              </Link>{" "}
+              before adding a new one, or contact support to raise your cap.
+            </p>
+          </div>
+        ) : null}
+
         {/* ── Step 1: Company ── */}
         {step === "company" && (
           <form onSubmit={handleCompanyNext} className="space-y-3">
