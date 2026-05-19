@@ -7,13 +7,7 @@ import { LandingMarketingShell } from "@/components/landing/landing-marketing-sh
 import { HeroBackgroundGrid } from "@/components/landing/hero-background-grid";
 import { ScreenHR } from "@/components/ui/intersection-diamonds";
 import { BlogStackIllustration } from "@/components/blog/blog-stack-illustration";
-import { BlogNewsletterForm } from "@/components/blog/newsletter-form";
-import {
-  BLOG_CATEGORIES,
-  BLOG_NEWSLETTER,
-  BLOG_STATS,
-  type BlogPost,
-} from "@/lib/landing-blog-content";
+import { BLOG_CATEGORIES, BLOG_STATS, type BlogPost } from "@/lib/landing-blog-content";
 import { client } from "@/sanity/lib/client";
 import { ALL_POSTS_QUERY, type SanityBlogPost } from "@/sanity/lib/queries";
 import { cn } from "@/lib/utils";
@@ -165,28 +159,6 @@ export default async function BlogPage() {
                 <p className="text-sm font-light leading-snug text-muted-foreground">{s.detail}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <ScreenHR />
-
-      {/* ─── Newsletter CTA ──────────────────────────────────────────── */}
-      <section className="relative bg-[var(--feature-amber-tint)] px-6 py-14 lg:px-12 lg:py-16">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-5">
-            <div className="lg:col-span-3">
-              <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[#b45309]/70">
-                [ newsletter ]
-              </p>
-              <h2 className="mt-4 max-w-2xl text-3xl font-bold leading-[1.12] tracking-tight text-foreground sm:text-4xl">
-                {BLOG_NEWSLETTER.title}
-              </h2>
-              <p className="mt-5 max-w-xl text-base font-light leading-relaxed text-accent-foreground">
-                {BLOG_NEWSLETTER.description}
-              </p>
-            </div>
-            <BlogNewsletterForm />
           </div>
         </div>
       </section>
