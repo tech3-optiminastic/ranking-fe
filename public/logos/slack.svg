@@ -1,7 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Slack hashtag: 4 pill-shaped bars, 2 vertical + 2 horizontal -->
-  <rect x="15" y="8"  width="14" height="48" rx="7" fill="#000"/>
-  <rect x="35" y="8"  width="14" height="48" rx="7" fill="#000"/>
-  <rect x="8"  y="15" width="48" height="14" rx="7" fill="#000"/>
-  <rect x="8"  y="35" width="48" height="14" rx="7" fill="#000"/>
+  <defs>
+    <clipPath id="sl-lv"><rect x="18" y="9" width="9" height="46" rx="4.5"/></clipPath>
+    <clipPath id="sl-rv"><rect x="37" y="9" width="9" height="46" rx="4.5"/></clipPath>
+    <clipPath id="sl-th"><rect x="9" y="18" width="46" height="9" rx="4.5"/></clipPath>
+    <clipPath id="sl-bh"><rect x="9" y="37" width="46" height="9" rx="4.5"/></clipPath>
+  </defs>
+  <rect x="18" y="9"  width="9" height="23" fill="#36C5F0" clip-path="url(#sl-lv)"/>
+  <rect x="18" y="32" width="9" height="23" fill="#E01E5A" clip-path="url(#sl-lv)"/>
+  <rect x="37" y="9"  width="9" height="23" fill="#2EB67D" clip-path="url(#sl-rv)"/>
+  <rect x="37" y="32" width="9" height="23" fill="#ECB22E" clip-path="url(#sl-rv)"/>
+  <rect x="9"  y="18" width="23" height="9" fill="#36C5F0" clip-path="url(#sl-th)"/>
+  <rect x="32" y="18" width="23" height="9" fill="#2EB67D" clip-path="url(#sl-th)"/>
+  <rect x="9"  y="37" width="23" height="9" fill="#E01E5A" clip-path="url(#sl-bh)"/>
+  <rect x="32" y="37" width="23" height="9" fill="#ECB22E" clip-path="url(#sl-bh)"/>
 </svg>

@@ -689,7 +689,7 @@ export default function CompanyInfoPage() {
                     <img
                       src="/logos/shopify.svg"
                       alt="Shopify"
-                      className="h-5 w-5 object-contain"
+                      className="h-7 w-7 object-contain"
                     />
                   ),
                   wrap: "bg-[#96bf48]/10",
@@ -702,7 +702,7 @@ export default function CompanyInfoPage() {
                     <img
                       src="/logos/wordpress.svg"
                       alt="WordPress"
-                      className="h-5 w-5 object-contain"
+                      className="h-7 w-7 object-contain"
                     />
                   ),
                   wrap: "bg-[#21759b]/10",
