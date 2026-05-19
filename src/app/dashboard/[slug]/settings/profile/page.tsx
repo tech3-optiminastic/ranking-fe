@@ -186,251 +186,259 @@ export default function ProfileSettingsPage() {
   }
 
   return (
-    <div className="px-2 py-2 space-y-6 font-sans">
+    <div className="space-y-6">
       <DashboardSettingsNav label="Profile" />
+
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">Profile</h2>
-        <p className="mt-1 text-[13px] font-light leading-relaxed text-accent-foreground">
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">Profile</h2>
+        <p className="mt-1 text-[13px] text-muted-foreground">
           Manage your account and organizations.
         </p>
       </div>
 
       {error && (
-        <div className="rounded-sm border border-primary/30 bg-primary/10 px-4 py-3 text-[13px] font-semibold tracking-tight text-primary">
+        <div className="rounded-md border border-primary/30 bg-primary/10 px-4 py-3 text-[13px] font-medium text-primary">
           {error}
         </div>
       )}
       {notice && (
-        <div className="rounded-sm border border-[#22c55e]/30 bg-[#22c55e]/10 px-4 py-3 text-[13px] font-semibold tracking-tight text-[#16a34a]">
+        <div className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-[13px] font-medium text-emerald-700">
           {notice}
         </div>
       )}
 
-      {/* Profile card */}
-      <div className="rounded-sm border border-black/8 bg-white p-6 shadow-sm">
-        <p className="mb-4 text-[14px] font-semibold tracking-tight text-neutral-900">Account</p>
-        <div className="flex items-center gap-5">
-          <div className="group relative">
-            <UserAvatar src={userImage} initials={userInitials} size={64} />
-            <div className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-              <Camera className="h-5 w-5 text-white" strokeWidth={1.75} />
-            </div>
-          </div>
-          <div>
-            <p className="text-[15px] font-semibold tracking-tight text-neutral-900">{userName}</p>
-            <p className="text-[12px] font-light leading-snug text-accent-foreground">{email}</p>
-            {userImage && (
-              <p className="mt-1 text-[10px] font-light text-accent-foreground">
-                Photo from Google
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Projects */}
-      <div className="rounded-sm border border-black/8 bg-white p-6 shadow-sm">
-        <p className="text-[14px] font-semibold tracking-tight text-neutral-900">Projects</p>
-        <p className="mb-4 mt-1 text-[12px] font-light leading-snug text-accent-foreground">
-          Add, edit, or remove your projects.
-        </p>
-
-        <button
-          onClick={() => router.push("/onboarding/company-info")}
-          className="mb-4 inline-flex items-center gap-1.5 rounded-sm bg-primary px-4 py-2 text-[12px] font-semibold tracking-tight text-primary-foreground shadow-sm transition hover:opacity-90"
-        >
-          <Plus className="h-3.5 w-3.5" strokeWidth={2} />
-          Add New Project
-        </button>
-
-        {loading ? (
-          <div className="space-y-2 py-2">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between rounded-sm border border-black/8 bg-neutral-50/80 px-4 py-3"
-              >
-                <div className="space-y-1">
-                  <Skeleton className="h-[14px] w-32 rounded" />
-                  <Skeleton className="h-[12px] w-44 rounded" />
-                </div>
-                <div className="flex gap-1.5">
-                  <Skeleton className="h-8 w-8 rounded-sm" />
-                  <Skeleton className="h-8 w-8 rounded-sm" />
+      {/* ── Two-column main grid ── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Left column — Account */}
+        <div className="flex flex-col gap-4 lg:col-span-1">
+          <div className="rounded-lg border border-border bg-white shadow-sm">
+            {/* Avatar area */}
+            <div className="flex flex-col items-center px-6 pb-5 pt-8 text-center">
+              <div className="group relative mb-4">
+                <UserAvatar src={userImage} initials={userInitials} size={80} />
+                <div className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  <Camera className="h-5 w-5 text-white" strokeWidth={1.75} />
                 </div>
               </div>
-            ))}
-          </div>
-        ) : organizations.length === 0 ? (
-          <p className="py-6 text-center text-[12px] font-light text-accent-foreground">
-            No projects yet.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {organizations.map((org) => {
-              const isEditing = editingId === org.id;
-              return (
-                <div
-                  key={org.id}
-                  className="rounded-sm border border-black/8 bg-neutral-50/80 px-4 py-3"
-                >
-                  {isEditing ? (
-                    <div className="flex gap-2">
-                      <input
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="flex-1 rounded-sm border border-black/8 bg-white px-3 py-1.5 text-[13px] text-neutral-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                      <input
-                        value={editUrl}
-                        onChange={(e) => setEditUrl(e.target.value)}
-                        className="flex-1 rounded-sm border border-black/8 bg-white px-3 py-1.5 text-[13px] text-neutral-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                      <button
-                        onClick={() => handleSave(org.id)}
-                        disabled={savingId === org.id}
-                        className="rounded-sm bg-primary px-3 py-1.5 text-[12px] font-semibold tracking-tight text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
-                      >
-                        {savingId === org.id ? "..." : "Save"}
-                      </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className="rounded-sm border border-black/8 bg-white px-3 py-1.5 text-[12px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-[14px] font-semibold tracking-tight text-neutral-900">
-                          {org.name}
-                        </p>
-                        <p className="text-[12px] font-light leading-snug text-accent-foreground">
-                          {org.url || "No URL"}
-                        </p>
-                      </div>
-                      <div className="flex gap-1.5">
-                        <button
-                          onClick={() => {
-                            setEditingId(org.id);
-                            setEditName(org.name);
-                            setEditUrl(org.url ?? "");
-                          }}
-                          className="flex h-8 w-8 items-center justify-center rounded-sm border border-black/8 bg-white text-neutral-700 shadow-sm transition hover:bg-neutral-50"
-                        >
-                          <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            setDeleteOrgId(org.id);
-                            setDeleteOrgName(org.name);
-                            setDeleteOrgConfirmText("");
-                          }}
-                          disabled={deletingId === org.id}
-                          className="flex h-8 w-8 items-center justify-center rounded-sm border border-primary/30 bg-white text-primary shadow-sm transition hover:bg-primary/5 disabled:opacity-50"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+              <p className="text-[15px] font-semibold tracking-tight text-neutral-900">
+                {userName}
+              </p>
+              <p className="mt-0.5 text-[12px] text-muted-foreground">{email}</p>
+              {userImage && (
+                <span className="mt-2 inline-block rounded-full border border-border bg-muted/40 px-2.5 py-0.5 text-[10px] text-muted-foreground">
+                  Photo from Google
+                </span>
+              )}
+            </div>
 
-      {/* ═══ DANGER ZONE ═══ */}
-      <div className="rounded-sm border border-red-500/20 bg-red-500/[0.04] p-6">
-        <div className="mb-4 flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-red-500" strokeWidth={1.75} />
-          <p className="text-[14px] font-semibold tracking-tight text-red-500">Danger Zone</p>
+            {/* Sign out */}
+            <div className="border-t border-border px-6 py-4">
+              <button
+                type="button"
+                onClick={handleSignOut}
+                disabled={signingOut}
+                className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 disabled:opacity-50"
+              >
+                <LogOut className="h-4 w-4" strokeWidth={1.75} />
+                {signingOut ? "Signing out…" : "Sign out"}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-3">
+        {/* Right column — Projects */}
+        <div className="lg:col-span-2">
+          <div className="rounded-lg border border-border bg-white shadow-sm">
+            <div className="flex items-start justify-between border-b border-border px-6 py-4">
+              <div>
+                <p className="text-[14px] font-semibold tracking-tight text-neutral-900">
+                  Projects
+                </p>
+                <p className="mt-0.5 text-[12px] text-muted-foreground">
+                  Add, edit, or remove your tracked projects.
+                </p>
+              </div>
+              <button
+                onClick={() => router.push("/onboarding/company-info")}
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground shadow-sm transition hover:opacity-90"
+              >
+                <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                Add Project
+              </button>
+            </div>
+
+            <div className="p-4">
+              {loading ? (
+                <div className="space-y-2">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between rounded-md border border-border bg-neutral-50/60 px-4 py-3"
+                    >
+                      <div className="space-y-1.5">
+                        <Skeleton className="h-[13px] w-36 rounded" />
+                        <Skeleton className="h-[11px] w-48 rounded" />
+                      </div>
+                      <div className="flex gap-1.5">
+                        <Skeleton className="h-7 w-7 rounded-md" />
+                        <Skeleton className="h-7 w-7 rounded-md" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : organizations.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-muted/50">
+                    <Plus className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                  </div>
+                  <p className="text-[13px] font-medium text-neutral-700">No projects yet</p>
+                  <p className="mt-1 text-[12px] text-muted-foreground">
+                    Add your first project to get started.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {organizations.map((org) => {
+                    const isEditing = editingId === org.id;
+                    return (
+                      <div
+                        key={org.id}
+                        className="rounded-md border border-border bg-neutral-50/60 px-4 py-3 transition-colors hover:bg-neutral-50"
+                      >
+                        {isEditing ? (
+                          <div className="flex flex-wrap gap-2">
+                            <input
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              placeholder="Project name"
+                              className="min-w-0 flex-1 rounded-md border border-border bg-white px-3 py-1.5 text-[13px] text-neutral-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            />
+                            <input
+                              value={editUrl}
+                              onChange={(e) => setEditUrl(e.target.value)}
+                              placeholder="https://example.com"
+                              className="min-w-0 flex-1 rounded-md border border-border bg-white px-3 py-1.5 text-[13px] text-neutral-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            />
+                            <button
+                              onClick={() => handleSave(org.id)}
+                              disabled={savingId === org.id}
+                              className="rounded-md bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                            >
+                              {savingId === org.id ? "Saving…" : "Save"}
+                            </button>
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="rounded-md border border-border bg-white px-3 py-1.5 text-[12px] font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-[14px] font-semibold tracking-tight text-neutral-900">
+                                {org.name}
+                              </p>
+                              <p className="truncate text-[12px] text-muted-foreground">
+                                {org.url || "No URL set"}
+                              </p>
+                            </div>
+                            <div className="flex shrink-0 gap-1.5">
+                              <button
+                                onClick={() => {
+                                  setEditingId(org.id);
+                                  setEditName(org.name);
+                                  setEditUrl(org.url ?? "");
+                                }}
+                                className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-white text-neutral-600 shadow-sm transition hover:bg-neutral-50 hover:text-neutral-900"
+                                title="Edit"
+                              >
+                                <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setDeleteOrgId(org.id);
+                                  setDeleteOrgName(org.name);
+                                  setDeleteOrgConfirmText("");
+                                }}
+                                disabled={deletingId === org.id}
+                                className="flex h-7 w-7 items-center justify-center rounded-md border border-primary/25 bg-white text-primary shadow-sm transition hover:bg-primary/5 disabled:opacity-50"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Danger Zone ── */}
+      <div className="rounded-lg border border-red-200 bg-red-50/50 p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-red-500" strokeWidth={1.75} />
+          <p className="text-[13px] font-semibold text-red-600">Danger Zone</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {/* Pause Account */}
-          <div className="flex items-center justify-between rounded-sm border border-black/8 bg-white p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-sm border border-black/8 bg-white text-amber-500 shadow-sm">
+          <div className="flex flex-col justify-between gap-4 rounded-md border border-border bg-white p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-amber-50 text-amber-500">
                 <Clock className="h-4 w-4" strokeWidth={1.75} />
               </div>
               <div>
-                <p className="text-[14px] font-semibold tracking-tight text-neutral-900">
-                  Pause Account
-                </p>
-                <p className="text-[11px] font-light leading-snug text-accent-foreground">
-                  Temporarily pause your account. You can resume anytime.
+                <p className="text-[13px] font-semibold text-neutral-900">Pause Account</p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                  Temporarily pause your account. Scheduled analyses will be disabled. You can
+                  resume anytime.
                 </p>
               </div>
             </div>
-
             {terminateStep === "idle" ? (
               <button
                 onClick={() => setShowTerminateDialog(true)}
-                className="rounded-sm border border-amber-500/30 bg-white px-4 py-2 text-[12px] font-semibold tracking-tight text-amber-600 shadow-sm transition hover:bg-amber-500/10"
+                className="w-full rounded-md border border-amber-400/40 bg-amber-50 px-4 py-1.5 text-[12px] font-semibold text-amber-700 transition hover:bg-amber-100"
               >
-                Pause
+                Pause Account
               </button>
             ) : (
               <button
                 onClick={handleCancelTermination}
                 disabled={cancelling}
-                className="rounded-sm border border-emerald-500/30 bg-white px-4 py-2 text-[12px] font-semibold tracking-tight text-emerald-600 shadow-sm transition hover:bg-emerald-500/10 disabled:opacity-50"
+                className="w-full rounded-md border border-emerald-400/40 bg-emerald-50 px-4 py-1.5 text-[12px] font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
               >
-                {cancelling ? "Resuming..." : "Resume Account"}
+                {cancelling ? "Resuming…" : "Resume Account"}
               </button>
             )}
           </div>
 
           {/* Delete Account */}
-          <div className="flex items-center justify-between rounded-sm border border-black/8 bg-white p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-sm border border-black/8 bg-white text-red-500 shadow-sm">
+          <div className="flex flex-col justify-between gap-4 rounded-md border border-border bg-white p-4 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-500">
                 <ShieldX className="h-4 w-4" strokeWidth={1.75} />
               </div>
               <div>
-                <p className="text-[14px] font-semibold tracking-tight text-neutral-900">
-                  Delete Account
-                </p>
-                <p className="text-[11px] font-light leading-snug text-accent-foreground">
-                  Permanently delete all data. This cannot be undone.
+                <p className="text-[13px] font-semibold text-neutral-900">Delete Account</p>
+                <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                  Permanently delete your account and all associated data. This action cannot be
+                  undone.
                 </p>
               </div>
             </div>
-
             <button
               onClick={() => setDeleteStep(1)}
-              className="rounded-sm bg-red-500 px-4 py-2 text-[12px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-red-600"
+              className="w-full rounded-md bg-red-500 px-4 py-1.5 text-[12px] font-semibold text-white shadow-sm transition hover:bg-red-600"
             >
               Delete Account
-            </button>
-          </div>
-
-          {/* Sign out */}
-          <div className="flex items-center justify-between rounded-sm border border-black/8 bg-white p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-sm border border-black/8 bg-white text-neutral-700 shadow-sm">
-                <LogOut className="h-4 w-4" strokeWidth={1.75} />
-              </div>
-              <div>
-                <p className="text-[14px] font-semibold tracking-tight text-neutral-900">
-                  Sign out
-                </p>
-                <p className="text-[11px] font-light leading-snug text-accent-foreground">
-                  End your session on this device. You can sign in again anytime.
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleSignOut}
-              disabled={signingOut}
-              className="rounded-sm border border-black/8 bg-white px-4 py-2 text-[12px] font-semibold tracking-tight text-neutral-900 shadow-sm transition hover:bg-neutral-50 disabled:opacity-50"
-            >
-              {signingOut ? "Signing out…" : "Sign out"}
             </button>
           </div>
         </div>
