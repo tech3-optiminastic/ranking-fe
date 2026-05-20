@@ -254,7 +254,7 @@ export default function SignalorDashboard() {
     <>
       {/* <header className="sticky top-0 z-20 border-b border-border bg-white px-6 py-4"> */}
       <div
-        className="flex flex-col gap-3 px-3 sm:flex-row sm:items-center sm:justify-between sm:px-4"
+        className="flex flex-col gap-2 px-3 sm:flex-row sm:items-center sm:justify-between sm:px-4"
         data-tour-card="overview-header"
       >
         <div className="flex min-w-0 items-start gap-2.5">
@@ -365,9 +365,9 @@ export default function SignalorDashboard() {
       {/* </header> */}
 
       {run && !isRunning && (
-        <div className="px-3 pb-4 pt-3 sm:px-4">
+        <div className="px-3 pb-3 pt-2 sm:px-4">
           {/* GEO Score card (left) + GEO Performance chart (right), equal height */}
-          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-stretch">
+          <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-stretch">
             <div className="w-full shrink-0 sm:w-56" data-tour-card="overview-score">
               <GeoScoreCard
                 compositeScore={compositeScore}
@@ -383,7 +383,7 @@ export default function SignalorDashboard() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-12 items-stretch gap-3 mb-3">
+          <div className="grid grid-cols-12 items-stretch gap-2 mb-2">
             <div className="col-span-4 min-h-0 h-full" data-tour-card="overview-platforms">
               <VisibilityByPlatformCard brandVis={brandVis} />
             </div>
@@ -397,7 +397,7 @@ export default function SignalorDashboard() {
           </div>
 
           <div
-            className="grid grid-cols-12 items-stretch gap-3 mb-3"
+            className="grid grid-cols-12 items-stretch gap-2 mb-2"
             data-tour-card="overview-citations"
           >
             <div className="col-span-12 min-h-0">
@@ -406,7 +406,7 @@ export default function SignalorDashboard() {
           </div>
 
           <div
-            className="grid grid-cols-12 items-stretch gap-3 mb-3"
+            className="grid grid-cols-12 items-stretch gap-2 mb-2"
             data-tour-card="overview-reach"
           >
             <SocialBrandReachCard
@@ -420,7 +420,7 @@ export default function SignalorDashboard() {
             />
           </div>
 
-          <div className="grid grid-cols-12 items-stretch gap-3 mb-3">
+          <div className="grid grid-cols-12 items-stretch gap-2 mb-2">
             <CompetitorsCard
               slug={slug}
               competitors={run.competitors ?? []}
@@ -431,7 +431,7 @@ export default function SignalorDashboard() {
             />
           </div>
 
-          <div className="mb-3">
+          <div className="mb-2">
             <DomainAnalyticsPanel slug={slug} />
           </div>
 
