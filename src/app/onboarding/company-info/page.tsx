@@ -26,7 +26,6 @@ import {
   Loader2,
   ArrowRight,
   ArrowLeft,
-  ShoppingBag,
   Globe,
   Plus,
   X,
@@ -35,7 +34,6 @@ import {
   Download,
   ExternalLink,
   CheckCircle2,
-  BarChart3,
 } from "@/components/icons";
 
 type Platform = "shopify" | "wordpress";
@@ -195,6 +193,8 @@ export default function CompanyInfoPage() {
   const [error, setError] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
   const [atLimitNotice, setAtLimitNotice] = useState<{ planLabel: string } | null>(null);
+  const [shopDomainErr, setShopDomainErr] = useState("");
+  const [wpUrlErr, setWpUrlErr] = useState("");
 
   const sessionEmailForGate = session?.user?.email;
   useEffect(() => {
@@ -250,7 +250,7 @@ export default function CompanyInfoPage() {
           setPlatform("shopify");
           setAppInstalled(true);
           setStep("prompts");
-          genPrompts(d.companyName, d.siteUrl);
+          if (!d.prompts?.length) genPrompts(d.companyName, d.siteUrl);
           sessionStorage.removeItem("signalor_onboarding");
         }
       } catch {
@@ -347,6 +347,8 @@ export default function CompanyInfoPage() {
   function handlePlatformSelect(p: Platform) {
     setPlatform(p);
     setError("");
+    setShopDomainErr("");
+    setWpUrlErr("");
     setStep("url");
   }
 
@@ -362,11 +364,37 @@ export default function CompanyInfoPage() {
     try {
       let url: string;
       if (platform === "shopify") {
-        const domain = shopDomain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+        const domain = shopDomain
+          .replace(/^https?:\/\//, "")
+          .replace(/\/$/, "")
+          .trim();
+        const domainInvalid =
+          !domain ||
+          !/^[a-zA-Z0-9][a-zA-Z0-9\-_.]+\.[a-zA-Z]{2,}$/.test(domain) ||
+          !domain.includes(".");
+        if (domainInvalid) {
+          setError("Please use a valid domain (e.g. your-store.myshopify.com).");
+          setLoading(false);
+          setStatusMsg("");
+          return;
+        }
         url = `https://${domain}`;
       } else {
         url = wpSiteUrl.trim();
         if (!url.startsWith("http")) url = `https://${url}`;
+        let urlInvalid = false;
+        try {
+          const parsed = new URL(url);
+          if (!parsed.hostname.includes(".")) urlInvalid = true;
+        } catch {
+          urlInvalid = true;
+        }
+        if (urlInvalid) {
+          setError("Please use a valid URL (e.g. yoursite.com).");
+          setLoading(false);
+          setStatusMsg("");
+          return;
+        }
       }
       setSiteUrl(url);
 
@@ -387,9 +415,7 @@ export default function CompanyInfoPage() {
         setStep("install");
       }
     } catch (err) {
-      // Plan-limit 403 (e.g. "Your Starter plan allows 2 project(s)…") →
-      // bounce to /pricing so the user can upgrade instead of seeing an
-      // inline dead-end error.
+      // Plan-limit 403 → bounce to /pricing so user can upgrade
       if (axios.isAxiosError(err) && err.response?.status === 403) {
         setError("");
         setStatusMsg("");
@@ -397,7 +423,14 @@ export default function CompanyInfoPage() {
         router.push(`/pricing?returnTo=${encodeURIComponent(routes.onboardingCompanyInfo)}`);
         return;
       }
-      setError(fmtErr(err));
+      const msg = fmtErr(err);
+      setError(
+        msg === "Failed. Please try again."
+          ? platform === "shopify"
+            ? "Please use a valid Shopify domain (e.g. your-store.myshopify.com)."
+            : "Please use a valid URL (e.g. yoursite.com)."
+          : msg,
+      );
     } finally {
       setLoading(false);
       setStatusMsg("");
@@ -459,7 +492,7 @@ export default function CompanyInfoPage() {
       await connectWordPress(session.user.email, siteUrl, wpApiKey.trim(), "");
       setAppInstalled(true);
       setStep("prompts");
-      genPrompts(companyName.trim(), siteUrl);
+      if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
     } catch (err) {
       setError(fmtErr(err));
     } finally {
@@ -471,7 +504,7 @@ export default function CompanyInfoPage() {
   // Skip install step (user can install later)
   function handleSkipInstall() {
     setStep("prompts");
-    genPrompts(companyName.trim(), siteUrl);
+    if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
   }
 
   async function genPrompts(brand: string, url: string) {
@@ -495,10 +528,13 @@ export default function CompanyInfoPage() {
         ]);
     } catch {
       setPrompts([
-        `Best tools in this space?`,
-        `Which solution do experts recommend?`,
-        `Compare top options`,
+        `What are the best ${brand} alternatives?`,
+        `Is ${brand} worth it?`,
+        `Compare ${brand} with competitors`,
+        `What do experts say about ${brand}?`,
+        `Best tools similar to ${brand}`,
       ]);
+      setError("Couldn't auto-generate prompts — showing defaults. Edit or add your own.");
     } finally {
       setLoadingPrompts(false);
     }
@@ -512,7 +548,11 @@ export default function CompanyInfoPage() {
     setEditText(prompts[i]);
   }
   function saveEdit(i: number) {
-    if (editText.trim()) setPrompts((p) => p.map((v, j) => (j === i ? editText.trim() : v)));
+    if (editText.trim()) {
+      setPrompts((p) => p.map((v, j) => (j === i ? editText.trim() : v)));
+    } else {
+      setPrompts((p) => p.filter((_, j) => j !== i));
+    }
     setEditingIdx(null);
     setEditText("");
   }
@@ -715,17 +755,27 @@ export default function CompanyInfoPage() {
                   id: "shopify" as Platform,
                   label: "Shopify",
                   desc: "Connect via app install",
-                  icon: <ShoppingBag className="h-5 w-5" />,
+                  icon: (
+                    <img
+                      src="/logos/shopify.svg"
+                      alt="Shopify"
+                      className="h-7 w-7 object-contain"
+                    />
+                  ),
                   wrap: "bg-[#96bf48]/10",
-                  accent: "text-[#96bf48]",
                 },
                 {
                   id: "wordpress" as Platform,
                   label: "WordPress",
                   desc: "Connect via plugin",
-                  icon: <Globe className="h-5 w-5" />,
+                  icon: (
+                    <img
+                      src="/logos/wordpress.svg"
+                      alt="WordPress"
+                      className="h-7 w-7 object-contain"
+                    />
+                  ),
                   wrap: "bg-[#21759b]/10",
-                  accent: "text-[#21759b]",
                 },
               ].map((p) => (
                 <button
@@ -734,8 +784,10 @@ export default function CompanyInfoPage() {
                   onClick={() => handlePlatformSelect(p.id)}
                   className="flex w-full items-center gap-4 rounded-xl border border-black/8 bg-white p-4 text-left shadow-[0_2px_14px_rgba(0,0,0,0.045)] transition hover:border-black/12 hover:bg-neutral-50/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.99]"
                 >
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center ${p.wrap}`}>
-                    <span className={p.accent}>{p.icon}</span>
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${p.wrap}`}
+                  >
+                    {p.icon}
                   </div>
                   <div>
                     <p className="text-[13px] font-medium text-foreground">{p.label}</p>
@@ -767,11 +819,23 @@ export default function CompanyInfoPage() {
                 id="onboarding-shop-domain"
                 placeholder="your-store.myshopify.com"
                 value={shopDomain}
-                onChange={(e) => setShopDomain(e.target.value)}
+                onChange={(e) => {
+                  setShopDomain(e.target.value);
+                  if (shopDomainErr) setShopDomainErr("");
+                }}
+                onBlur={() => {
+                  const d = shopDomain
+                    .replace(/^https?:\/\//, "")
+                    .replace(/\/$/, "")
+                    .trim();
+                  if (!d.includes(".") || !/^[a-zA-Z0-9][a-zA-Z0-9\-_.]+\.[a-zA-Z]{2,}$/.test(d))
+                    setShopDomainErr("Please use a valid domain (e.g. your-store.myshopify.com)");
+                }}
                 required
                 autoFocus
-                className="h-9 rounded-md border-neutral-200 bg-white text-[13px]"
+                className={`h-9 rounded-md bg-white text-[13px] ${shopDomainErr ? "border-destructive focus-visible:ring-destructive/20" : "border-neutral-200"}`}
               />
+              {shopDomainErr && <p className="text-[11px] text-destructive">{shopDomainErr}</p>}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="onboarding-store-password" className="text-[12px] font-medium">
@@ -801,6 +865,7 @@ export default function CompanyInfoPage() {
                 className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium"
                 onClick={() => {
                   setStep("platform");
+                  setOrgId(null);
                   setError("");
                 }}
               >
@@ -835,11 +900,28 @@ export default function CompanyInfoPage() {
                 id="onboarding-wp-url"
                 placeholder="yoursite.com"
                 value={wpSiteUrl}
-                onChange={(e) => setWpSiteUrl(e.target.value)}
+                onChange={(e) => {
+                  setWpSiteUrl(e.target.value);
+                  if (wpUrlErr) setWpUrlErr("");
+                }}
+                onBlur={() => {
+                  const raw = wpSiteUrl.trim();
+                  if (!raw) return;
+                  const url = raw.startsWith("http") ? raw : `https://${raw}`;
+                  let invalid = false;
+                  try {
+                    const parsed = new URL(url);
+                    if (!parsed.hostname.includes(".")) invalid = true;
+                  } catch {
+                    invalid = true;
+                  }
+                  if (invalid) setWpUrlErr("Please use a valid URL (e.g. yoursite.com)");
+                }}
                 required
                 autoFocus
-                className="h-9 rounded-md border-neutral-200 bg-white text-[13px]"
+                className={`h-9 rounded-md bg-white text-[13px] ${wpUrlErr ? "border-destructive focus-visible:ring-destructive/20" : "border-neutral-200"}`}
               />
+              {wpUrlErr && <p className="text-[11px] text-destructive">{wpUrlErr}</p>}
             </div>
             {error ? <p className={ERR_BOX}>{error}</p> : null}
             {statusMsg ? (
@@ -855,6 +937,7 @@ export default function CompanyInfoPage() {
                 className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium"
                 onClick={() => {
                   setStep("platform");
+                  setOrgId(null);
                   setError("");
                 }}
               >
@@ -892,7 +975,7 @@ export default function CompanyInfoPage() {
             <div className={`${PANEL} p-5`}>
               <div className="mb-5 flex items-start gap-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#96bf48]/10">
-                  <ShoppingBag className="h-5 w-5 text-[#96bf48]" />
+                  <img src="/logos/shopify.svg" alt="Shopify" className="h-5 w-5 object-contain" />
                 </div>
                 <div>
                   <p className="mb-1 text-[13px] font-medium text-foreground">
@@ -951,6 +1034,7 @@ export default function CompanyInfoPage() {
                 variant="outline"
                 className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium"
                 onClick={() => {
+                  sessionStorage.removeItem("signalor_onboarding");
                   setStep("url");
                   setError("");
                 }}
@@ -1085,8 +1169,10 @@ export default function CompanyInfoPage() {
         {/* ── Step 5: Prompts ── */}
         {step === "prompts" && (
           <div className="space-y-3">
-            <p className="text-center text-[12px] text-muted-foreground">
-              Brand <span className="font-medium text-foreground">{companyName}</span>
+            <p className="flex items-center justify-center gap-1.5 text-center text-[12px] text-muted-foreground">
+              Brand
+              {siteUrl && <SiteFavicon url={siteUrl} />}
+              <span className="font-medium text-foreground">{companyName}</span>
             </p>
 
             {loadingPrompts ? (
@@ -1212,7 +1298,7 @@ export default function CompanyInfoPage() {
               <Button
                 type="button"
                 onClick={() => setStep("analytics")}
-                disabled={loadingPrompts || prompts.length === 0}
+                disabled={loadingPrompts || prompts.filter(Boolean).length === 0}
                 className="auth-cta-btn h-9 min-w-0 flex-[2] rounded-md text-[13px] font-medium text-white hover:text-white"
               >
                 Continue <ArrowRight className="h-4 w-4" />
@@ -1226,8 +1312,12 @@ export default function CompanyInfoPage() {
           <div className="space-y-3">
             <div className={`${PANEL} p-5`}>
               <div className="mb-5 flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e8710a]/10">
-                  <BarChart3 className="h-5 w-5 text-[#e8710a]" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg overflow-hidden">
+                  <img
+                    src="/logos/google-analytics.svg"
+                    alt="Google Analytics"
+                    className="h-10 w-10 object-contain"
+                  />
                 </div>
                 <div>
                   <p className="mb-1 text-[13px] font-medium text-foreground">Google Analytics</p>

@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/select";
 import { SignalorLoader } from "@/components/ui/signalor-loader";
 import { RotatingGeoFact } from "@/components/ui/rotating-geo-fact";
-import { Button } from "../ui/button";
 
 const COUNTRY_OPTIONS = [
   "United States",
@@ -35,11 +34,11 @@ const slideVariants = {
   exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
 };
 
-export function HeroAnalyzerForm() {
+export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(0); // 0 = URL, 1 = country, 2 = analyzing
-  const [dir, setDir] = useState(1); // 1 = forward, -1 = backward
-  const [url, setUrl] = useState("");
+  const [dir, setDir] = useState(1);
+  const [url, setUrl] = useState(initialUrl);
   const [country, setCountry] = useState("United States");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -68,14 +67,14 @@ export function HeroAnalyzerForm() {
     setStep(2);
 
     try {
-      const run = await startAnalysis({
+      await startAnalysis({
         url: normalizedUrl,
         run_type: "full_site",
         country,
       });
       router.push(routes.signUp);
     } catch {
-      setError("Couldn’t start the audit. Check the URL and try again.");
+      setError("Couldn't start the audit. Check the URL and try again.");
       setLoading(false);
       setDir(-1);
       setStep(1);
@@ -83,22 +82,21 @@ export function HeroAnalyzerForm() {
   }
 
   return (
-    <div className="mt-8 w-full max-w-2xl">
-      <div className="rounded-sm bg-card/80 backdrop-blur-xl border border-border p-1.5 shadow-inner overflow-hidden">
-        <div className="relative  data-[loading=1]:min-h-[168px]" data-loading={step === 2 ? 1 : 0}>
-          <AnimatePresence mode="wait" custom={dir}>
-            {step === 0 && (
-              <motion.div
-                key="url"
-                custom={dir}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="flex min-w-0 flex-wrap items-center gap-2 px-4 py-2 sm:flex-nowrap"
-              >
-                <Globe className="h-5 w-5 shrink-0 text-muted-foreground" />
+    <div className="w-full max-w-xl">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <AnimatePresence mode="wait" custom={dir}>
+          {step === 0 && (
+            <motion.div
+              key="url"
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              {/* Input area */}
+              <div className="px-5 pt-5 pb-3">
                 <input
                   ref={inputRef}
                   type="text"
@@ -109,43 +107,47 @@ export function HeroAnalyzerForm() {
                     setError("");
                   }}
                   onKeyDown={(e) => e.key === "Enter" && url.trim() && goNext()}
-                  className="min-w-[180px] flex-1 bg-transparent py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                  className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                   autoFocus
                 />
-                <Button
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-border mx-0" />
+
+              {/* Action bar */}
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Globe className="h-3.5 w-3.5" />
+                  <span>Website audit</span>
+                </div>
+                <button
                   type="button"
                   onClick={goNext}
                   disabled={!url.trim()}
-                  className="flex w-full shrink-0 items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-primary/90 active:scale-95 disabled:opacity-40 sm:w-auto"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white transition hover:bg-primary/90 active:scale-95 disabled:opacity-40"
                 >
-                  Analyze
                   <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </motion.div>
-            )}
-
-            {/* STEP 1: Country Select */}
-            {step === 1 && (
-              <motion.div
-                key="country"
-                custom={dir}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="flex min-w-0 flex-wrap items-center gap-2 px-4 py-2 sm:flex-nowrap"
-              >
-                <button
-                  type="button"
-                  onClick={goBack}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-accent"
-                >
-                  <ArrowLeft className="h-4 w-4" />
                 </button>
-                <MapPin className="h-5 w-5 shrink-0 text-muted-foreground" />
+              </div>
+            </motion.div>
+          )}
+
+          {step === 1 && (
+            <motion.div
+              key="country"
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              {/* Country area */}
+              <div className="px-5 pt-5 pb-3">
+                <p className="text-xs text-muted-foreground mb-2">Select your target market</p>
                 <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger className="min-w-[180px] flex-1 border-0 bg-transparent shadow-none focus:ring-0 text-sm text-foreground px-0">
+                  <SelectTrigger className="w-full border-0 bg-transparent shadow-none focus:ring-0 text-sm text-foreground px-0 h-auto py-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -156,49 +158,49 @@ export function HeroAnalyzerForm() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-border" />
+
+              {/* Action bar */}
+              <div className="flex items-center justify-between px-4 py-3">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Back
+                </button>
                 <button
                   type="button"
                   onClick={handleAnalyze}
-                  className="flex w-full shrink-0 items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-primary/90 active:scale-95 sm:w-auto"
+                  className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary/90 active:scale-95"
                 >
                   <Sparkles className="h-3.5 w-3.5" />
                   Run audit
                 </button>
-              </motion.div>
-            )}
+              </div>
+            </motion.div>
+          )}
 
-            {/* STEP 2: Analyzing, coral rings + GEO/SEO facts (same family as dashboard overlay) */}
-            {step === 2 && (
-              <motion.div
-                key="loading"
-                custom={dir}
-                variants={slideVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="flex flex-col items-center justify-center gap-3 px-4 py-4 w-full"
-              >
-                <SignalorLoader size="sm" />
-                <RotatingGeoFact intervalMs={4500} size="xs" className="min-h-9 w-full max-w-md" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Step indicators */}
-      <div className="flex items-center justify-center gap-1.5 mt-4">
-        {[0, 1, 2].map((s) => (
-          <div
-            key={s}
-            className="h-1 rounded-full transition-all duration-300"
-            style={{
-              width: step === s ? 24 : 8,
-              backgroundColor: step >= s ? "#E04D00" : "var(--border)",
-            }}
-          />
-        ))}
+          {step === 2 && (
+            <motion.div
+              key="loading"
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="flex flex-col items-center justify-center gap-3 px-5 py-8"
+            >
+              <SignalorLoader size="sm" />
+              <RotatingGeoFact intervalMs={4500} size="xs" className="min-h-9 w-full max-w-md" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Error */}

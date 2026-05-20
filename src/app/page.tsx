@@ -23,11 +23,27 @@ import {
 } from "@/lib/seo";
 
 const LLM_LOGOS = [
-  { name: "ChatGPT", src: "/logos/chatgpt.svg" },
-  { name: "Perplexity", src: "/logos/perplexity.svg" },
-  { name: "Gemini", src: "/logos/gemini.svg" },
-  { name: "Google AI", src: "/logos/google.svg" },
-  { name: "Claude", src: "/logos/claude.svg" },
+  {
+    name: "ChatGPT",
+    src: "/logos/chatgpt.svg",
+    href: "https://chatgpt.com/?prompt=what+is+signalorai",
+  },
+  {
+    name: "Perplexity",
+    src: "/logos/perplexity.svg",
+    href: "https://www.perplexity.ai/search?q=what+is+signalorai",
+  },
+  {
+    name: "Gemini",
+    src: "/logos/gemini.svg",
+    href: "https://gemini.google.com/app?q=What+is+signalorai",
+  },
+  {
+    name: "Google AI",
+    src: "/logos/google.svg",
+    href: "https://www.google.com/search?q=What+is+Signalorai",
+  },
+  { name: "Claude", src: "/logos/claude.svg", href: "https://claude.ai/new?q=What+is+signalorai" },
 ] as const;
 
 const HOMEPAGE_FAQ = [
@@ -114,21 +130,25 @@ export default function Home() {
             [ works with every major AI engine ]
           </p>
           <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-8 md:gap-x-16">
-            {LLM_LOGOS.map(({ name, src }) => (
-              <li
-                key={name}
-                className="group flex shrink-0 flex-col items-center gap-2"
-                title={name}
-              >
-                <img
-                  src={src}
-                  alt={`${name} logo, supported by Signalor`}
-                  width={160}
-                  height={48}
-                  decoding="async"
-                  className="h-9 w-auto max-w-40 object-contain object-center transition duration-300 ease-out group-hover:scale-[1.04] md:h-10 md:max-w-44"
-                />
-                <span className="sr-only">{name}</span>
+            {LLM_LOGOS.map(({ name, src, href }) => (
+              <li key={name} className="group shrink-0">
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`Search "${name}" for Signalor`}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <img
+                    src={src}
+                    alt={`${name} logo, supported by Signalor`}
+                    width={160}
+                    height={48}
+                    decoding="async"
+                    className="h-9 w-auto max-w-40 object-contain object-center transition duration-300 ease-out group-hover:scale-[1.04] md:h-10 md:max-w-44"
+                  />
+                  <span className="sr-only">{name}</span>
+                </a>
               </li>
             ))}
           </ul>

@@ -33,12 +33,12 @@ export function CookieConsentBanner() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-black/10 bg-white shadow-[0_-4px_24px_rgba(0,0,0,0.06)]"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background shadow-[0_-4px_24px_rgba(0,0,0,0.06)]"
       role="dialog"
       aria-live="polite"
       aria-label="Cookie consent"
     >
-      <div className="mx-auto flex max-w-7xl flex-col items-start gap-4 px-6 py-5 sm:flex-row sm:items-center sm:gap-6 sm:py-5 lg:px-10">
+      <div className="mx-auto flex max-w-7xl flex-col items-start gap-4 px-6 py-5 sm:flex-row sm:items-center sm:gap-6 lg:px-10">
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-semibold text-foreground">We use cookies</p>
           <p className="mt-1 max-w-3xl text-[13px] leading-relaxed text-muted-foreground">
@@ -46,7 +46,7 @@ export function CookieConsentBanner() {
             is used so we can improve it. See our{" "}
             <Link
               href="/policy"
-              className="font-medium text-foreground underline underline-offset-2"
+              className="font-medium text-primary underline underline-offset-2 hover:opacity-80"
             >
               Privacy policy
             </Link>
@@ -57,14 +57,14 @@ export function CookieConsentBanner() {
           <button
             type="button"
             onClick={rejectAll}
-            className="inline-flex flex-1 items-center justify-center rounded-sm border border-black/10 bg-white px-5 py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-neutral-50 sm:flex-none"
+            className="inline-flex flex-1 items-center justify-center rounded-md border border-border bg-background px-5 py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-muted sm:flex-none"
           >
             Reject
           </button>
           <button
             type="button"
             onClick={acceptAll}
-            className="inline-flex flex-1 items-center justify-center rounded-sm bg-foreground px-5 py-2.5 text-[13px] font-medium text-white shadow-sm transition-opacity hover:opacity-90 sm:flex-none"
+            className="inline-flex flex-1 items-center justify-center rounded-md bg-primary px-5 py-2.5 text-[13px] font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90 sm:flex-none"
           >
             Accept
           </button>

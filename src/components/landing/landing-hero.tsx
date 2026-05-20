@@ -6,41 +6,28 @@ import { HeroBackgroundGrid } from "./hero-background-grid";
 
 export function LandingHero() {
   return (
-    <section className="relative bg-background px-6 pb-16 pt-16 lg:px-12 lg:pb-24 lg:pt-20">
+    <section className="relative bg-background px-6 pb-24 pt-28 lg:px-12 lg:pb-32 lg:pt-36">
       <HeroBackgroundGrid />
-      <div className="relative z-10 grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:items-center lg:gap-8 xl:gap-12">
-        <div className="relative z-10 min-w-0 max-w-xl text-left lg:max-w-none">
-          <h1 className="text-3xl font-bold leading-[1.08] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem] xl:text-6xl">
-            <span className="block">Be the brand</span>
-            <span className="flex w-fit items-center gap-2 text-[#e04a3d] sm:gap-3">
-              <AiChip size="lg" />
-              <span className="underline decoration-dashed decoration-3 decoration-[#e04a3d]/55 underline-offset-4">
-                recommends
-              </span>
+
+      <div className="relative z-10 mx-auto max-w-4xl text-center">
+        <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          Be the brand{" "}
+          <span className="inline-flex items-center gap-2 text-primary">
+            <AiChip size="lg" />
+            <span className="underline decoration-dashed decoration-2 decoration-primary/50 underline-offset-4">
+              AI recommends
             </span>
-          </h1>
+          </span>
+        </h1>
 
-          <p className="mt-5 max-w-lg text-base font-light leading-relaxed text-accent-foreground sm:text-lg">
-            See how ChatGPT, Claude, Gemini, and Perplexity describe your brand. Find what to fix.
-            Ship it.
-          </p>
+        <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground sm:text-lg">
+          See how ChatGPT, Claude, Gemini, and Perplexity describe your brand. Find what to fix.
+          Ship it.
+        </p>
 
-          {/* <HeroAnalyzerForm /> */}
+        <div className="mt-10 flex justify-center">
           <HeroAnalyzerForm />
         </div>
-
-        {/* <div className="relative z-20 order-last mt-10 flex min-h-0 w-full justify-center lg:order-0 lg:mt-0 lg:min-h-[min(480px,68vh)] lg:items-center lg:justify-end lg:pl-0 xl:min-h-[min(540px,72vh)]">
-              <Image
-                src="/carousel1.jpeg"
-                alt="Signalor dashboard preview"
-                width={2000}
-                height={2000}
-                unoptimized
-                className="h-auto w-full max-w-full select-none rounded-xl border border-black/[0.07] bg-white object-contain object-bottom shadow-[0_22px_56px_-14px_rgba(15,23,42,0.22)] sm:max-w-[min(100%,600px)] lg:max-h-[min(78vh,860px)] lg:w-[min(124%,920px)] lg:max-w-none lg:translate-x-2 lg:rounded-2xl xl:w-[min(128%,1000px)] xl:translate-x-4 2xl:w-[min(132%,1080px)]"
-                sizes="(min-width: 1536px) 1080px, (min-width: 1024px) 920px, (min-width: 640px) 600px, 100vw"
-                priority
-              />
-            </div> */}
       </div>
     </section>
   );
