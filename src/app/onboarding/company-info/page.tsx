@@ -559,6 +559,20 @@ export default function CompanyInfoPage() {
       } catch {
         /**/
       }
+
+      // Fire-and-forget welcome email — don't block the redirect
+      fetch("/api/email/welcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: session.user.email,
+          name: session.user.name ?? "",
+          dashboardUrl: routes.dashboardProject(a.slug),
+        }),
+      }).catch(() => {
+        // Email failures are non-critical
+      });
+
       router.push(routes.dashboardProject(a.slug));
     } catch (err) {
       setError(fmtErr(err));
