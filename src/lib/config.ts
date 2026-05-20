@@ -1,6 +1,8 @@
+import { env } from "./env";
+
 export const config = {
-  apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-  authBaseUrl: process.env.NEXT_PUBLIC_BETTER_AUTH_URL || "http://localhost:3000",
+  apiBaseUrl: env.NEXT_PUBLIC_API_URL,
+  authBaseUrl: env.NEXT_PUBLIC_BETTER_AUTH_URL,
 } as const;
 
 /**

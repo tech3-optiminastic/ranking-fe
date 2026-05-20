@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export const runtime = "nodejs";
+
+const requestSchema = z.object({
+  url: z.string().trim().min(1, "A valid domain is required."),
+});
 
 interface LlmsCheckResult {
   domain: string;
@@ -42,7 +47,10 @@ function rootUrl(raw: string): URL | null {
   }
 }
 
-async function fetchText(url: string, timeoutMs = 6000): Promise<{ ok: boolean; status: number; text: string }> {
+async function fetchText(
+  url: string,
+  timeoutMs = 6000,
+): Promise<{ ok: boolean; status: number; text: string }> {
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), timeoutMs);
   try {
@@ -138,7 +146,8 @@ function hasOrganizationSchema(html: string): boolean {
           for (const g of graph) {
             if (g && typeof g === "object") {
               const gt = (g as Record<string, unknown>)["@type"];
-              if (gt === "Organization" || (Array.isArray(gt) && gt.includes("Organization"))) return true;
+              if (gt === "Organization" || (Array.isArray(gt) && gt.includes("Organization")))
+                return true;
             }
           }
         }
@@ -156,8 +165,14 @@ function countLlmsSections(text: string): number {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as { url?: string };
-    const root = rootUrl(body.url ?? "");
+    const parsed = requestSchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request." },
+        { status: 400 },
+      );
+    }
+    const root = rootUrl(parsed.data.url);
     if (!root) {
       return NextResponse.json({ error: "A valid domain is required." }, { status: 400 });
     }

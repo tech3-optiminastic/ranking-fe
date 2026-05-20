@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export const runtime = "nodejs";
+
+const requestSchema = z.object({
+  url: z.string().trim().min(1, "A valid URL is required."),
+});
 
 type SchemaStatus = "ok" | "partial" | "invalid";
 
@@ -93,8 +98,14 @@ function analyzeNode(node: unknown): SchemaFinding | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as { url?: string };
-    const normalized = normalizeUrl(body.url ?? "");
+    const parsed = requestSchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request." },
+        { status: 400 },
+      );
+    }
+    const normalized = normalizeUrl(parsed.data.url);
     if (!normalized) {
       return NextResponse.json({ error: "A valid URL is required." }, { status: 400 });
     }

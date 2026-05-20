@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,16 @@ import { checkCreatorExists } from "@/lib/api/partners-program";
 import { ArrowRight, Loader2 } from "@/components/icons";
 
 const OTP_LENGTH = 6;
+
+const emailSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Enter a valid email address."),
+});
+const otpSchema = z.object({
+  otp: z
+    .string()
+    .length(OTP_LENGTH, `Enter the ${OTP_LENGTH}-digit code.`)
+    .regex(/^\d+$/, "Code must contain only digits."),
+});
 
 type Mode = "sign-in" | "sign-up";
 
@@ -32,8 +43,12 @@ export function CreatorAuthCard({ mode }: CreatorAuthCardProps) {
 
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
-    const value = email.trim().toLowerCase();
-    if (!value) return;
+    const parsed = emailSchema.safeParse({ email });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Enter a valid email address.");
+      return;
+    }
+    const value = parsed.data.email;
     setLoading(true);
     setError("");
     try {
@@ -49,7 +64,11 @@ export function CreatorAuthCard({ mode }: CreatorAuthCardProps) {
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
-    if (otp.length !== OTP_LENGTH) return;
+    const parsed = otpSchema.safeParse({ otp });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? `Enter the ${OTP_LENGTH}-digit code.`);
+      return;
+    }
     setLoading(true);
     setError("");
     try {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import { useCreator } from "../_components/creator-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,14 @@ import {
 import { updateMyCreatorProfile } from "@/lib/api/partners-program";
 import type { AudienceSize, PayoutMethod, SocialEntry } from "@/lib/api/partners-program";
 import { Check, Loader2, Save } from "@/components/icons";
+
+const settingsSchema = z.object({
+  name: z.string().trim().min(1, "Name can't be empty."),
+  social_platforms: z
+    .array(z.object({ platform: z.string(), handle: z.string().trim().min(1) }))
+    .min(1, "Add at least one social platform with a handle."),
+  payout_details: z.string().trim().min(3, "Add the details we need to pay you."),
+});
 
 export default function CreatorSettingsPage() {
   const { profile, loading, refresh } = useCreator();
@@ -54,19 +63,15 @@ export default function CreatorSettingsPage() {
     e.preventDefault();
     if (!profile) return;
     setError(null);
-    if (!name.trim()) {
-      setError("Name can't be empty.");
-      return;
-    }
-    const cleanSocials = socials
-      .map((s) => ({ ...s, handle: s.handle.trim() }))
-      .filter((s) => s.handle);
-    if (cleanSocials.length === 0) {
-      setError("Add at least one social platform with a handle.");
-      return;
-    }
-    if (!payoutDetails.trim() || payoutDetails.trim().length < 3) {
-      setError("Add the details we need to pay you.");
+    const parsed = settingsSchema.safeParse({
+      name,
+      social_platforms: socials
+        .map((s) => ({ ...s, handle: s.handle.trim() }))
+        .filter((s) => s.handle),
+      payout_details: payoutDetails,
+    });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Please review the form.");
       return;
     }
 
@@ -74,12 +79,12 @@ export default function CreatorSettingsPage() {
     try {
       await updateMyCreatorProfile({
         email: profile.email,
-        name: name.trim(),
+        name: parsed.data.name,
         country,
-        social_platforms: cleanSocials,
+        social_platforms: parsed.data.social_platforms,
         audience_size: audience || undefined,
         payout_method: payoutMethod,
-        payout_details: payoutDetails.trim(),
+        payout_details: parsed.data.payout_details,
       });
       await refresh();
       setSavedAt(Date.now());

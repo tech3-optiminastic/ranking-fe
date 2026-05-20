@@ -1,87 +1,110 @@
+import { z } from "zod";
 import { apiClient, apiClientLong } from "./client";
 
-export type ContentField = "title" | "meta_description" | "body_html" | "schema_jsonld";
+// ─── Schemas ────────────────────────────────────────────────────────────────
 
-export interface ContentPage {
-  url: string;
-  path: string;
-  title: string;
-  last_audited_at: string | null;
-}
+const contentFieldSchema = z.enum(["title", "meta_description", "body_html", "schema_jsonld"]);
 
-export interface ContentSuggestion {
-  id: number;
-  title: string;
-  rationale: string;
-  target_field: ContentField;
-  current_excerpt: string;
-  proposed_value: string;
-  status: "proposed" | "used" | "dismissed";
-  created_at: string | null;
-}
+const contentPageSchema = z.object({
+  url: z.string(),
+  path: z.string(),
+  title: z.string(),
+  last_audited_at: z.string().nullable(),
+});
 
-export interface PreviewElementBBox {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
+const contentSuggestionSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  rationale: z.string(),
+  target_field: contentFieldSchema,
+  current_excerpt: z.string(),
+  proposed_value: z.string(),
+  status: z.enum(["proposed", "used", "dismissed"]),
+  created_at: z.string().nullable(),
+});
 
-export interface PreviewElement {
-  id: number;
-  tag: string;
-  text: string;
-  bbox: PreviewElementBBox;
-}
+const previewElementBBoxSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  w: z.number(),
+  h: z.number(),
+});
 
-export interface ContentPageFields {
-  url: string;
-  title: string;
-  meta_description: string;
-  body_html: string;
-  schema_jsonld: string;
-  preview_image: string;
-  preview_elements: PreviewElement[];
-  preview_viewport_width: number;
-  source: "plugin" | "public" | "empty";
-  plugin_connected: boolean;
-  plugin_provider: string;
-  suggestions: ContentSuggestion[];
-}
+const previewElementSchema = z.object({
+  id: z.number(),
+  tag: z.string(),
+  text: z.string(),
+  bbox: previewElementBBoxSchema,
+});
 
-export interface ContentSaveResult {
-  saved: ContentField[];
-  failed: { field: ContentField; message: string }[];
-  plugin_responses: Record<string, unknown>;
-}
+const contentPageFieldsSchema = z.object({
+  url: z.string(),
+  title: z.string(),
+  meta_description: z.string(),
+  body_html: z.string(),
+  schema_jsonld: z.string(),
+  preview_image: z.string(),
+  preview_elements: z.array(previewElementSchema),
+  preview_viewport_width: z.number(),
+  source: z.enum(["plugin", "public", "empty"]),
+  plugin_connected: z.boolean(),
+  plugin_provider: z.string(),
+  suggestions: z.array(contentSuggestionSchema),
+});
+
+const contentSaveResultSchema = z.object({
+  saved: z.array(contentFieldSchema),
+  failed: z.array(z.object({ field: contentFieldSchema, message: z.string() })),
+  plugin_responses: z.record(z.string(), z.unknown()),
+});
+
+const applyElementResultSchema = contentSaveResultSchema.extend({
+  noop: z.boolean().optional(),
+});
+
+const pagesResponseSchema = z.object({ pages: z.array(contentPageSchema).optional() });
+const suggestionsResponseSchema = z.object({
+  suggestions: z.array(contentSuggestionSchema).optional(),
+});
+const newTextResponseSchema = z.object({ new_text: z.string().optional() });
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+export type ContentField = z.infer<typeof contentFieldSchema>;
+export type ContentPage = z.infer<typeof contentPageSchema>;
+export type ContentSuggestion = z.infer<typeof contentSuggestionSchema>;
+export type PreviewElementBBox = z.infer<typeof previewElementBBoxSchema>;
+export type PreviewElement = z.infer<typeof previewElementSchema>;
+export type ContentPageFields = z.infer<typeof contentPageFieldsSchema>;
+export type ContentSaveResult = z.infer<typeof contentSaveResultSchema>;
+
+// ─── API calls ──────────────────────────────────────────────────────────────
 
 export async function getContentPages(slug: string): Promise<ContentPage[]> {
-  const { data } = await apiClient.get<{ pages: ContentPage[] }>(
-    `/api/analyzer/runs/s/${slug}/content/pages/`,
-  );
-  return data.pages || [];
+  const { data } = await apiClient.get(`/api/analyzer/runs/s/${slug}/content/pages/`);
+  return pagesResponseSchema.parse(data).pages ?? [];
 }
 
 export async function getContentPageFields(slug: string, url: string): Promise<ContentPageFields> {
   // Long timeout because the BE renders the URL in headless Chromium to
   // produce the preview screenshot, typically 4–10s per page.
-  const { data } = await apiClientLong.get<ContentPageFields>(
-    `/api/analyzer/runs/s/${slug}/content/page/`,
-    { params: { url }, timeout: 45_000 },
-  );
-  return data;
+  const { data } = await apiClientLong.get(`/api/analyzer/runs/s/${slug}/content/page/`, {
+    params: { url },
+    timeout: 45_000,
+  });
+  return contentPageFieldsSchema.parse(data);
 }
 
 export async function getContentSuggestions(
   slug: string,
   url: string,
 ): Promise<ContentSuggestion[]> {
-  const { data } = await apiClientLong.post<{ suggestions: ContentSuggestion[] }>(
+  const { data } = await apiClientLong.post(
     `/api/analyzer/runs/s/${slug}/content/suggestions/`,
     { url },
     { timeout: 90_000 },
   );
-  return data.suggestions || [];
+  return suggestionsResponseSchema.parse(data).suggestions ?? [];
 }
 
 export async function dismissContentSuggestion(slug: string, suggestionId: number): Promise<void> {
@@ -94,12 +117,12 @@ export async function saveContentPageEdits(
   fields: Partial<Record<ContentField, string>>,
   usedSuggestionIds: number[] = [],
 ): Promise<ContentSaveResult> {
-  const { data } = await apiClientLong.post<ContentSaveResult>(
+  const { data } = await apiClientLong.post(
     `/api/analyzer/runs/s/${slug}/content/save/`,
     { url, fields, used_suggestion_ids: usedSuggestionIds },
     { timeout: 45_000 },
   );
-  return data;
+  return contentSaveResultSchema.parse(data);
 }
 
 export async function rewriteElement(
@@ -108,12 +131,12 @@ export async function rewriteElement(
   text: string,
   instruction = "",
 ): Promise<string> {
-  const { data } = await apiClientLong.post<{ new_text: string }>(
+  const { data } = await apiClientLong.post(
     `/api/analyzer/runs/s/${slug}/content/rewrite-element/`,
     { tag, text, instruction },
     { timeout: 60_000 },
   );
-  return data.new_text || "";
+  return newTextResponseSchema.parse(data).new_text ?? "";
 }
 
 export async function applyElementEdit(
@@ -122,10 +145,10 @@ export async function applyElementEdit(
   originalText: string,
   newText: string,
 ): Promise<ContentSaveResult & { noop?: boolean }> {
-  const { data } = await apiClientLong.post<ContentSaveResult & { noop?: boolean }>(
+  const { data } = await apiClientLong.post(
     `/api/analyzer/runs/s/${slug}/content/apply-element/`,
     { url, original_text: originalText, new_text: newText },
     { timeout: 45_000 },
   );
-  return data;
+  return applyElementResultSchema.parse(data);
 }

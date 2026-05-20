@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export const runtime = "nodejs";
+
+const requestSchema = z.object({
+  url: z.string().trim().min(1, "A domain or brand is required."),
+});
 
 type DDGListSuggestion = [string, string[]];
 type DDGSuggestion = { phrase?: string };
@@ -115,12 +120,14 @@ function extractRivals(suggestions: string[], brand: string): Map<string, number
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as { url?: string };
-    const raw = (body.url ?? "").trim();
-    if (!raw) {
-      return NextResponse.json({ error: "A domain or brand is required." }, { status: 400 });
+    const parsed = requestSchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request." },
+        { status: 400 },
+      );
     }
-    const brand = deriveBrand(raw);
+    const brand = deriveBrand(parsed.data.url);
     if (!brand) {
       return NextResponse.json(
         { error: "Couldn't derive a brand from that input." },

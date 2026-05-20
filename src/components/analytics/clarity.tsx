@@ -3,8 +3,9 @@
 import { useEffect } from "react";
 import Clarity from "@microsoft/clarity";
 import { useConsentStore } from "@/lib/stores/consent-store";
+import { env } from "@/lib/env";
 
-const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "wloufvwvwn";
+const CLARITY_PROJECT_ID = env.NEXT_PUBLIC_CLARITY_PROJECT_ID ?? "wloufvwvwn";
 
 let inited = false;
 

@@ -1,75 +1,254 @@
+import { z } from "zod";
 import { apiClient } from "./client";
 
-// ---------- Types ----------
+// ─── Shared schemas ─────────────────────────────────────────────────────────
 
-export interface IntegrationInfo {
-  id: number;
-  provider: "google_analytics" | "shopify" | "wordpress";
-  provider_display: string;
-  is_active: boolean;
-  metadata: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
-}
+const syncStatusSchema = z.enum(["pending", "syncing", "complete", "failed"]);
 
-export interface GA4Property {
-  property_id: string;
-  display_name: string;
-  account_name: string;
-}
+const integrationInfoSchema = z.object({
+  id: z.number(),
+  provider: z.enum(["google_analytics", "shopify", "wordpress"]),
+  provider_display: z.string(),
+  is_active: z.boolean(),
+  metadata: z.record(z.string(), z.unknown()),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
 
-export interface GADataSnapshot {
-  id: number;
-  date_start: string;
-  date_end: string;
-  sessions: number;
-  organic_sessions: number;
-  bounce_rate: number;
-  avg_session_duration: number;
-  top_pages: Array<{
-    path: string;
-    sessions: number;
-    bounce_rate: number;
-    avg_duration: number;
-  }>;
-  traffic_sources: Array<{
-    source: string;
-    medium: string;
-    sessions: number;
-  }>;
-  daily_trend: Array<{
-    date: string;
-    sessions: number;
-    organic_sessions: number;
-  }>;
-  countries: Array<{
-    country: string;
-    country_id: string; // ISO alpha-2 e.g. "IN", "US"
-    sessions: number;
-  }>;
-  sync_status: "pending" | "syncing" | "complete" | "failed";
-  error_message: string;
-  created_at: string;
-  page_match?: {
-    found: boolean;
-    host_match: boolean;
-    analyzed_host: string;
-    matched_host: string;
-    page_path: string;
-    sessions: number;
-    bounce_rate: number;
-    avg_session_duration: number;
-  };
-}
+const messageOnlySchema = z.object({ message: z.string() });
 
-// ---------- OAuth ----------
+const integrationActionSchema = z.object({
+  message: z.string(),
+  integration: integrationInfoSchema,
+});
+
+const authUrlSchema = z.object({ auth_url: z.string() });
+
+// ─── GA4 ────────────────────────────────────────────────────────────────────
+
+const ga4PropertySchema = z.object({
+  property_id: z.string(),
+  display_name: z.string(),
+  account_name: z.string(),
+});
+
+const gaPropertiesResponseSchema = z.object({ properties: z.array(ga4PropertySchema) });
+
+const gaPageMatchSchema = z.object({
+  found: z.boolean(),
+  host_match: z.boolean(),
+  analyzed_host: z.string(),
+  matched_host: z.string(),
+  page_path: z.string(),
+  sessions: z.number(),
+  bounce_rate: z.number(),
+  avg_session_duration: z.number(),
+});
+
+const gaDataSnapshotSchema = z.object({
+  id: z.number(),
+  date_start: z.string(),
+  date_end: z.string(),
+  sessions: z.number(),
+  organic_sessions: z.number(),
+  bounce_rate: z.number(),
+  avg_session_duration: z.number(),
+  top_pages: z.array(
+    z.object({
+      path: z.string(),
+      sessions: z.number(),
+      bounce_rate: z.number(),
+      avg_duration: z.number(),
+    }),
+  ),
+  traffic_sources: z.array(
+    z.object({
+      source: z.string(),
+      medium: z.string(),
+      sessions: z.number(),
+    }),
+  ),
+  daily_trend: z.array(
+    z.object({
+      date: z.string(),
+      sessions: z.number(),
+      organic_sessions: z.number(),
+    }),
+  ),
+  countries: z.array(
+    z.object({
+      country: z.string(),
+      country_id: z.string(),
+      sessions: z.number(),
+    }),
+  ),
+  sync_status: syncStatusSchema,
+  error_message: z.string(),
+  created_at: z.string(),
+  page_match: gaPageMatchSchema.optional(),
+});
+
+// ─── Shopify ────────────────────────────────────────────────────────────────
+
+const shopifyDataSnapshotSchema = z.object({
+  id: z.number(),
+  date_start: z.string(),
+  date_end: z.string(),
+  total_orders: z.number(),
+  total_revenue: z.string(),
+  average_order_value: z.string(),
+  total_customers: z.number(),
+  top_products: z.array(
+    z.object({
+      title: z.string(),
+      quantity_sold: z.number(),
+      revenue: z.string(),
+      product_id: z.string(),
+    }),
+  ),
+  daily_orders: z.array(
+    z.object({
+      date: z.string(),
+      orders: z.number(),
+      revenue: z.string(),
+    }),
+  ),
+  sync_status: syncStatusSchema,
+  error_message: z.string(),
+  created_at: z.string(),
+});
+
+// ─── WordPress ──────────────────────────────────────────────────────────────
+
+const wordPressDataSnapshotSchema = z.object({
+  id: z.number(),
+  date_start: z.string(),
+  date_end: z.string(),
+  total_posts: z.number(),
+  total_pages: z.number(),
+  published_posts_30d: z.number(),
+  updated_posts_30d: z.number(),
+  top_posts: z.array(
+    z.object({
+      id: z.number(),
+      title: z.string(),
+      slug: z.string(),
+      url: z.string(),
+      published_at: z.string(),
+      modified_at: z.string(),
+    }),
+  ),
+  daily_publishing: z.array(
+    z.object({
+      date: z.string(),
+      published_posts: z.number(),
+    }),
+  ),
+  sync_status: syncStatusSchema,
+  error_message: z.string(),
+  created_at: z.string(),
+});
+
+const wordPressConnectResponseSchema = z.object({
+  oauth_url: z.string().optional(),
+  status: z.string().optional(),
+  site_name: z.string().optional(),
+  message: z.string().optional(),
+});
+
+// ─── Blog Agent ─────────────────────────────────────────────────────────────
+
+const blogPostSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  slug: z.string(),
+  url: z.string(),
+  published_at: z.string(),
+  modified_at: z.string(),
+});
+
+const blogPostsResponseSchema = z.object({
+  connected: z.boolean(),
+  site_name: z.string().optional(),
+  site_url: z.string().optional(),
+  total_posts: z.number().optional(),
+  published_posts_30d: z.number().optional(),
+  posts: z.array(blogPostSchema),
+  error: z.string().optional(),
+});
+
+const blogDraftSchema = z.object({
+  title: z.string(),
+  slug: z.string(),
+  meta_description: z.string(),
+  tags: z.array(z.string()),
+  content_html: z.string(),
+});
+
+const blogPublishResultSchema = z.object({
+  post_id: z.number(),
+  post_url: z.string(),
+  status: z.string(),
+  edit_url: z.string(),
+});
+
+const shopifyBlogPostSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  handle: z.string(),
+  url: z.string(),
+  published_at: z.string(),
+  author: z.string(),
+});
+
+const shopifyBlogPostsResponseSchema = z.object({
+  connected: z.boolean(),
+  shop_name: z.string().optional(),
+  shop_url: z.string().optional(),
+  total_posts: z.number().optional(),
+  published_posts_30d: z.number().optional(),
+  posts: z.array(shopifyBlogPostSchema),
+  error: z.string().optional(),
+});
+
+// ─── Correlation ────────────────────────────────────────────────────────────
+
+const correlationResponseSchema = z.object({
+  data_points: z.array(
+    z.object({
+      date: z.string(),
+      geo_score: z.number(),
+      sessions: z.number().nullable(),
+      organic_sessions: z.number().nullable(),
+      url: z.string(),
+    }),
+  ),
+  has_ga_data: z.boolean(),
+});
+
+// ─── Types (re-exported) ────────────────────────────────────────────────────
+
+export type IntegrationInfo = z.infer<typeof integrationInfoSchema>;
+export type GA4Property = z.infer<typeof ga4PropertySchema>;
+export type GADataSnapshot = z.infer<typeof gaDataSnapshotSchema>;
+export type ShopifyDataSnapshot = z.infer<typeof shopifyDataSnapshotSchema>;
+export type WordPressDataSnapshot = z.infer<typeof wordPressDataSnapshotSchema>;
+export type BlogPost = z.infer<typeof blogPostSchema>;
+export type BlogPostsResponse = z.infer<typeof blogPostsResponseSchema>;
+export type BlogDraft = z.infer<typeof blogDraftSchema>;
+export type BlogPublishResult = z.infer<typeof blogPublishResultSchema>;
+export type ShopifyBlogPost = z.infer<typeof shopifyBlogPostSchema>;
+export type ShopifyBlogPostsResponse = z.infer<typeof shopifyBlogPostsResponseSchema>;
+export type CorrelationDataPoint = z.infer<typeof correlationResponseSchema>["data_points"][number];
+export type CorrelationResponse = z.infer<typeof correlationResponseSchema>;
+
+// ─── GA4 API ────────────────────────────────────────────────────────────────
 
 export async function getGAAuthUrl(email: string): Promise<{ auth_url: string }> {
-  const { data } = await apiClient.get<{ auth_url: string }>(
-    "/api/integrations/google-analytics/auth-url/",
-    { params: { email } },
-  );
-  return data;
+  const { data } = await apiClient.get("/api/integrations/google-analytics/auth-url/", {
+    params: { email },
+  });
+  return authUrlSchema.parse(data);
 }
 
 export async function sendGACallback(
@@ -80,36 +259,31 @@ export async function sendGACallback(
     code,
     state,
   });
-  return data;
+  return integrationActionSchema.parse(data);
 }
 
 export async function disconnectGA(email: string): Promise<{ message: string }> {
   const { data } = await apiClient.delete("/api/integrations/google-analytics/disconnect/", {
     params: { email },
   });
-  return data;
+  return messageOnlySchema.parse(data);
 }
-
-// ---------- Status ----------
 
 export async function getIntegrationStatus(
   email: string,
   orgId?: number,
 ): Promise<IntegrationInfo[]> {
-  const { data } = await apiClient.get<IntegrationInfo[]>("/api/integrations/status/", {
+  const { data } = await apiClient.get("/api/integrations/status/", {
     params: { email, org_id: orgId },
   });
-  return data;
+  return z.array(integrationInfoSchema).parse(data);
 }
 
-// ---------- Properties ----------
-
 export async function getGAProperties(email: string): Promise<{ properties: GA4Property[] }> {
-  const { data } = await apiClient.get<{ properties: GA4Property[] }>(
-    "/api/integrations/google-analytics/properties/",
-    { params: { email } },
-  );
-  return data;
+  const { data } = await apiClient.get("/api/integrations/google-analytics/properties/", {
+    params: { email },
+  });
+  return gaPropertiesResponseSchema.parse(data);
 }
 
 export async function selectGAProperty(
@@ -122,77 +296,24 @@ export async function selectGAProperty(
     property_id: propertyId,
     property_name: propertyName,
   });
-  return data;
+  return integrationActionSchema.parse(data);
 }
-
-// ---------- Data ----------
 
 export async function syncGAData(email: string): Promise<{ message: string }> {
   const { data } = await apiClient.post("/api/integrations/google-analytics/sync/", null, {
     params: { email },
   });
-  return data;
+  return messageOnlySchema.parse(data);
 }
 
 export async function getGAData(email: string, analyzedUrl?: string): Promise<GADataSnapshot> {
-  const { data } = await apiClient.get<GADataSnapshot>("/api/integrations/google-analytics/data/", {
+  const { data } = await apiClient.get("/api/integrations/google-analytics/data/", {
     params: { email, analyzed_url: analyzedUrl },
   });
-  return data;
+  return gaDataSnapshotSchema.parse(data);
 }
 
-// ---------- Shopify Types ----------
-
-export interface ShopifyDataSnapshot {
-  id: number;
-  date_start: string;
-  date_end: string;
-  total_orders: number;
-  total_revenue: string;
-  average_order_value: string;
-  total_customers: number;
-  top_products: Array<{
-    title: string;
-    quantity_sold: number;
-    revenue: string;
-    product_id: string;
-  }>;
-  daily_orders: Array<{
-    date: string;
-    orders: number;
-    revenue: string;
-  }>;
-  sync_status: "pending" | "syncing" | "complete" | "failed";
-  error_message: string;
-  created_at: string;
-}
-
-export interface WordPressDataSnapshot {
-  id: number;
-  date_start: string;
-  date_end: string;
-  total_posts: number;
-  total_pages: number;
-  published_posts_30d: number;
-  updated_posts_30d: number;
-  top_posts: Array<{
-    id: number;
-    title: string;
-    slug: string;
-    url: string;
-    published_at: string;
-    modified_at: string;
-  }>;
-  daily_publishing: Array<{
-    date: string;
-    published_posts: number;
-  }>;
-  sync_status: "pending" | "syncing" | "complete" | "failed";
-  error_message: string;
-  created_at: string;
-}
-
-// ---------- Shopify API ----------
+// ─── Shopify API ────────────────────────────────────────────────────────────
 
 export async function connectShopify(
   email: string,
@@ -204,7 +325,7 @@ export async function connectShopify(
     shop_domain: shopDomain,
     access_token: accessToken,
   });
-  return data;
+  return integrationActionSchema.parse(data);
 }
 
 export async function getShopifyAuthUrl(
@@ -214,21 +335,18 @@ export async function getShopifyAuthUrl(
   orgId?: number,
   storefrontPassword?: string,
 ): Promise<{ auth_url: string }> {
-  const { data } = await apiClient.get<{ auth_url: string }>(
-    "/api/integrations/shopify/auth-url/",
-    {
-      params: {
-        email,
-        shop: shopDomain,
-        return_to: returnTo,
-        org_id: orgId,
-        storefront_password: storefrontPassword || undefined,
-        // Must match the tab the user started from (localhost vs 127.0.0.1, prod domain).
-        ...(typeof window !== "undefined" ? { frontend_base: window.location.origin } : {}),
-      },
+  const { data } = await apiClient.get("/api/integrations/shopify/auth-url/", {
+    params: {
+      email,
+      shop: shopDomain,
+      return_to: returnTo,
+      org_id: orgId,
+      storefront_password: storefrontPassword || undefined,
+      // Must match the tab the user started from (localhost vs 127.0.0.1, prod domain).
+      ...(typeof window !== "undefined" ? { frontend_base: window.location.origin } : {}),
     },
-  );
-  return data;
+  });
+  return authUrlSchema.parse(data);
 }
 
 export async function disconnectShopify(
@@ -238,26 +356,24 @@ export async function disconnectShopify(
   const { data } = await apiClient.delete("/api/integrations/shopify/disconnect/", {
     params: { email, org_id: orgId },
   });
-  return data;
+  return messageOnlySchema.parse(data);
 }
 
 export async function syncShopifyData(email: string, orgId?: number): Promise<{ message: string }> {
   const { data } = await apiClient.post("/api/integrations/shopify/sync/", null, {
     params: { email, org_id: orgId },
   });
-  return data;
+  return messageOnlySchema.parse(data);
 }
 
 export async function getShopifyData(email: string, orgId?: number): Promise<ShopifyDataSnapshot> {
-  const { data } = await apiClient.get<ShopifyDataSnapshot>("/api/integrations/shopify/data/", {
+  const { data } = await apiClient.get("/api/integrations/shopify/data/", {
     params: { email, org_id: orgId },
   });
-  return data;
+  return shopifyDataSnapshotSchema.parse(data);
 }
 
-// ---------- WordPress API ----------
-
-// ...existing code...
+// ─── WordPress API ──────────────────────────────────────────────────────────
 
 export async function connectWordPress(
   email: string,
@@ -266,7 +382,7 @@ export async function connectWordPress(
   returnTo?: string,
   username?: string,
 ): Promise<{ oauth_url?: string; status?: string; site_name?: string; message?: string }> {
-  const res = await apiClient.post("/api/integrations/wordpress/connect/", {
+  const { data } = await apiClient.post("/api/integrations/wordpress/connect/", {
     email,
     site_url: siteUrl,
     api_key: apiKey || undefined,
@@ -274,71 +390,33 @@ export async function connectWordPress(
     return_to: returnTo || "/dashboard",
     frontend_base: window.location.origin,
   });
-  return res.data;
+  return wordPressConnectResponseSchema.parse(data);
 }
 
 export async function disconnectWordPress(email: string): Promise<{ message: string }> {
   const { data } = await apiClient.delete("/api/integrations/wordpress/disconnect/", {
     params: { email },
   });
-  return data;
+  return messageOnlySchema.parse(data);
 }
 
 export async function syncWordPressData(email: string): Promise<{ message: string }> {
   const { data } = await apiClient.post("/api/integrations/wordpress/sync/", null, {
     params: { email },
   });
-  return data;
+  return messageOnlySchema.parse(data);
 }
 
 export async function getWordPressData(email: string): Promise<WordPressDataSnapshot> {
-  const { data } = await apiClient.get<WordPressDataSnapshot>("/api/integrations/wordpress/data/", {
-    params: { email },
-  });
-  return data;
+  const { data } = await apiClient.get("/api/integrations/wordpress/data/", { params: { email } });
+  return wordPressDataSnapshotSchema.parse(data);
 }
 
-// ---------- Blog Agent ----------
-
-export interface BlogPost {
-  id: number;
-  title: string;
-  slug: string;
-  url: string;
-  published_at: string;
-  modified_at: string;
-}
-
-export interface BlogPostsResponse {
-  connected: boolean;
-  site_name?: string;
-  site_url?: string;
-  total_posts?: number;
-  published_posts_30d?: number;
-  posts: BlogPost[];
-  error?: string;
-}
-
-export interface BlogDraft {
-  title: string;
-  slug: string;
-  meta_description: string;
-  tags: string[];
-  content_html: string;
-}
-
-export interface BlogPublishResult {
-  post_id: number;
-  post_url: string;
-  status: string;
-  edit_url: string;
-}
+// ─── Blog Agent ─────────────────────────────────────────────────────────────
 
 export async function getBlogPosts(runSlug: string): Promise<BlogPostsResponse> {
-  const { data } = await apiClient.get<BlogPostsResponse>(
-    `/api/analyzer/runs/s/${runSlug}/blog/posts/`,
-  );
-  return data;
+  const { data } = await apiClient.get(`/api/analyzer/runs/s/${runSlug}/blog/posts/`);
+  return blogPostsResponseSchema.parse(data);
 }
 
 export async function generateBlogDraft(
@@ -347,90 +425,53 @@ export async function generateBlogDraft(
   tone: string,
   wordCount: number,
 ): Promise<BlogDraft> {
-  const { data } = await apiClient.post<BlogDraft>(
-    `/api/analyzer/runs/s/${runSlug}/blog/generate/`,
-    { topic, tone, word_count: wordCount },
-  );
-  return data;
+  const { data } = await apiClient.post(`/api/analyzer/runs/s/${runSlug}/blog/generate/`, {
+    topic,
+    tone,
+    word_count: wordCount,
+  });
+  return blogDraftSchema.parse(data);
 }
 
 export async function publishBlogDraft(
   runSlug: string,
   draft: BlogDraft & { status: "draft" | "publish" },
 ): Promise<BlogPublishResult> {
-  const { data } = await apiClient.post<BlogPublishResult>(
-    `/api/analyzer/runs/s/${runSlug}/blog/publish/`,
-    draft,
-  );
-  return data;
+  const { data } = await apiClient.post(`/api/analyzer/runs/s/${runSlug}/blog/publish/`, draft);
+  return blogPublishResultSchema.parse(data);
 }
 
 export async function deleteBlogPost(runSlug: string, postId: number): Promise<void> {
   await apiClient.delete(`/api/analyzer/runs/s/${runSlug}/blog/posts/${postId}/`);
 }
 
-// ---------- Shopify Blog ----------
-
-export interface ShopifyBlogPost {
-  id: number;
-  title: string;
-  handle: string;
-  url: string;
-  published_at: string;
-  author: string;
-}
-
-export interface ShopifyBlogPostsResponse {
-  connected: boolean;
-  shop_name?: string;
-  shop_url?: string;
-  total_posts?: number;
-  published_posts_30d?: number;
-  posts: ShopifyBlogPost[];
-  error?: string;
-}
+// ─── Shopify Blog ───────────────────────────────────────────────────────────
 
 export async function getShopifyBlogPosts(runSlug: string): Promise<ShopifyBlogPostsResponse> {
-  const { data } = await apiClient.get<ShopifyBlogPostsResponse>(
-    `/api/analyzer/runs/s/${runSlug}/shopify-blog/posts/`,
-  );
-  return data;
+  const { data } = await apiClient.get(`/api/analyzer/runs/s/${runSlug}/shopify-blog/posts/`);
+  return shopifyBlogPostsResponseSchema.parse(data);
 }
 
 export async function publishShopifyBlogDraft(
   runSlug: string,
   draft: BlogDraft & { status: "draft" | "publish" },
 ): Promise<BlogPublishResult> {
-  const { data } = await apiClient.post<BlogPublishResult>(
+  const { data } = await apiClient.post(
     `/api/analyzer/runs/s/${runSlug}/shopify-blog/publish/`,
     draft,
   );
-  return data;
+  return blogPublishResultSchema.parse(data);
 }
 
 export async function deleteShopifyBlogPost(runSlug: string, postId: number): Promise<void> {
   await apiClient.delete(`/api/analyzer/runs/s/${runSlug}/shopify-blog/posts/${postId}/`);
 }
 
-// ---------- Correlation ----------
-
-export interface CorrelationDataPoint {
-  date: string;
-  geo_score: number;
-  sessions: number | null;
-  organic_sessions: number | null;
-  url: string;
-}
-
-export interface CorrelationResponse {
-  data_points: CorrelationDataPoint[];
-  has_ga_data: boolean;
-}
+// ─── Correlation ────────────────────────────────────────────────────────────
 
 export async function getScoreTrafficCorrelation(email: string): Promise<CorrelationResponse> {
-  const { data } = await apiClient.get<CorrelationResponse>(
-    "/api/integrations/score-traffic-correlation/",
-    { params: { email } },
-  );
-  return data;
+  const { data } = await apiClient.get("/api/integrations/score-traffic-correlation/", {
+    params: { email },
+  });
+  return correlationResponseSchema.parse(data);
 }

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,19 @@ import {
   type PayoutMethod,
   type SocialEntry,
 } from "@/lib/api/partners-program";
+
+// Field-level error messages flow straight to the inline error banner.
+// Putting the schema next to the form keeps validation rules close to the UI.
+const applyFormSchema = z.object({
+  name: z.string().trim().min(1, "Add your name."),
+  country: z.string().min(2, "Pick a country."),
+  social_platforms: z
+    .array(z.object({ platform: z.string(), handle: z.string().trim().min(1) }))
+    .min(1, "Add at least one social platform with a handle."),
+  audience_size: z.enum(["<1k", "1k-10k", "10k-100k", "100k-1m", "1m+", ""]),
+  payout_method: z.enum(["wise", "paypal", "bank", "crypto", "other"]),
+  payout_details: z.string().trim().min(3, "Add the details we need to pay you."),
+});
 import { COUNTRIES, flagEmoji } from "@/lib/countries";
 import {
   ArrowLeft,
@@ -282,26 +296,31 @@ function ApplyForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!name.trim()) return setError("Add your name.");
-    if (!country) return setError("Pick a country.");
-    const trimmedSocials = socials
-      .map((s) => ({ ...s, handle: s.handle.trim() }))
-      .filter((s) => s.handle);
-    if (trimmedSocials.length === 0)
-      return setError("Add at least one social platform with a handle.");
-    if (!payoutDetails.trim() || payoutDetails.trim().length < 3)
-      return setError("Add the details we need to pay you.");
+    const parsed = applyFormSchema.safeParse({
+      name,
+      country,
+      social_platforms: socials
+        .map((s) => ({ ...s, handle: s.handle.trim() }))
+        .filter((s) => s.handle),
+      audience_size: audience,
+      payout_method: payoutMethod,
+      payout_details: payoutDetails,
+    });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Please review the form.");
+      return;
+    }
 
     setSubmitting(true);
     try {
       const res = await applyToCreatorsProgram({
-        name: name.trim(),
+        name: parsed.data.name,
         email: lockedEmail,
-        country,
-        social_platforms: trimmedSocials,
-        audience_size: audience || undefined,
-        payout_method: payoutMethod,
-        payout_details: payoutDetails.trim(),
+        country: parsed.data.country,
+        social_platforms: parsed.data.social_platforms,
+        audience_size: parsed.data.audience_size || undefined,
+        payout_method: parsed.data.payout_method,
+        payout_details: parsed.data.payout_details,
       });
       onSuccess(res);
     } catch (err) {

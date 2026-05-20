@@ -16,8 +16,9 @@ import {
   StatusPill,
 } from "@/components/settings/settings-card";
 import { cn } from "@/lib/utils";
+import { env } from "@/lib/env";
 
-const SITE_BASE = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://signalor.ai";
+const SITE_BASE = env.NEXT_PUBLIC_SITE_URL;
 
 export default function ReferralsSettingsPage() {
   const { data: session } = useSession();
