@@ -212,10 +212,7 @@ export const WeeklyPerformanceSection = memo(function WeeklyPerformanceSection({
 
   return (
     <div
-      className={cn(
-        "mb-3 overflow-hidden rounded-xl border border-neutral-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]",
-        className,
-      )}
+      className={cn("mb-3 overflow-hidden rounded-sm border border-black/6 bg-white", className)}
     >
       {/* ── Week tabs ─────────────────────────────────────────────────── */}
       <div className="flex items-stretch border-b border-neutral-100">

@@ -104,7 +104,7 @@ export function DomainAnalyticsPanel({ slug }: DomainAnalyticsPanelProps) {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="rounded-sm border border-border bg-card p-6">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading real-world signals…
@@ -132,7 +132,7 @@ export function DomainAnalyticsPanel({ slug }: DomainAnalyticsPanelProps) {
 
   if (error && !snapshot) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-6">
+      <div className="rounded-sm border border-border bg-card p-6">
         <div className="flex items-start gap-3">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
           <div className="flex-1 space-y-1">
@@ -219,7 +219,7 @@ export function DomainAnalyticsPanel({ slug }: DomainAnalyticsPanelProps) {
       </div>
 
       {noData ? (
-        <div className="rounded-2xl border border-border bg-card p-6 text-center">
+        <div className="rounded-sm border border-border bg-card p-6 text-center">
           <p className="text-sm font-medium text-foreground">No public traffic signal yet</p>
           <p className="mt-1 text-xs text-muted-foreground">
             DataForSEO has no organic ranking data for this domain. This is normal for very new
@@ -238,7 +238,7 @@ export function DomainAnalyticsPanel({ slug }: DomainAnalyticsPanelProps) {
 
 function StatCard({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-sm border border-border bg-card p-4">
       <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {icon}
         {label}
@@ -250,7 +250,7 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
 
 function KeywordsTable({ keywords }: { keywords: DomainAnalyticsSnapshot["top_keywords"] }) {
   return (
-    <div className="rounded-xl border border-border bg-card">
+    <div className="rounded-sm border border-border bg-card">
       <div className="border-b border-border px-4 py-2.5">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Top ranking keywords
@@ -295,7 +295,7 @@ function KeywordsTable({ keywords }: { keywords: DomainAnalyticsSnapshot["top_ke
 
 function PagesTable({ pages }: { pages: DomainAnalyticsSnapshot["top_pages"] }) {
   return (
-    <div className="rounded-xl border border-border bg-card">
+    <div className="rounded-sm border border-border bg-card">
       <div className="border-b border-border px-4 py-2.5">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Top traffic pages

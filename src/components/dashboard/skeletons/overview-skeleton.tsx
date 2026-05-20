@@ -3,11 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // ─── Shared card shell ────────────────────────────────────────────────────────
 function DashCard({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div
-      className={`rounded-xl border border-neutral-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)] ${className ?? ""}`}
-    >
-      {children}
-    </div>
+    <div className={`rounded-sm border border-black/6 bg-white ${className ?? ""}`}>{children}</div>
   );
 }
 

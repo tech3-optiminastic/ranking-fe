@@ -20,7 +20,7 @@ export function TopIssuesCard({
   );
 
   return (
-    <div className="w-full rounded-xl border border-neutral-100 bg-white p-3 shadow-[0_1px_3px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_8px_22px_rgba(15,23,42,0.08)]">
+    <div className="w-full rounded-sm border border-black/6 bg-white p-3">
       <div className="mb-2 flex items-center justify-between border-b border-neutral-100 pb-1.5">
         <p className="text-sm font-semibold text-foreground">Top Issues</p>
         <Link
@@ -34,7 +34,10 @@ export function TopIssuesCard({
         {topIssues.length > 0 ? (
           <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-3">
             {topIssues.map((issue) => (
-              <li key={issue.id} className="rounded-md border border-border/70 bg-white px-1.5 py-1">
+              <li
+                key={issue.id}
+                className="rounded-md border border-border/70 bg-white px-1.5 py-1"
+              >
                 <p className="line-clamp-2 text-[10px] font-medium leading-tight text-foreground">
                   {issue.title}
                 </p>

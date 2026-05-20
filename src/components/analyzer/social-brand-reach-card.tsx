@@ -590,7 +590,7 @@ export function SocialBrandReachCard({
   return (
     <div className="col-span-12 grid grid-cols-1 items-stretch gap-3 md:grid-cols-12 md:gap-3">
       {/* ── Card 1: Brand Presence Line Graph ── */}
-      <div className="flex h-full min-h-0 flex-col rounded-xl border border-border bg-card p-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] md:col-span-7">
+      <div className="flex h-full min-h-0 flex-col rounded-sm border border-border bg-card p-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] md:col-span-7">
         <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold leading-tight text-foreground">Brand Presence</p>
@@ -770,7 +770,7 @@ export function SocialBrandReachCard({
       </div>
 
       {/* ── Card 2: World Presence Map ── */}
-      <div className="flex h-full min-h-0 flex-col rounded-xl border border-border bg-card p-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] md:col-span-5">
+      <div className="flex h-full min-h-0 flex-col rounded-sm border border-border bg-card p-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] md:col-span-5">
         <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-sm font-semibold leading-tight text-foreground">World Presence</p>

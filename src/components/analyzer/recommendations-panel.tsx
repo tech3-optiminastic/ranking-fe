@@ -611,7 +611,7 @@ export function RecommendationsPanel({
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_1px_3px_rgba(0,0,0,0.06)] dark:shadow-none">
+      <div className="overflow-hidden rounded-sm border border-border bg-card shadow-[0_1px_3px_rgba(0,0,0,0.06)] dark:shadow-none">
         {/* <div className="space-y-3 border-b border-border/60 px-4 py-3">
           <div className="flex flex-wrap items-center gap-2">
             {([

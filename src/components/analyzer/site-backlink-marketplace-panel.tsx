@@ -231,7 +231,7 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="rounded-sm border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
           <Loader2 className="size-3.5 animate-spin" />
           Loading backlink marketplace…
@@ -252,7 +252,7 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-sm border border-border bg-card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <ShoppingBag className="size-4 text-orange-600 dark:text-orange-400" />

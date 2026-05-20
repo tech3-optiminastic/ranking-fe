@@ -28,8 +28,7 @@ export function LandingHowItWorks() {
           in four steps
         </h2>
         <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
-          No setup calls, no integrations headache. Every step uses the product you just signed up
-          for, no separate onboarding tool.
+          Sign up, paste a URL, get a score. No setup calls. No separate tools.
         </p>
       </div>
 

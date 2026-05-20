@@ -17,7 +17,7 @@ export function CompetitorsSkeleton() {
       </div>
 
       {/* table shell */}
-      <div className="overflow-hidden rounded-xl border border-neutral-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+      <div className="overflow-hidden rounded-sm border border-black/6 bg-white">
         {/* table header */}
         <div className="flex items-center gap-4 border-b border-neutral-100 bg-neutral-50/60 px-4 py-3">
           {[120, 80, 60, 60, 70, 50].map((w, i) => (
@@ -44,7 +44,7 @@ export function CompetitorsSkeleton() {
                 <div className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-100">
                   <Skeleton
                     className="h-full rounded-full"
-                    style={{ width: `${30 + (i * 10) % 60}%` }}
+                    style={{ width: `${30 + ((i * 10) % 60)}%` }}
                   />
                 </div>
                 <Skeleton className="h-[11px] w-8 shrink-0 rounded" />

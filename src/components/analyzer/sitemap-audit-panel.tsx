@@ -190,7 +190,7 @@ function SitemapAuditSkeleton() {
       {/* 4 stat tiles */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
         {/* Indexed Pages tile */}
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-sm border border-border bg-card p-5">
           <div className="flex items-center justify-between">
             <Skeleton className="h-[10px] w-24 rounded" />
             <Skeleton className="h-3.5 w-3.5 rounded-full" />
@@ -204,7 +204,7 @@ function SitemapAuditSkeleton() {
 
         {/* 3 vital tiles (Avg LCP, FCP, TTFB) */}
         {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-2xl border border-border bg-card p-5">
+          <div key={i} className="rounded-sm border border-border bg-card p-5">
             <div className="flex items-center justify-between">
               <Skeleton className="h-[10px] w-16 rounded" />
               <Skeleton className="h-3.5 w-3.5 rounded" />
@@ -239,7 +239,7 @@ function SitemapAuditSkeleton() {
       </div>
 
       {/* Table skeleton */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="overflow-hidden rounded-sm border border-border bg-card">
         {/* thead */}
         <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-3">
           {["30%", "6%", "10%", "6%", "6%", "6%", "6%", "8%", "8%", "10%", "8%"].map((w, i) => (
@@ -324,7 +324,7 @@ function EmptyAudit({
   error: string | null;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-8 text-center">
+    <div className="rounded-sm border border-border bg-card p-8 text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Gauge className="h-5 w-5" />
       </div>
@@ -461,7 +461,7 @@ function IndexedTile({ audit }: { audit: SitemapAuditSummary }) {
   const pct =
     audit.crawl_limit > 0 ? Math.min(100, (audit.total_urls / audit.crawl_limit) * 100) : 0;
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-sm border border-border bg-card p-5">
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
           Indexed Pages
@@ -517,7 +517,7 @@ function VitalTile({
   const markerPct = !hasValue ? 0 : Math.min(100, (value! / bandMax) * 100);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-sm border border-border bg-card p-5">
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
           {label}
@@ -718,7 +718,7 @@ function PagesTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+    <div className="overflow-hidden rounded-sm border border-border bg-card">
       <table className="w-full table-fixed text-left text-[12px]">
         <thead className="border-b border-border bg-muted/30 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           <tr>
