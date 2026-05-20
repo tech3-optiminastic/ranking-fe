@@ -5,7 +5,7 @@ import { HeroBackgroundGrid } from "./hero-background-grid";
 
 export function LandingHero() {
   return (
-    <section className="relative bg-background px-6 pb-28 pt-32 lg:px-12 lg:pb-36 lg:pt-44">
+    <section className="relative bg-background px-6 pb-16 pt-20 lg:px-12 lg:pb-20 lg:pt-24">
       <HeroBackgroundGrid />
 
       {/* Soft primary glow */}
