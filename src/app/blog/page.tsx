@@ -6,7 +6,6 @@ import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
 import { HeroBackgroundGrid } from "@/components/landing/hero-background-grid";
 import { ScreenHR } from "@/components/ui/intersection-diamonds";
-import { BlogStackIllustration } from "@/components/blog/blog-stack-illustration";
 import { BLOG_CATEGORIES, BLOG_STATS, type BlogPost } from "@/lib/landing-blog-content";
 import { client } from "@/sanity/lib/client";
 import { ALL_POSTS_QUERY, type SanityBlogPost } from "@/sanity/lib/queries";
@@ -41,44 +40,38 @@ export default async function BlogPage() {
       {/* ─── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative bg-background px-6 pb-14 pt-14 lg:px-12 lg:pb-16 lg:pt-16">
         <HeroBackgroundGrid />
-        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-5">
-          <div className="md:col-span-3">
-            <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">
-              [ blog · playbooks · research ]
-            </p>
-            <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-[1.12] tracking-tight text-foreground sm:text-4xl lg:text-[2.65rem] xl:text-5xl">
-              Field notes on{" "}
-              <span className="relative whitespace-nowrap text-[#b45309]">
-                AI search visibility
-                <span
-                  className="absolute -bottom-1 left-0 right-0 border-b-2 border-dashed border-[#b45309]/45"
-                  aria-hidden
-                />
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">
+            [ blog · playbooks · research ]
+          </p>
+          <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-[1.12] tracking-tight text-foreground sm:text-4xl lg:text-[2.65rem] xl:text-5xl">
+            Field notes on{" "}
+            <span className="relative whitespace-nowrap text-[#b45309]">
+              AI search visibility
+              <span
+                className="absolute -bottom-1 left-0 right-0 border-b-2 border-dashed border-[#b45309]/45"
+                aria-hidden
+              />
+            </span>
+          </h1>
+          <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
+            Playbooks, research, and honest guides on GEO, citation attribution, llms.txt, and the
+            schemas that actually move the needle, written by operators shipping Signalor every day.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <span className="inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1 text-[11px] font-semibold text-foreground">
+              All posts
+            </span>
+            {BLOG_CATEGORIES.map((c) => (
+              <span
+                key={c}
+                className={cn(
+                  "inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1 text-[11px] font-medium text-muted-foreground transition hover:bg-neutral-50 hover:text-foreground",
+                )}
+              >
+                {c}
               </span>
-            </h1>
-            <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
-              Playbooks, research, and honest guides on GEO, citation attribution, llms.txt, and the
-              schemas that actually move the needle, written by operators shipping Signalor every
-              day.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              <span className="inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1 text-[11px] font-semibold text-foreground">
-                All posts
-              </span>
-              {BLOG_CATEGORIES.map((c) => (
-                <span
-                  key={c}
-                  className={cn(
-                    "inline-flex items-center rounded-full border border-black/10 bg-white px-3 py-1 text-[11px] font-medium text-muted-foreground transition hover:bg-neutral-50 hover:text-foreground",
-                  )}
-                >
-                  {c}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="hidden md:col-span-2 md:block">
-            <BlogStackIllustration />
+            ))}
           </div>
         </div>
       </section>
