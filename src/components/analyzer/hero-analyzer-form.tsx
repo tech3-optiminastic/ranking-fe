@@ -95,7 +95,7 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
               exit="exit"
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              <div className="flex flex-col gap-3 px-5 py-4">
+              <div className="relative min-h-[86px] px-4 pt-3 pb-3">
                 <input
                   ref={inputRef}
                   type="text"
@@ -109,16 +109,14 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
                   className="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                   autoFocus
                 />
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={goNext}
-                    disabled={!url.trim()}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white transition hover:bg-primary/90 active:scale-95 disabled:opacity-40"
-                  >
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  disabled={!url.trim()}
+                  className="absolute bottom-3 right-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-white transition hover:bg-primary/90 active:scale-95 disabled:opacity-40"
+                >
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
               </div>
             </motion.div>
           )}
@@ -133,8 +131,7 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
               exit="exit"
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              {/* Country area */}
-              <div className="px-5 pt-4 pb-3">
+              <div className="relative min-h-[86px] px-4 pt-3 pb-3">
                 <p className="text-xs text-muted-foreground mb-2">Select your target market</p>
                 <Select value={country} onValueChange={setCountry}>
                   <SelectTrigger className="w-full border-0 bg-transparent shadow-none focus:ring-0 text-sm text-foreground px-0 h-auto py-0">
@@ -148,25 +145,24 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="flex items-center justify-between px-5 pb-4">
-                <button
-                  type="button"
-                  onClick={goBack}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAnalyze}
-                  className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-white transition hover:bg-primary/90 active:scale-95"
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Run audit
-                </button>
+                <div className="absolute bottom-3 left-4 right-3 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={goBack}
+                    className="flex items-center gap-1 text-xs text-muted-foreground transition hover:text-foreground"
+                  >
+                    <ArrowLeft className="h-3 w-3" />
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAnalyze}
+                    className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary/90 active:scale-95"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Run audit
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
