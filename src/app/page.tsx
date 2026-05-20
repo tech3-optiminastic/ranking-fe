@@ -63,7 +63,7 @@ const HOMEPAGE_FAQ = [
 ];
 
 export const metadata: Metadata = buildMetadata({
-  title: undefined,
+  title: "Signalor AI",
   description:
     "Signalor scores, monitors, and improves how ChatGPT, Claude, Gemini, Perplexity, and Google AI cite your brand. Free GEO + AEO audit, paste any URL to start.",
   path: "/",

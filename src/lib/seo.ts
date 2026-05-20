@@ -18,27 +18,55 @@ export const SITE_KEYWORDS = [
   "AEO",
   "Answer Engine Optimization",
   "AI search visibility",
+  "AI discoverability",
+  "AI brand visibility",
   "LLM SEO",
+  "AI SEO",
   "ChatGPT SEO",
   "Perplexity SEO",
   "Gemini SEO",
+  "Claude SEO",
   "Claude citations",
   "AI citation tracking",
+  "AI citation monitoring",
+  "LLM citation tracking",
+  "prompt monitoring",
+  "prompt tracking",
+  "prompt tracker",
+  "prompt performance tracking",
+  "AI prompt tracking",
+  "AI prompt monitoring",
+  "GPT prompt tracker",
+  "LLM prompt tracking",
+  "Generative AI prompt tracking",
+  "prompt and citation tracking tools",
+  "AI answer monitoring",
+  "AI search monitoring",
+  "LLM monitoring",
+  "AI visibility tracking",
+  "brand monitoring for AI",
   "schema.org",
+  "schema validator",
+  "schema checker",
+  "schema.org validator",
+  "JSON-LD validator",
+  "JSON-LD checker",
+  "structured data validator",
+  "structured data testing",
   "llms.txt",
+  "AI crawler optimization",
   "brand visibility",
   "Signalor",
+  "signalor.ai",
+  "platforma signalor",
+  "platform signalor",
 ];
 
 export const SITE_LOCALE = "en_US";
 export const SITE_TWITTER = "@signalorai";
 export const SITE_OG_IMAGE = `${SITE_URL}/carousel1.png`;
 
-export const ORG_SOCIAL = [
-  "https://twitter.com/signalorai",
-  "https://www.linkedin.com/company/signalor",
-  "https://github.com/signalorai",
-];
+export const ORG_SOCIAL = ["https://twitter.com/signalorai", "https://github.com/signalorai"];
 
 export const DEFAULT_OG = {
   type: "website" as const,
@@ -270,17 +298,18 @@ export const SITE_NAV = [
   {
     name: "AI Visibility Tracking",
     path: "/ai-visibility",
-    description: "Monitor how ChatGPT, Claude, Gemini, and Perplexity cite your brand.",
+    description: "Signalor Monitors how ChatGPT, Claude, Gemini, and Perplexity cite your brand.",
   },
   {
     name: "Prompt Tracking",
     path: "/prompt-tracking",
-    description: "Track which AI prompts surface your brand and how rankings shift over time.",
+    description:
+      "Signalor Tracks which AI prompts surface your brand and how rankings shift over time.",
   },
   {
     name: "Recommendations",
     path: "/recommendations",
-    description: "Prioritized GEO fixes automatically generated for your site.",
+    description: "Signalor Prioritizes GEO fixes automatically generated for your site.",
   },
   {
     name: "About Signalor",
