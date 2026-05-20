@@ -19,8 +19,6 @@ import {
 import { CORAL } from "@/components/dashboard/constants";
 import type { DashboardSentiment } from "@/components/dashboard/types";
 import { GeoScoreCard } from "@/components/dashboard/geo-score-card";
-import { AiEngineProbesCard } from "@/components/dashboard/ai-engine-probes-card";
-import { TopIssuesCard } from "@/components/dashboard/top-issues-card";
 import { GeoScoreHistoryCard } from "@/components/dashboard/geo-score-history-card";
 import { PillarBreakdownCard } from "@/components/dashboard/pillar-breakdown-card";
 import { VisibilityByPlatformCard } from "@/components/dashboard/visibility-by-platform-card";
@@ -368,9 +366,9 @@ export default function SignalorDashboard() {
 
       {run && !isRunning && (
         <div className="px-3 pb-3 pt-2 sm:px-4">
-          {/* Row 1: GEO Score + Weekly Performance */}
+          {/* GEO Score card (left) + GEO Performance chart (right), equal height */}
           <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-stretch">
-            <div className="w-full shrink-0 sm:w-52" data-tour-card="overview-score">
+            <div className="w-full shrink-0 sm:w-56" data-tour-card="overview-score">
               <GeoScoreCard
                 compositeScore={compositeScore}
                 scoreChange={scoreChange}
@@ -385,54 +383,28 @@ export default function SignalorDashboard() {
               />
             </div>
           </div>
-
-          {/* Row 2: 4 equal metric cards */}
           <div className="grid grid-cols-12 items-stretch gap-2 mb-2">
-            <div className="col-span-3 min-h-0 h-full" data-tour-card="overview-platforms">
+            <div className="col-span-4 min-h-0 h-full" data-tour-card="overview-platforms">
               <VisibilityByPlatformCard brandVis={brandVis} />
             </div>
+            {/* <GeoScoreHistoryCard scoreHistory={scoreHistory} /> */}
             <div className="col-span-3 min-h-0 h-full" data-tour-card="overview-pillars">
               <PillarBreakdownCard pageScore={pageScore} />
             </div>
-            <div className="col-span-3 min-h-0 h-full" data-tour-card="overview-sentiment">
+            <div className="col-span-5 min-h-0 h-full" data-tour-card="overview-sentiment">
               <SentimentAnalysisCard sentiment={sentiment} />
-            </div>
-            <div className="col-span-3 min-h-0 h-full">
-              <AiEngineProbesCard sentiment={sentiment} />
             </div>
           </div>
 
-          {/* Row 3: AI Recommendations + Top Issues side by side */}
           <div
             className="grid grid-cols-12 items-stretch gap-2 mb-2"
             data-tour-card="overview-citations"
           >
-            <div className="col-span-7 min-h-0">
+            <div className="col-span-12 min-h-0">
               <AiRecommendationCard slug={slug} />
             </div>
-            <div className="col-span-5 min-h-0">
-              <TopIssuesCard slug={slug} recommendations={recommendations} />
-            </div>
           </div>
 
-          {/* Row 4: Score history + Competitors side by side */}
-          <div className="grid grid-cols-12 items-stretch gap-2 mb-2">
-            <div className="col-span-5 min-h-0 h-full">
-              <GeoScoreHistoryCard scoreHistory={scoreHistory} />
-            </div>
-            <div className="col-span-7 min-h-0 h-full">
-              <CompetitorsCard
-                slug={slug}
-                competitors={run.competitors ?? []}
-                yourScore={compositeScore}
-                yourName={projectName}
-                yourUrl={run.url}
-                yourPageScore={pageScore}
-              />
-            </div>
-          </div>
-
-          {/* Row 5: Social Brand Reach */}
           <div
             className="grid grid-cols-12 items-stretch gap-2 mb-2"
             data-tour-card="overview-reach"
@@ -448,12 +420,21 @@ export default function SignalorDashboard() {
             />
           </div>
 
-          {/* Row 6: Domain Analytics */}
+          <div className="grid grid-cols-12 items-stretch gap-2 mb-2">
+            <CompetitorsCard
+              slug={slug}
+              competitors={run.competitors ?? []}
+              yourScore={compositeScore}
+              yourName={projectName}
+              yourUrl={run.url}
+              yourPageScore={pageScore}
+            />
+          </div>
+
           <div className="mb-2">
             <DomainAnalyticsPanel slug={slug} />
           </div>
 
-          {/* Row 7: Prediction + Sentiment (conditional) */}
           {(prediction.gain > 0 || sentiment) && (
             <PredictionSentimentRow
               compositeScore={compositeScore}
