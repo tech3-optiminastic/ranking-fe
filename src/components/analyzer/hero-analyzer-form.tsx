@@ -35,11 +35,11 @@ const slideVariants = {
   exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
 };
 
-export function HeroAnalyzerForm() {
+export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(0); // 0 = URL, 1 = country, 2 = analyzing
   const [dir, setDir] = useState(1); // 1 = forward, -1 = backward
-  const [url, setUrl] = useState("");
+  const [url, setUrl] = useState(initialUrl);
   const [country, setCountry] = useState("United States");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
