@@ -236,22 +236,55 @@ export default function CompanyInfoPage() {
     if (typeof window === "undefined" || !session?.user?.email) return;
     const p = new URLSearchParams(window.location.search);
 
-    // Return from Shopify app install
-    if (p.get("shopify") === "installed" || p.get("resume") === "shopify") {
+    // Return from Shopify app install. `installed` is the FE-set
+    // in-progress marker (pre-OAuth); `connected` is the BE-set success
+    // marker emitted by the Shopify callback after the token is stored.
+    // `error` is the BE failure path — we surface the reason and let the
+    // user retry instead of silently swallowing it.
+    const shopifyParam = p.get("shopify");
+    const isSuccess = shopifyParam === "installed" || shopifyParam === "connected";
+    const isError = shopifyParam === "error";
+    if (isSuccess || isError || p.get("resume") === "shopify") {
+      if (isError) {
+        const reason = p.get("reason") || "unknown";
+        setError(`Shopify install failed (${reason}). Please try again.`);
+        window.history.replaceState({}, "", "/onboarding/company-info");
+        setCanPersist(true);
+        return;
+      }
+      // The install completed (BE told us so via shopify=connected). Always
+      // advance past the install step — never trap the user on the button
+      // again. Field restoration is best-effort from sessionStorage; even
+      // if both stores are empty, we still set step="prompts" so the user
+      // can continue.
+      skipDraft.current = true;
+      setPlatform("shopify");
+      setAppInstalled(true);
+      setStep("prompts");
       try {
-        const saved = sessionStorage.getItem("signalor_onboarding");
-        if (saved) {
-          const d = JSON.parse(saved);
-          skipDraft.current = true;
-          setCompanyName(d.companyName || "");
-          setOrgId(d.orgId);
-          setSiteUrl(d.siteUrl || "");
-          setShopDomain(d.shopDomain || "");
-          setPlatform("shopify");
-          setAppInstalled(true);
-          setStep("prompts");
-          if (!d.prompts?.length) genPrompts(d.companyName, d.siteUrl);
+        let restored: {
+          companyName?: string;
+          orgId?: number | null;
+          siteUrl?: string;
+          shopDomain?: string;
+          prompts?: unknown[];
+        } | null = null;
+        const installSnapshot = sessionStorage.getItem("signalor_onboarding");
+        if (installSnapshot) {
+          restored = JSON.parse(installSnapshot);
           sessionStorage.removeItem("signalor_onboarding");
+        } else {
+          const draft = sessionStorage.getItem(ONBOARDING_DRAFT_KEY);
+          if (draft) restored = JSON.parse(draft);
+        }
+        if (restored) {
+          setCompanyName(restored.companyName || "");
+          setOrgId(restored.orgId ?? null);
+          setSiteUrl(restored.siteUrl || "");
+          setShopDomain(restored.shopDomain || "");
+          if (!restored.prompts?.length) {
+            genPrompts(restored.companyName ?? "", restored.siteUrl ?? "");
+          }
         }
       } catch {
         /**/

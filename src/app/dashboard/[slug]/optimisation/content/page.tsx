@@ -4,10 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { AlertCircle, ExternalLink } from "@/components/icons";
+import { AlertCircle, ExternalLink, FileText, X } from "@/components/icons";
 import { BrowserChrome } from "@/components/optimisation/browser-chrome";
 import { PageIframe } from "@/components/optimisation/page-iframe";
 import { ElementEditor } from "@/components/optimisation/element-editor";
+import { RawFilesPanel } from "@/components/optimisation/raw-files-panel";
 import { useRun } from "../../_components/run-context";
 import {
   applyElementEdit,
@@ -36,6 +37,11 @@ export default function ContentOptimisationPage() {
   const [selectedElement, setSelectedElement] = useState<PreviewElement | null>(null);
   const [rewritingElement, setRewritingElement] = useState(false);
   const [applyingElement, setApplyingElement] = useState(false);
+
+  // Raw crawler/AI files panel toggle (robots.txt, llms-txt, etc.). The
+  // toggle replaces the element editor when active — there's only one
+  // right rail and these two are mutually exclusive editing surfaces.
+  const [showRawFiles, setShowRawFiles] = useState(false);
 
   // browser-style history for back/forward
   const [history, setHistory] = useState<string[]>([]);
@@ -129,11 +135,50 @@ export default function ContentOptimisationPage() {
       const result = await applyElementEdit(slug, url, selectedElement.text, newText);
       const ok = (result.saved?.length || 0) > 0 && (result.failed?.length || 0) === 0;
       if (ok) {
-        setNotice("Applied to live site. Reloading preview…");
-        // Re-fetch so the screenshot reflects the change.
-        const fresh = await getContentPageFields(slug, url);
-        setPageFields(fresh);
+        // Clear selection immediately — the old text the user clicked is
+        // gone now; leaving it around makes the next Apply send stale
+        // original_text and get a 400 back.
         setSelectedElement(null);
+        setNotice("Applied to live site. Refreshing preview…");
+
+        // Poll for fresh content. Shopify's storefront CDN can take 5–15s
+        // to invalidate after a theme-asset / body_html change, so we
+        // retry up to ~20s until the new text appears, then stop.
+        //
+        // Detection covers both edit paths:
+        //   - body_html edits: new text appears in pageFields.body_html
+        //   - theme-asset edits: new text appears in preview_elements (the
+        //     fresh Playwright screenshot's clickable text list)
+        const maxAttempts = 8;
+        const delayMs = 2500;
+        let refreshed = false;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          await new Promise((r) => setTimeout(r, delayMs));
+          try {
+            const fresh = await getContentPageFields(slug, url);
+            const inBody = (fresh.body_html || "").includes(newText);
+            const inElements = (fresh.preview_elements || []).some((el) =>
+              (el.text || "").includes(newText),
+            );
+            if (inBody || inElements) {
+              setPageFields(fresh);
+              setNotice("Preview refreshed.");
+              refreshed = true;
+              break;
+            }
+            // Still stale — keep the latest screenshot regardless so the
+            // user gets visual progress, but keep polling.
+            setPageFields(fresh);
+            setNotice(`Refreshing preview… (attempt ${attempt}/${maxAttempts})`);
+          } catch {
+            // Network blip — keep trying.
+          }
+        }
+        if (!refreshed) {
+          setNotice(
+            "Edit applied. Shopify's CDN is still serving cached content — click the refresh button in a moment to see the change.",
+          );
+        }
       } else {
         const msg = result.failed?.[0]?.message || "Plugin returned an error.";
         setError(`Couldn't apply edit: ${msg}`);
@@ -191,19 +236,37 @@ export default function ContentOptimisationPage() {
 
   return (
     <div className="flex h-[calc(100vh-72px)] min-h-0 flex-col">
-      <div data-tour-card="content-chrome">
-        <BrowserChrome
-          url={url}
-          baseUrl={baseUrl}
-          pages={pages}
-          canGoBack={historyIdx > 0}
-          canGoForward={historyIdx >= 0 && historyIdx < history.length - 1}
-          isLoading={pageLoading}
-          onUrlChange={(next) => setUrl(next)}
-          onBack={handleBack}
-          onForward={handleForward}
-          onRefresh={handleRefresh}
-        />
+      <div className="flex items-stretch" data-tour-card="content-chrome">
+        <div className="flex-1 min-w-0">
+          <BrowserChrome
+            url={url}
+            baseUrl={baseUrl}
+            pages={pages}
+            canGoBack={historyIdx > 0}
+            canGoForward={historyIdx >= 0 && historyIdx < history.length - 1}
+            isLoading={pageLoading}
+            onUrlChange={(next) => setUrl(next)}
+            onBack={handleBack}
+            onForward={handleForward}
+            onRefresh={handleRefresh}
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setShowRawFiles((v) => !v);
+            if (!showRawFiles) setSelectedElement(null);
+          }}
+          className={`mr-2 my-1 inline-flex items-center gap-1.5 rounded-md px-2.5 text-[11.5px] font-medium border transition ${
+            showRawFiles
+              ? "border-primary/40 bg-primary/10 text-primary"
+              : "border-border bg-background text-foreground hover:bg-muted/40"
+          }`}
+          title="Crawler & AI files (robots.txt, llms-txt, humans-txt, ads-txt)"
+        >
+          <FileText className="size-3.5" />
+          Crawler files
+        </button>
       </div>
 
       {(error || notice || (!pluginConnected && pageFields)) && (
@@ -232,7 +295,7 @@ export default function ContentOptimisationPage() {
 
       <div className="flex min-h-0 flex-1">
         <div
-          className={`flex-1 min-w-0 ${selectedElement ? "border-r border-border" : ""}`}
+          className={`flex-1 min-w-0 ${selectedElement || showRawFiles ? "border-r border-border" : ""}`}
           data-tour-card="content-iframe"
         >
           <PageIframe
@@ -247,7 +310,22 @@ export default function ContentOptimisationPage() {
           />
         </div>
 
-        {selectedElement ? (
+        {showRawFiles ? (
+          <div className="w-[380px] min-w-[320px] shrink-0 overflow-y-auto bg-background">
+            <div className="flex items-center justify-between border-b border-border px-3 py-2">
+              <p className="text-[12px] font-semibold text-foreground">Crawler & AI files</p>
+              <button
+                type="button"
+                onClick={() => setShowRawFiles(false)}
+                className="rounded-md p-1 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                aria-label="Close"
+              >
+                <X className="size-3.5" />
+              </button>
+            </div>
+            <RawFilesPanel slug={slug} pluginConnected={pluginConnected} />
+          </div>
+        ) : selectedElement ? (
           <div className="w-[360px] min-w-[300px] shrink-0">
             <ElementEditor
               element={selectedElement}
