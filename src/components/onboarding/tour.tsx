@@ -117,12 +117,19 @@ export function TourProvider({
     setIndex(0);
   }, [currentSection]);
 
-  // Auto-fire once per section per browser.
+  // Auto-fire once per section per browser. Mark as seen the moment the
+  // tour appears (not on dismiss) so navigating away mid-tour or closing
+  // the tab still counts as "shown" — the user won't be re-prompted next
+  // visit even if they never clicked Skip/Finish.
   React.useEffect(() => {
     if (!autoStart || typeof window === "undefined") return;
     if (!currentSection || sectionSteps.length === 0) return;
     if (localStorage.getItem(sectionKey(currentSection))) return;
-    const t = setTimeout(() => setActive(true), 900);
+    const section = currentSection;
+    const t = setTimeout(() => {
+      localStorage.setItem(sectionKey(section), new Date().toISOString());
+      setActive(true);
+    }, 900);
     return () => clearTimeout(t);
   }, [autoStart, currentSection, sectionSteps.length]);
 

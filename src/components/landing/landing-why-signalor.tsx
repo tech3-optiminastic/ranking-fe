@@ -39,7 +39,7 @@ const PROOF_METRICS = [
 
 export function LandingWhySignalor() {
   return (
-    <section className="relative bg-background" aria-labelledby="why-signalor-heading">
+    <section className="relative bg-transparent" aria-labelledby="why-signalor-heading">
       <ScreenHR />
 
       <div className="mx-auto max-w-7xl px-6 pb-12 pt-14 lg:px-12 lg:pb-14 lg:pt-16">

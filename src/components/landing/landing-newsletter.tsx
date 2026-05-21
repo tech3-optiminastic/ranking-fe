@@ -12,7 +12,7 @@ export function LandingNewsletter() {
   }
 
   return (
-    <section className="border-b border-border bg-background" aria-labelledby="newsletter-heading">
+    <section className="border-b border-border bg-transparent" aria-labelledby="newsletter-heading">
       <div className="mx-auto max-w-7xl px-6 py-10 lg:px-12">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           {/* Left — heading + subtitle */}

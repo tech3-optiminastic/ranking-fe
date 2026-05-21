@@ -15,6 +15,7 @@ export function HeroBackgroundGrid({
   markers = true,
   markerColor = "rgba(0, 0, 0, 0.22)",
   markerSize = 5,
+  transparent = false,
 }: {
   cellSize?: number;
   line?: string;
@@ -24,6 +25,9 @@ export function HeroBackgroundGrid({
   markers?: boolean;
   markerColor?: string;
   markerSize?: number;
+  /** When true, omits the bg-background fill on the container and cells so
+   *  a page-level gradient can bleed through the hero. */
+  transparent?: boolean;
 }) {
   const measureRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ cols: 12, rows: 8 });
@@ -64,7 +68,7 @@ export function HeroBackgroundGrid({
     <div
       ref={measureRef}
       aria-hidden
-      className="pointer-events-none absolute inset-0 z-0 select-none bg-background"
+      className={`pointer-events-none absolute inset-0 z-0 select-none ${transparent ? "" : "bg-background"}`}
     >
       <div
         className="absolute inset-0"
@@ -79,7 +83,11 @@ export function HeroBackgroundGrid({
           }}
         >
           {Array.from({ length: total }, (_, i) => (
-            <div key={i} className="min-h-0 bg-background" style={{ borderRadius: cornerRadius }} />
+            <div
+              key={i}
+              className={`min-h-0 ${transparent ? "" : "bg-background"}`}
+              style={{ borderRadius: cornerRadius }}
+            />
           ))}
         </div>
         {markers ? (

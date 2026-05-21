@@ -152,3 +152,51 @@ export async function applyElementEdit(
   );
   return applyElementResultSchema.parse(data);
 }
+
+// ─── Raw files (robots.txt, llms-txt, humans-txt, ads-txt) ──────────────────
+
+export const RAW_FILE_NAMES = ["robots", "llms", "humans", "ads"] as const;
+export type RawFileName = (typeof RAW_FILE_NAMES)[number];
+
+const rawFileSchema = z.object({
+  name: z.enum(RAW_FILE_NAMES),
+  label: z.string(),
+  kind: z.enum(["theme_asset", "page"]),
+  url: z.string(),
+  present: z.boolean(),
+  content: z.string(),
+  default_template: z.string(),
+});
+const rawFilesListSchema = z.object({ items: z.array(rawFileSchema) });
+
+export type RawFile = z.infer<typeof rawFileSchema>;
+
+export async function listRawFiles(slug: string): Promise<RawFile[]> {
+  const { data } = await apiClient.get(`/api/analyzer/runs/s/${slug}/content/raw-files/`);
+  return rawFilesListSchema.parse(data).items;
+}
+
+export async function saveRawFile(
+  slug: string,
+  name: RawFileName,
+  content: string,
+): Promise<RawFile> {
+  const { data } = await apiClientLong.put(
+    `/api/analyzer/runs/s/${slug}/content/raw-files/${name}/`,
+    { content },
+    { timeout: 30_000 },
+  );
+  // The PUT endpoint returns just {name, kind, present, content} — pad with
+  // the static label/url/default_template from the catalog so the UI can
+  // refresh in place without a second GET.
+  const cached = rawFileSchema.partial().parse(data);
+  return {
+    name: (cached.name as RawFileName) ?? name,
+    label: cached.label ?? "",
+    kind: (cached.kind as RawFile["kind"]) ?? "page",
+    url: cached.url ?? "",
+    present: cached.present ?? true,
+    content: cached.content ?? content,
+    default_template: cached.default_template ?? "",
+  };
+}

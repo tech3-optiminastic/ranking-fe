@@ -121,7 +121,7 @@ export default function Home() {
       <LandingHero />
 
       <section
-        className="relative  border-t border-border/60 bg-background/80 py-12 backdrop-blur-sm"
+        className="relative border-t border-border/60 bg-transparent py-12"
         aria-label="Supported AI engines"
       >
         <CornerDiamonds top />

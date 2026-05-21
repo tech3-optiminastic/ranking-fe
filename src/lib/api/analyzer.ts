@@ -157,7 +157,7 @@ const analysisRunDetailSchema = z.object({
   recommendations: z.array(recommendationSchema),
   ai_probes: z.array(aiProbeSchema),
   brand_visibility: brandVisibilitySchema.nullable(),
-  organization_id: z.number().nullable(),
+  organization_id: z.number().nullish(),
 });
 
 // ─── Prompt tracking ────────────────────────────────────────────────────────
@@ -408,7 +408,7 @@ const scoreHistoryPointSchema = z.object({
   date: z.string(),
   composite_score: z.number(),
   slug: z.string(),
-  organization_id: z.number().nullable(),
+  organization_id: z.number().nullish(),
 });
 
 const scheduleFrequencySchema = z.enum(["once", "weekly", "monthly"]);
