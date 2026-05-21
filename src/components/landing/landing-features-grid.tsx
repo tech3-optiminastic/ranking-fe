@@ -5,7 +5,7 @@ import { ScreenHR, GridDividerDiamonds } from "@/components/ui/intersection-diam
 
 export function LandingFeaturesGrid() {
   return (
-    <section className="relative bg-background" aria-labelledby="landing-features-grid-heading">
+    <section className="relative bg-transparent" aria-labelledby="landing-features-grid-heading">
       <ScreenHR />
       <div className="mx-auto max-w-7xl px-6 pb-12 pt-14 lg:px-12 lg:pb-14 lg:pt-16 rounded-sm ">
         <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">
