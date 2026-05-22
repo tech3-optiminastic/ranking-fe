@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { ExternalLink, Globe, Link2, Loader2, Trophy, Users } from "@/components/icons";
 
-import {
-  getCitationSources,
-  type CitationSourcesResponse,
-} from "@/lib/api/analyzer";
+import { getCitationSources, type CitationSourcesResponse } from "@/lib/api/analyzer";
 import { cn } from "@/lib/utils";
 
 export function CitationSourcesPanel({ slug }: { slug: string }) {
@@ -34,7 +31,7 @@ export function CitationSourcesPanel({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-5 py-6 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 rounded-sm border border-border bg-card px-5 py-6 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
         Loading citation sources…
       </div>
@@ -53,14 +50,14 @@ export function CitationSourcesPanel({ slug }: { slug: string }) {
 
   if (data.total_citations === 0) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-sm border border-border bg-card p-5">
         <div className="flex items-center gap-2">
           <Link2 className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-semibold text-foreground">Citation sources</h3>
         </div>
         <p className="mt-2 text-[13px] text-muted-foreground">
-          No citations captured yet. Run or recheck any prompt to see which URLs AI engines
-          and search results cite.
+          No citations captured yet. Run or recheck any prompt to see which URLs AI engines and
+          search results cite.
         </p>
       </div>
     );
@@ -91,7 +88,7 @@ export function CitationSourcesPanel({ slug }: { slug: string }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-sm border border-border bg-card p-5">
           <div className="flex items-center gap-2">
             <Globe className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Top cited domains</h3>
@@ -124,7 +121,11 @@ export function CitationSourcesPanel({ slug }: { slug: string }) {
                     <div
                       className={cn(
                         "h-full rounded-full",
-                        d.is_brand ? "bg-emerald-600" : d.is_competitor ? "bg-amber-500" : "bg-muted-foreground/50",
+                        d.is_brand
+                          ? "bg-emerald-600"
+                          : d.is_competitor
+                            ? "bg-amber-500"
+                            : "bg-muted-foreground/50",
                       )}
                       style={{ width: `${widthPct}%` }}
                     />
@@ -134,18 +135,16 @@ export function CitationSourcesPanel({ slug }: { slug: string }) {
             })}
           </ul>
         </div>
-
       </div>
 
       {data.rival_pages.length > 0 && (
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-sm border border-border bg-card p-5">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-amber-600" />
             <h3 className="text-sm font-semibold text-foreground">Competitor pages AI cites</h3>
           </div>
           <p className="mt-1 text-[12px] text-muted-foreground">
-            Rival URLs winning citations for your tracked prompts. These are your content
-            briefs.
+            Rival URLs winning citations for your tracked prompts. These are your content briefs.
           </p>
           <ul className="mt-4 space-y-2.5">
             {data.rival_pages.slice(0, 8).map((p) => (
@@ -193,7 +192,7 @@ function StatCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border bg-card p-4",
+        "rounded-sm border border-border bg-card p-4",
         tone === "brand" && "bg-emerald-50/40 border-emerald-200/60",
         tone === "rival" && "bg-amber-50/40 border-amber-200/60",
       )}
@@ -209,9 +208,7 @@ function StatCard({
         {icon}
         {label}
       </div>
-      <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">
-        {value}
-      </p>
+      <p className="mt-1 text-2xl font-bold tabular-nums tracking-tight text-foreground">{value}</p>
     </div>
   );
 }

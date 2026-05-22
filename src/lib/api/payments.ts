@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { apiClient } from "./client";
 
 /** Backend `dodo_mode` when checkout fails (no secrets). */
@@ -13,56 +14,119 @@ export class CheckoutSessionError extends Error {
   }
 }
 
-export interface PlanLimits {
-  label: string;
-  price_gbp: number;
-  max_projects: number;
-  max_prompts: number;
-  engines: string[];
-  features?: string[];
-}
+// ─── Schemas ────────────────────────────────────────────────────────────────
 
-export interface UsageData {
-  plan: string;
-  limits: {
-    max_projects: number;
-    max_prompts: number;
-    engines: string[];
-  };
-  usage: {
-    projects: number;
-    prompts: number;
-    runs_this_month: number;
-  };
-  at_limit: {
-    projects: boolean;
-    prompts: boolean;
-  };
-}
+const planLimitsSchema = z.object({
+  label: z.string(),
+  price_gbp: z.number(),
+  max_projects: z.number(),
+  max_prompts: z.number(),
+  engines: z.array(z.string()),
+  features: z.array(z.string()).optional(),
+});
 
-export interface SubscriptionStatus {
-  is_active: boolean;
-  status: string;
-  current_period_end: string | null;
-  currency: string;
-  plan: string;
-  plan_label: string;
-  limits: PlanLimits;
-  /** True when backend has a Dodo payment_id and PDF can be downloaded */
-  invoice_available?: boolean;
-}
+const usageDataSchema = z.object({
+  plan: z.string(),
+  limits: z.object({
+    max_projects: z.number(),
+    max_prompts: z.number(),
+    engines: z.array(z.string()),
+  }),
+  usage: z.object({
+    projects: z.number(),
+    prompts: z.number(),
+    runs_this_month: z.number(),
+  }),
+  at_limit: z.object({
+    projects: z.boolean(),
+    prompts: z.boolean(),
+  }),
+});
+
+const subscriptionStatusSchema = z.object({
+  is_active: z.boolean(),
+  status: z.string(),
+  current_period_end: z.string().nullable(),
+  currency: z.string(),
+  plan: z.string(),
+  plan_label: z.string(),
+  limits: planLimitsSchema,
+  invoice_available: z.boolean().optional(),
+});
+
+const invoiceItemSchema = z.object({
+  payment_id: z.string(),
+  created_at: z.string().nullable(),
+  amount: z.number().nullable(),
+  currency: z.string().nullable(),
+  status: z.string().nullable(),
+});
+
+const invoiceListResponseSchema = z.object({
+  items: z.array(invoiceItemSchema),
+  error: z.string().optional(),
+});
+
+const dodoPlanPriceSchema = z.object({
+  currency: z.string(),
+  amount_minor: z.number(),
+  amount: z.number(),
+  interval: z.string(),
+  interval_count: z.number(),
+  prices_by_currency: z.record(z.string(), z.number()).optional(),
+});
+
+const planPricesResponseSchema = z.object({
+  starter: dodoPlanPriceSchema.nullable(),
+  pro: dodoPlanPriceSchema.nullable(),
+  business: dodoPlanPriceSchema.nullable(),
+  source: z.enum(["dodo", "fallback"]),
+});
+
+const checkoutSessionResponseSchema = z.object({
+  checkout_url: z.string(),
+});
+
+const terminateResponseSchema = z.object({
+  message: z.string(),
+  deactivated_at: z.string().optional(),
+});
+
+const simpleMessageSchema = z.object({
+  message: z.string(),
+});
+
+const deleteAccountResponseSchema = z.object({
+  message: z.string(),
+  deleted: z.record(z.string(), z.number()),
+});
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+export type PlanLimits = z.infer<typeof planLimitsSchema>;
+export type UsageData = z.infer<typeof usageDataSchema>;
+export type SubscriptionStatus = z.infer<typeof subscriptionStatusSchema>;
+export type InvoiceItem = z.infer<typeof invoiceItemSchema>;
+export type InvoiceListResponse = z.infer<typeof invoiceListResponseSchema>;
+export type DodoPlanPrice = z.infer<typeof dodoPlanPriceSchema>;
+export type PlanPricesResponse = z.infer<typeof planPricesResponseSchema>;
+
+// ─── API calls ──────────────────────────────────────────────────────────────
 
 export async function createCheckoutSession(
   email: string,
   plan: string = "starter",
-  opts: { country?: string; currency?: string } = {},
+  opts: { country?: string; currency?: string; partnerCode?: string } = {},
 ): Promise<{ checkout_url: string }> {
   try {
-    const { data } = await apiClient.post<{ checkout_url: string; error?: string }>(
-      "/api/payments/create-checkout/",
-      { email, plan, country: opts.country, currency: opts.currency },
-    );
-    return data;
+    const { data } = await apiClient.post("/api/payments/create-checkout/", {
+      email,
+      plan,
+      country: opts.country,
+      currency: opts.currency,
+      partner_code: opts.partnerCode,
+    });
+    return checkoutSessionResponseSchema.parse(data);
   } catch (err: unknown) {
     const ax = err as {
       response?: { data?: { error?: string; dodo_mode?: string } };
@@ -77,70 +141,35 @@ export async function createCheckoutSession(
 }
 
 export async function getUsage(email: string): Promise<UsageData> {
-  const { data } = await apiClient.get<UsageData>("/api/payments/usage/", {
-    params: { email },
-  });
-  return data;
-}
-
-export interface InvoiceItem {
-  payment_id: string;
-  created_at: string | null;
-  amount: number | null;
-  currency: string | null;
-  status: string | null;
-}
-
-export interface InvoiceListResponse {
-  items: InvoiceItem[];
-  error?: string;
+  const { data } = await apiClient.get("/api/payments/usage/", { params: { email } });
+  return usageDataSchema.parse(data);
 }
 
 export async function getInvoiceList(email: string): Promise<InvoiceListResponse> {
-  const { data } = await apiClient.get<InvoiceListResponse>("/api/payments/invoices/", {
-    params: { email },
-  });
-  return data;
+  const { data } = await apiClient.get("/api/payments/invoices/", { params: { email } });
+  return invoiceListResponseSchema.parse(data);
 }
 
 export async function getSubscriptionStatus(email: string): Promise<SubscriptionStatus> {
-  const { data } = await apiClient.get<SubscriptionStatus>("/api/payments/status/", {
-    params: { email },
-  });
-  return data;
+  const { data } = await apiClient.get("/api/payments/status/", { params: { email } });
+  return subscriptionStatusSchema.parse(data);
 }
 
 export async function terminateAccount(
   email: string,
 ): Promise<{ message: string; deactivated_at?: string }> {
   const { data } = await apiClient.post("/api/account/terminate/", { email });
-  return data;
+  return terminateResponseSchema.parse(data);
 }
 
 export async function cancelTermination(email: string): Promise<{ message: string }> {
   const { data } = await apiClient.post("/api/account/cancel-termination/", { email });
-  return data;
-}
-
-export interface DodoPlanPrice {
-  currency: string;
-  amount_minor: number;
-  amount: number;
-  interval: string;
-  interval_count: number;
-  prices_by_currency?: Record<string, number>;
-}
-
-export interface PlanPricesResponse {
-  starter: DodoPlanPrice | null;
-  pro: DodoPlanPrice | null;
-  business: DodoPlanPrice | null;
-  source: "dodo" | "fallback";
+  return simpleMessageSchema.parse(data);
 }
 
 export async function getPlanPrices(): Promise<PlanPricesResponse> {
-  const { data } = await apiClient.get<PlanPricesResponse>("/api/payments/plan-prices/");
-  return data;
+  const { data } = await apiClient.get("/api/payments/plan-prices/");
+  return planPricesResponseSchema.parse(data);
 }
 
 export async function deleteAccount(
@@ -148,5 +177,5 @@ export async function deleteAccount(
   confirm: string,
 ): Promise<{ message: string; deleted: Record<string, number> }> {
   const { data } = await apiClient.post("/api/account/delete/", { email, confirm });
-  return data;
+  return deleteAccountResponseSchema.parse(data);
 }

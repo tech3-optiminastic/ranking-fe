@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createOrganization } from "@/lib/api/organizations";
 import { startAnalysis } from "@/lib/api/analyzer";
-import { getSubscriptionStatus } from "@/lib/api/payments";
+import { getSubscriptionStatus, getUsage } from "@/lib/api/payments";
 import { getShopifyAuthUrl, connectWordPress } from "@/lib/api/integrations";
 import { OnboardingStepper } from "@/components/auth/onboarding-stepper";
 import { config, routes, signalorWpPlugin } from "@/lib/config";
@@ -192,34 +192,99 @@ export default function CompanyInfoPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
+  const [atLimitNotice, setAtLimitNotice] = useState<{ planLabel: string } | null>(null);
   const [shopDomainErr, setShopDomainErr] = useState("");
   const [wpUrlErr, setWpUrlErr] = useState("");
 
+  const sessionEmailForGate = session?.user?.email;
   useEffect(() => {
-    if (!isPending && !session) router.replace(routes.signIn);
-  }, [isPending, session, router]);
+    if (!isPending && !sessionEmailForGate) router.replace(routes.signIn);
+  }, [isPending, sessionEmailForGate, router]);
+
+  // When the user is already at their project limit, surface a banner so
+  // they can't fill the form and hit a 403 on submit. We intentionally do
+  // NOT redirect here — paid+at_limit and /pricing's returnTo would bounce
+  // forever, and /dashboard sends them back to onboarding when the first
+  // org has no runs. Unpaid+at_limit goes to /pricing once; the session
+  // flag in /pricing prevents that path from re-bouncing.
+  useEffect(() => {
+    const email = session?.user?.email;
+    if (isPending || !email) return;
+    let cancelled = false;
+    Promise.all([
+      getUsage(email).catch(() => null),
+      getSubscriptionStatus(email).catch(() => null),
+    ]).then(([u, s]) => {
+      if (cancelled) return;
+      if (!u?.at_limit?.projects) {
+        setAtLimitNotice(null);
+        return;
+      }
+      if (s?.is_active) {
+        setAtLimitNotice({ planLabel: s.plan_label || s.plan || "your" });
+      } else {
+        router.replace(`/pricing?returnTo=${encodeURIComponent(routes.onboardingCompanyInfo)}`);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isPending, session?.user?.email, router]);
 
   // Handle return from Shopify OAuth / app install
   useLayoutEffect(() => {
     if (typeof window === "undefined" || !session?.user?.email) return;
     const p = new URLSearchParams(window.location.search);
 
-    // Return from Shopify app install
-    if (p.get("shopify") === "installed" || p.get("resume") === "shopify") {
+    // Return from Shopify app install. `installed` is the FE-set
+    // in-progress marker (pre-OAuth); `connected` is the BE-set success
+    // marker emitted by the Shopify callback after the token is stored.
+    // `error` is the BE failure path — we surface the reason and let the
+    // user retry instead of silently swallowing it.
+    const shopifyParam = p.get("shopify");
+    const isSuccess = shopifyParam === "installed" || shopifyParam === "connected";
+    const isError = shopifyParam === "error";
+    if (isSuccess || isError || p.get("resume") === "shopify") {
+      if (isError) {
+        const reason = p.get("reason") || "unknown";
+        setError(`Shopify install failed (${reason}). Please try again.`);
+        window.history.replaceState({}, "", "/onboarding/company-info");
+        setCanPersist(true);
+        return;
+      }
+      // The install completed (BE told us so via shopify=connected). Always
+      // advance past the install step — never trap the user on the button
+      // again. Field restoration is best-effort from sessionStorage; even
+      // if both stores are empty, we still set step="prompts" so the user
+      // can continue.
+      skipDraft.current = true;
+      setPlatform("shopify");
+      setAppInstalled(true);
+      setStep("prompts");
       try {
-        const saved = sessionStorage.getItem("signalor_onboarding");
-        if (saved) {
-          const d = JSON.parse(saved);
-          skipDraft.current = true;
-          setCompanyName(d.companyName || "");
-          setOrgId(d.orgId);
-          setSiteUrl(d.siteUrl || "");
-          setShopDomain(d.shopDomain || "");
-          setPlatform("shopify");
-          setAppInstalled(true);
-          setStep("prompts");
-          if (!d.prompts?.length) genPrompts(d.companyName, d.siteUrl);
+        let restored: {
+          companyName?: string;
+          orgId?: number | null;
+          siteUrl?: string;
+          shopDomain?: string;
+          prompts?: unknown[];
+        } | null = null;
+        const installSnapshot = sessionStorage.getItem("signalor_onboarding");
+        if (installSnapshot) {
+          restored = JSON.parse(installSnapshot);
           sessionStorage.removeItem("signalor_onboarding");
+        } else {
+          const draft = sessionStorage.getItem(ONBOARDING_DRAFT_KEY);
+          if (draft) restored = JSON.parse(draft);
+        }
+        if (restored) {
+          setCompanyName(restored.companyName || "");
+          setOrgId(restored.orgId ?? null);
+          setSiteUrl(restored.siteUrl || "");
+          setShopDomain(restored.shopDomain || "");
+          if (!restored.prompts?.length) {
+            genPrompts(restored.companyName ?? "", restored.siteUrl ?? "");
+          }
         }
       } catch {
         /**/
@@ -383,6 +448,14 @@ export default function CompanyInfoPage() {
         setStep("install");
       }
     } catch (err) {
+      // Plan-limit 403 → bounce to /pricing so user can upgrade
+      if (axios.isAxiosError(err) && err.response?.status === 403) {
+        setError("");
+        setStatusMsg("");
+        setLoading(false);
+        router.push(`/pricing?returnTo=${encodeURIComponent(routes.onboardingCompanyInfo)}`);
+        return;
+      }
       const msg = fmtErr(err);
       setError(
         msg === "Failed. Please try again."
@@ -575,6 +648,21 @@ export default function CompanyInfoPage() {
 
       router.push(routes.dashboardProject(a.slug));
     } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 403) {
+        storePendingAnalysisAfterPayment({
+          url: siteUrl,
+          run_type: "single_page",
+          email: session.user.email,
+          brand_name: companyName.trim(),
+          org_id: orgId,
+          prompts: promptList,
+        });
+        setError("");
+        setStatusMsg("");
+        setLoading(false);
+        router.push(`/pricing?returnTo=${encodeURIComponent(routes.onboardingCompanyInfo)}`);
+        return;
+      }
       setError(fmtErr(err));
       setStatusMsg("");
       setLoading(false);
@@ -662,6 +750,21 @@ export default function CompanyInfoPage() {
       </CardHeader>
 
       <CardContent className="space-y-4 px-0 pt-5">
+        {atLimitNotice ? (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-[12px] leading-relaxed text-amber-900">
+            <p className="font-medium">
+              You&rsquo;re at the project limit for {atLimitNotice.planLabel}.
+            </p>
+            <p className="mt-0.5 text-amber-800">
+              Remove a project from{" "}
+              <Link href={routes.dashboard} className="font-semibold underline hover:no-underline">
+                your dashboard
+              </Link>{" "}
+              before adding a new one, or contact support to raise your cap.
+            </p>
+          </div>
+        ) : null}
+
         {/* ── Step 1: Company ── */}
         {step === "company" && (
           <form onSubmit={handleCompanyNext} className="space-y-3">

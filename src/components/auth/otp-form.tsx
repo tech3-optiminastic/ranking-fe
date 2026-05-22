@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -12,6 +13,13 @@ import { routes } from "@/lib/config";
 
 const OTP_LENGTH = 6;
 
+const otpSchema = z.object({
+  otp: z
+    .string()
+    .length(OTP_LENGTH, `Enter the ${OTP_LENGTH}-digit code.`)
+    .regex(/^\d+$/, "Code must contain only digits."),
+});
+
 export function OtpForm() {
   const router = useRouter();
   const { email, authMode, setStep } = useOnboardingStore();
@@ -21,7 +29,11 @@ export function OtpForm() {
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
-    if (otp.length !== OTP_LENGTH) return;
+    const parsed = otpSchema.safeParse({ otp });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? `Enter the ${OTP_LENGTH}-digit code.`);
+      return;
+    }
 
     setLoading(true);
     setError("");

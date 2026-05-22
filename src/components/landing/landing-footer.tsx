@@ -155,13 +155,6 @@ export function LandingFooter() {
                 ChatGPT, Perplexity, and Gemini talk about you.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-10 border-black/15 bg-white/80 px-5 text-sm font-semibold shadow-sm backdrop-blur-sm hover:bg-white"
-                >
-                  <a href="mailto:hello@signalor.ai?subject=Demo%20request">Book a demo</a>
-                </Button>
                 <Button asChild className={`${LANDING_PRIMARY_CTA_CLASS} h-10 px-5`}>
                   <Link href="/sign-up">
                     Get started

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +9,10 @@ import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 import { authClient } from "@/lib/auth-client";
 import { checkOrganizationExists } from "@/lib/api/organizations";
 import { OAuthButton } from "./oauth-button";
+
+const authEmailSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Enter a valid email address."),
+});
 
 export function AuthMethodForm() {
   const { authMode, setEmail, setStep } = useOnboardingStore();
@@ -17,8 +22,12 @@ export function AuthMethodForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const email = emailInput.trim();
-    if (!email) return;
+    const parsed = authEmailSchema.safeParse({ email: emailInput });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Enter a valid email address.");
+      return;
+    }
+    const email = parsed.data.email;
 
     setLoading(true);
     setError("");
@@ -82,9 +91,7 @@ export function AuthMethodForm() {
             autoComplete="email"
             className="h-9 rounded-md border-neutral-200 bg-white text-[13px]"
           />
-          {isSignUp && (
-            <p className="text-[11px] text-neutral-600">Use your work email.</p>
-          )}
+          {isSignUp && <p className="text-[11px] text-neutral-600">Use your work email.</p>}
         </div>
         {error && (
           <p className="text-[12px] font-medium text-destructive" role="alert">

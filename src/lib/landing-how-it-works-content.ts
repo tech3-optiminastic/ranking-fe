@@ -13,25 +13,25 @@ export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
   {
     n: 1,
     title: "Connect your site",
-    body: "Paste your domain, pick a market, and (optionally) link Shopify or WordPress, no code required.",
+    body: "Paste your domain. Pick a market. Optionally link Shopify or WordPress. No code.",
     illo: "connect",
   },
   {
     n: 2,
     title: "Run a GEO audit",
-    body: "Signalor scores citability, schema, E-E-A-T, technical, entity, and AI visibility in one 0-100 read.",
+    body: "Get a 0–100 score across six pillars: content, schema, E-E-A-T, technical, entity, and AI visibility.",
     illo: "audit",
   },
   {
     n: 3,
     title: "Track prompts & citations",
-    body: "We fire your tracked prompts at ChatGPT, Claude, Gemini, and Perplexity weekly and capture every cited URL.",
+    body: "We run your prompts weekly on ChatGPT, Claude, Gemini, and Perplexity. Every cited URL is logged.",
     illo: "track",
   },
   {
     n: 4,
     title: "Ship the fix queue",
-    body: "Prioritized recommendations with auto-fix for schema & meta on Shopify and WordPress, or export for your team.",
+    body: "Get a ranked fix list. Auto-fix schema and meta on Shopify and WordPress, or hand it to your team.",
     illo: "ship",
   },
 ];

@@ -149,17 +149,28 @@ function PricingPageInner() {
   }, []);
 
   useEffect(() => {
-    if (isPending || !session) {
+    const email = session?.user?.email;
+    if (isPending || !email) {
       setCurrentPlanId(null);
       return;
     }
-    getSubscriptionStatus(session.user.email)
+    getSubscriptionStatus(email)
       .then((s) => {
         if (s.is_active) {
           setCurrentPlanId(s.plan);
           // Preserve onboarding/setup flows: if the user landed here with a
-          // returnTo, send them onward. Otherwise let them browse pricing.
+          // returnTo, send them onward. Guarded with a session flag so we
+          // never re-redirect to the same path twice in the same tab — that
+          // prevented an /pricing ↔ /onboarding/company-info bounce loop for
+          // paid users at their project limit.
           if (returnTo) {
+            const flagKey = `signalor:pricing-bounce:${returnTo}`;
+            if (typeof window !== "undefined" && sessionStorage.getItem(flagKey)) return;
+            try {
+              sessionStorage.setItem(flagKey, "1");
+            } catch {
+              /* ignore */
+            }
             router.replace(returnTo);
           }
         } else {
@@ -167,7 +178,7 @@ function PricingPageInner() {
         }
       })
       .catch(() => setCurrentPlanId(null));
-  }, [isPending, session, router, returnTo]);
+  }, [isPending, session?.user?.email, router, returnTo]);
 
   const handleSubscribe = useCallback(
     async (planId: string) => {
@@ -187,9 +198,21 @@ function PricingPageInner() {
             /* ignore */
           }
         }
+        // Read partner code from localStorage (set by AffiliateCapture when
+        // the visitor lands with ?aff=CODE). Expired codes are ignored so a
+        // stale cookie never silently applies a discount.
+        let partnerCode: string | undefined;
+        try {
+          const code = localStorage.getItem("signalor.partner.code");
+          const expires = Number(localStorage.getItem("signalor.partner.expiresAt") || 0);
+          if (code && (!expires || expires > Date.now())) partnerCode = code;
+        } catch {
+          /* ignore */
+        }
         const { checkout_url } = await createCheckoutSession(session.user.email, planId, {
           country: detectedCountry ?? undefined,
           currency: currency.code,
+          partnerCode,
         });
         window.location.href = checkout_url;
       } catch (e) {

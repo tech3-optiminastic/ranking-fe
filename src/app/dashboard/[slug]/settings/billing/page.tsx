@@ -15,17 +15,25 @@ import {
   CreditCard,
   CheckCircle2,
   FileDown,
-  XCircle,
   Zap,
   Crown,
   Rocket,
   AlertTriangle,
+  ArrowUpRight,
 } from "@/components/icons";
 import { EngineBadge } from "@/components/ui/engine-badge";
 import { engineLabel } from "@/lib/engines";
 import { config } from "@/lib/config";
 import { DashboardSettingsNav } from "@/components/settings/dashboard-settings-nav";
 import { BillingSkeleton } from "@/components/dashboard/skeletons";
+import {
+  BTN_PRIMARY,
+  Dot,
+  FieldRow,
+  SettingsCard,
+  StatusPill,
+} from "@/components/settings/settings-card";
+import { cn } from "@/lib/utils";
 
 const PLAN_ICONS: Record<string, typeof Zap> = {
   starter: Zap,
@@ -33,43 +41,31 @@ const PLAN_ICONS: Record<string, typeof Zap> = {
   business: Rocket,
 };
 
-function UsageBar({
-  label,
-  used,
-  max,
-  atLimit,
-}: {
-  label: string;
-  used: number;
-  max: number;
-  atLimit: boolean;
-}) {
+function UsageBar({ used, max, atLimit }: { used: number; max: number; atLimit: boolean }) {
   const pct = max > 0 ? Math.min((used / max) * 100, 100) : 0;
-  const warn = pct >= 80;
+  const warn = pct >= 80 && !atLimit;
+  const barColor = atLimit ? "bg-rose-500" : warn ? "bg-amber-500" : "bg-emerald-500";
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-xs">
-        <span className="text-muted-foreground font-medium">{label}</span>
-        <span
-          className="font-semibold"
-          style={{ color: atLimit ? "#E04D00" : warn ? "#f59e0b" : "inherit" }}
-        >
-          {used} / {max}
-          {atLimit && (
-            <span className="ml-1.5 inline-flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-wide text-[#E04D00]">
-              <AlertTriangle className="w-3 h-3" /> Limit reached
-            </span>
-          )}
+      <div className="flex items-center justify-between text-[12.5px]">
+        <span className="font-medium tabular-nums text-neutral-900">
+          {used} <span className="text-neutral-400">/ {max}</span>
         </span>
+        {atLimit ? (
+          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-600">
+            <AlertTriangle className="h-3 w-3" /> Limit reached
+          </span>
+        ) : warn ? (
+          <span className="text-[11px] font-medium text-amber-600">{Math.round(pct)}% used</span>
+        ) : (
+          <span className="text-[11px] text-neutral-400">{Math.round(pct)}% used</span>
+        )}
       </div>
-      <div className="h-2 rounded-full overflow-hidden bg-muted">
+      <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{
-            width: `${pct}%`,
-            backgroundColor: atLimit ? "#E04D00" : warn ? "#f59e0b" : "#22c55e",
-          }}
+          className={cn("h-full rounded-full transition-all duration-500", barColor)}
+          style={{ width: `${pct}%` }}
         />
       </div>
     </div>
@@ -98,199 +94,214 @@ export default function BillingSettingsPage() {
 
   const PlanIcon = sub ? PLAN_ICONS[sub.plan] || Zap : Zap;
   const atAnyLimit = usage?.at_limit.projects || usage?.at_limit.prompts;
+  const renewsDate =
+    sub?.is_active && sub.current_period_end
+      ? new Date(sub.current_period_end).toLocaleDateString("en-GB", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        })
+      : null;
 
   return (
-    <div className="px-2 py-2 space-y-6 font-sans">
+    <div className="px-2 py-2 font-sans">
       <DashboardSettingsNav label="Billing" />
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">Billing & Usage</h2>
-        <p className="mt-1 text-[13px] font-light leading-relaxed text-accent-foreground">
-          Manage your subscription and track what you&apos;ve used.
+
+      <div className="mb-8 mt-5">
+        <h2 className="text-[22px] font-semibold tracking-tight text-neutral-900">
+          Billing &amp; usage
+        </h2>
+        <p className="mt-1.5 text-[13.5px] font-light leading-relaxed text-neutral-500">
+          Your subscription, plan limits, and recent invoices.
         </p>
       </div>
 
       {loading ? (
         <BillingSkeleton />
       ) : (
-        <>
-          {/* Subscription status */}
-          <div className="rounded-sm border border-black/8 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-sm border border-black/8 bg-white shadow-sm ${
-                    sub?.is_active ? "text-[#16a34a]" : "text-primary"
-                  }`}
-                >
-                  {sub?.is_active ? (
-                    <CheckCircle2 className="h-5 w-5" strokeWidth={1.75} />
-                  ) : (
-                    <XCircle className="h-5 w-5" strokeWidth={1.75} />
-                  )}
-                </div>
-                <div>
-                  <p className="flex items-center gap-2 text-[14px] font-semibold tracking-tight text-neutral-900">
-                    <PlanIcon className="h-4 w-4 text-primary" strokeWidth={1.75} />
-                    {sub?.is_active ? `${sub.plan_label} Plan, Active` : "No Active Subscription"}
-                  </p>
-                  <p className="text-[12px] font-light leading-snug text-accent-foreground">
-                    {sub?.is_active && sub.current_period_end
-                      ? `Renews on ${new Date(sub.current_period_end).toLocaleDateString("en-GB", {
-                          month: "long",
-                          day: "numeric",
-                          year: "numeric",
-                        })}`
-                      : "Subscribe to unlock all features"}
-                  </p>
-                </div>
-              </div>
-              {sub?.is_active ? (
-                <span className="rounded-full border border-[#22c55e]/30 bg-[#22c55e]/10 px-3 py-1.5 text-[11px] font-semibold tracking-tight text-[#16a34a]">
-                  Active
-                </span>
-              ) : (
-                <Link
-                  href="/pricing"
-                  className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-4 py-2 text-[12px] font-semibold tracking-tight text-primary-foreground shadow-sm transition hover:opacity-90"
-                >
-                  <CreditCard className="h-3.5 w-3.5" strokeWidth={1.75} />
-                  Choose a Plan
-                </Link>
-              )}
-            </div>
-          </div>
+        <div className="space-y-8">
+          {/* ── Subscription ──────────────────────────────────────────── */}
+          <SettingsCard>
+            <SettingsCard.Header
+              title="Subscription"
+              description="Your current plan and renewal date."
+              action={
+                sub?.is_active ? (
+                  <StatusPill tone="emerald">
+                    <Dot tone="emerald" />
+                    Active
+                  </StatusPill>
+                ) : (
+                  <Link href="/pricing" className={BTN_PRIMARY}>
+                    <CreditCard className="h-3.5 w-3.5" strokeWidth={1.75} />
+                    Choose a plan
+                  </Link>
+                )
+              }
+            />
 
-          {/* Usage */}
-          {usage && (
-            <div className="rounded-sm border border-black/8 bg-white p-6 shadow-sm space-y-5">
-              <div className="flex items-center justify-between">
-                <p className="text-[14px] font-semibold tracking-tight text-neutral-900">
-                  Usage this period
-                </p>
-                {atAnyLimit && (
-                  <span className="flex items-center gap-1 text-[11px] font-semibold tracking-tight text-[#E04D00]">
-                    <AlertTriangle className="h-3.5 w-3.5" />
-                    At limit, upgrade to continue
+            <SettingsCard.Body divided>
+              <FieldRow
+                label="Plan"
+                helper="Determines projects, prompt cap, and which AI engines are included."
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-md border border-black/8 bg-gradient-to-b from-white to-neutral-50 text-primary shadow-sm">
+                    <PlanIcon className="h-4 w-4" strokeWidth={1.75} />
                   </span>
-                )}
-              </div>
+                  <div>
+                    <p className="text-[14px] font-semibold tracking-tight text-neutral-900">
+                      {sub?.plan_label || "Starter"}
+                    </p>
+                    <p className="text-[11.5px] text-neutral-500">
+                      {sub?.is_active ? "Active subscription" : "Free tier"}
+                    </p>
+                  </div>
+                </div>
+              </FieldRow>
 
-              <UsageBar
-                label="Projects"
-                used={usage.usage.projects}
-                max={usage.limits.max_projects}
-                atLimit={usage.at_limit.projects}
-              />
-              <UsageBar
-                label="Tracked Prompts"
-                used={usage.usage.prompts}
-                max={usage.limits.max_prompts}
-                atLimit={usage.at_limit.prompts}
-              />
+              {renewsDate ? (
+                <FieldRow
+                  label="Next billing date"
+                  helper="The next time your card will be charged."
+                >
+                  <p className="text-[13.5px] font-medium text-neutral-900">{renewsDate}</p>
+                </FieldRow>
+              ) : null}
 
-              <div className="pt-1">
-                <p className="mb-2 text-[12px] font-light leading-snug text-accent-foreground">
-                  AI Engines included
-                </p>
+              <FieldRow
+                label="AI engines"
+                helper="Engines marked unavailable require a higher plan."
+              >
                 <div className="flex flex-wrap gap-1.5">
                   {["gemini", "google", "chatgpt", "perplexity", "claude"].map((eng) => {
-                    const allowed = usage.limits.engines.includes(eng);
+                    const allowed = sub?.limits?.engines.includes(eng) ?? false;
                     return (
                       <span
                         key={eng}
-                        className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-tight"
-                        style={{
-                          backgroundColor: allowed ? "#22c55e18" : "#00000008",
-                          color: allowed ? "#16a34a" : "#00000040",
-                          border: `1px solid ${allowed ? "#22c55e30" : "#00000015"}`,
-                          textDecoration: allowed ? "none" : "line-through",
-                        }}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11.5px] font-medium tracking-tight transition-colors",
+                          allowed
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "border-black/8 bg-neutral-50 text-neutral-400 line-through",
+                        )}
                       >
                         <EngineBadge engine={eng} size={14} />
-                        {!allowed && " (upgrade)"}
+                        {engineLabel(eng)}
                       </span>
                     );
                   })}
                 </div>
-              </div>
+              </FieldRow>
+            </SettingsCard.Body>
 
-              <div className="flex items-center justify-between border-t border-black/8 pt-3 text-[12px] font-light text-accent-foreground">
-                <span>
-                  Runs this month:{" "}
-                  <strong className="font-semibold text-neutral-900">
+            {sub?.is_active && sub.plan !== "business" ? (
+              <SettingsCard.Footer>
+                <p className="text-[12.5px] text-neutral-500">
+                  {atAnyLimit
+                    ? "You've hit your plan limit. Upgrade to keep going."
+                    : "Need more projects, prompts, or engines?"}
+                </p>
+                <Link href="/pricing" className={BTN_PRIMARY}>
+                  <Rocket className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  Upgrade
+                </Link>
+              </SettingsCard.Footer>
+            ) : null}
+          </SettingsCard>
+
+          {/* ── Usage ─────────────────────────────────────────────────── */}
+          {usage ? (
+            <SettingsCard>
+              <SettingsCard.Header
+                title="Usage this period"
+                description="Counts reset on your next billing date."
+                action={
+                  atAnyLimit ? (
+                    <StatusPill tone="rose">
+                      <AlertTriangle className="h-3 w-3" /> At limit
+                    </StatusPill>
+                  ) : null
+                }
+              />
+
+              <SettingsCard.Body divided>
+                <FieldRow
+                  label="Projects"
+                  helper="Each project is a workspace with its own scoring runs and prompts."
+                >
+                  <UsageBar
+                    used={usage.usage.projects}
+                    max={usage.limits.max_projects}
+                    atLimit={usage.at_limit.projects}
+                  />
+                </FieldRow>
+
+                <FieldRow
+                  label="Tracked prompts"
+                  helper="Prompts we re-run across AI engines to track your brand."
+                >
+                  <UsageBar
+                    used={usage.usage.prompts}
+                    max={usage.limits.max_prompts}
+                    atLimit={usage.at_limit.prompts}
+                  />
+                </FieldRow>
+
+                <FieldRow
+                  label="Analysis runs"
+                  helper="Scans completed since your last billing date."
+                >
+                  <p className="text-[20px] font-semibold tabular-nums tracking-tight text-neutral-900">
                     {usage.usage.runs_this_month}
-                  </strong>
-                </span>
-                <span className="capitalize font-semibold text-neutral-900">
-                  {sub?.plan_label || "Starter"} plan
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Plan features */}
-          {sub?.is_active && sub.limits && (
-            <div className="rounded-sm border border-black/8 bg-white p-6 shadow-sm">
-              <p className="mb-4 text-[14px] font-semibold tracking-tight text-neutral-900">
-                What&apos;s included in your plan
-              </p>
-              <div className="space-y-2.5">
-                {[
-                  `${sub.limits.max_projects} project${sub.limits.max_projects > 1 ? "s" : ""}`,
-                  `Up to ${sub.limits.max_prompts} tracked prompts`,
-                  `Engines: ${sub.limits.engines.map((e: string) => engineLabel(e)).join(", ")}`,
-                  ...(sub.limits.features ?? []).filter(
-                    (f: string) =>
-                      !f.toLowerCase().startsWith("up to") &&
-                      !f.toLowerCase().startsWith("1 project") &&
-                      !f.toLowerCase().startsWith("3 project") &&
-                      !f.toLowerCase().startsWith("4 project") &&
-                      !f.toLowerCase().startsWith("engines"),
-                  ),
-                ].map((f) => (
-                  <div key={f} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#16a34a]" strokeWidth={2} />
-                    <span className="text-[13px] font-light leading-snug text-neutral-900">
-                      {f}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Invoices */}
-          {sub?.is_active && email && <InvoicesSection email={email} />}
-
-          {/* Upgrade prompt */}
-          {sub?.is_active && sub.plan !== "business" && (
-            <div className="flex items-center justify-between rounded-sm border border-black/8 bg-white p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-sm border border-black/8 bg-white text-primary shadow-sm">
-                  <Rocket className="h-4 w-4" strokeWidth={1.75} />
-                </div>
-                <div>
-                  <p className="text-[14px] font-semibold tracking-tight text-neutral-900">
-                    {atAnyLimit ? "You've hit your plan limit" : "Need more capacity?"}
                   </p>
-                  <p className="text-[12px] font-light leading-snug text-accent-foreground">
-                    Upgrade for more projects, prompts, and AI engines.
-                  </p>
-                </div>
-              </div>
-              <Link
-                href="/pricing"
-                className="rounded-sm bg-primary px-4 py-2 text-[12px] font-semibold tracking-tight text-primary-foreground shadow-sm transition hover:opacity-90"
-              >
-                Upgrade
-              </Link>
-            </div>
-          )}
+                </FieldRow>
+              </SettingsCard.Body>
+            </SettingsCard>
+          ) : null}
 
-          <p className="text-center text-[11px] font-light text-accent-foreground">
+          {/* ── Plan features ─────────────────────────────────────────── */}
+          {sub?.is_active && sub.limits ? (
+            <SettingsCard>
+              <SettingsCard.Header
+                title={`What's included in ${sub.plan_label}`}
+                description="Everything your plan ships with."
+              />
+              <SettingsCard.Body>
+                <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+                  {[
+                    `${sub.limits.max_projects} project${sub.limits.max_projects > 1 ? "s" : ""}`,
+                    `Up to ${sub.limits.max_prompts} tracked prompts`,
+                    `Engines: ${sub.limits.engines.map((e: string) => engineLabel(e)).join(", ")}`,
+                    ...(sub.limits.features ?? []).filter(
+                      (f: string) =>
+                        !f.toLowerCase().startsWith("up to") &&
+                        !f.toLowerCase().startsWith("1 project") &&
+                        !f.toLowerCase().startsWith("3 project") &&
+                        !f.toLowerCase().startsWith("4 project") &&
+                        !f.toLowerCase().startsWith("engines"),
+                    ),
+                  ].map((f) => (
+                    <div key={f} className="flex items-start gap-2">
+                      <CheckCircle2
+                        className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600"
+                        strokeWidth={2}
+                      />
+                      <span className="text-[13px] leading-snug text-neutral-700">{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </SettingsCard.Body>
+            </SettingsCard>
+          ) : null}
+
+          {/* ── Invoices ──────────────────────────────────────────────── */}
+          {sub?.is_active && email ? <InvoicesSection email={email} /> : null}
+
+          <p className="pt-2 text-center text-[11.5px] font-light text-neutral-400">
             Payments are processed securely by Dodo Payments. Cancel anytime.
           </p>
-        </>
+        </div>
       )}
     </div>
   );
@@ -306,93 +317,110 @@ function InvoicesSection({ email }: { email: string }) {
   const items = data?.items ?? [];
 
   return (
-    <div className="rounded-sm border border-black/8 bg-white p-6 shadow-sm">
-      <p className="text-[14px] font-semibold tracking-tight text-neutral-900">Invoices</p>
-      <p className="mb-4 mt-1 text-[12px] font-light leading-snug text-accent-foreground">
-        Download a PDF receipt for any successful payment. Receipts come straight from Dodo
-        Payments.
-      </p>
-
-      {isLoading ? (
-        <p className="text-[12px] text-accent-foreground">Loading invoices…</p>
-      ) : error ? (
-        <p className="text-[12px] text-accent-foreground">
-          Could not load invoices right now. Try again in a moment.
-        </p>
-      ) : items.length === 0 ? (
-        <p className="text-[12px] text-accent-foreground">
-          No invoices yet, they’ll appear here after your first successful charge.
-        </p>
-      ) : (
-        <div className="overflow-hidden rounded-sm border border-black/8">
-          <table className="w-full text-left text-[12px]">
-            <thead className="border-b border-black/8 bg-neutral-50 text-[10px] font-semibold uppercase tracking-wide text-accent-foreground">
-              <tr>
-                <th className="px-3 py-2">Date</th>
-                <th className="px-3 py-2">Amount</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2 text-right">Invoice</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((row) => (
-                <tr key={row.payment_id} className="border-b border-black/8 last:border-0">
-                  <td className="px-3 py-2.5 text-neutral-900">
-                    {row.created_at
-                      ? new Date(row.created_at).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })
-                      : ","}
-                  </td>
-                  <td className="px-3 py-2.5 font-medium tabular-nums text-neutral-900">
-                    {row.amount != null
-                      ? `${row.currency ?? ""} ${row.amount.toFixed(2)}`.trim()
-                      : ","}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <InvoiceStatusPill status={row.status} />
-                  </td>
-                  <td className="px-3 py-2.5 text-right">
-                    <a
-                      href={`${config.apiBaseUrl}/api/payments/invoice/?email=${encodeURIComponent(email)}&payment_id=${encodeURIComponent(row.payment_id)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-sm border border-black/8 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-neutral-900 hover:bg-neutral-50"
-                    >
-                      <FileDown className="h-3.5 w-3.5" strokeWidth={1.75} />
-                      PDF
-                    </a>
-                  </td>
+    <SettingsCard>
+      <SettingsCard.Header
+        title="Invoices"
+        description="Download a PDF receipt for any successful payment."
+      />
+      <SettingsCard.Body>
+        {isLoading ? (
+          <p className="py-6 text-center text-[12.5px] font-light text-neutral-500">
+            Loading invoices…
+          </p>
+        ) : error ? (
+          <p className="py-6 text-center text-[12.5px] font-light text-neutral-500">
+            Could not load invoices right now. Try again in a moment.
+          </p>
+        ) : items.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 py-8 text-center">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-neutral-50 text-neutral-400">
+              <FileDown className="h-4 w-4" strokeWidth={1.75} />
+            </span>
+            <p className="text-[12.5px] font-medium text-neutral-700">No invoices yet</p>
+            <p className="text-[12px] font-light text-neutral-500">
+              They&rsquo;ll appear here after your first successful charge.
+            </p>
+          </div>
+        ) : (
+          <div className="-mx-6 -my-5 overflow-hidden">
+            <table className="w-full text-left text-[12.5px]">
+              <thead className="border-b border-black/8 bg-neutral-50/60 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-neutral-500">
+                <tr>
+                  <th className="px-6 py-2.5">Date</th>
+                  <th className="px-3 py-2.5">Amount</th>
+                  <th className="px-3 py-2.5">Status</th>
+                  <th className="px-6 py-2.5 text-right">Receipt</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+              </thead>
+              <tbody className="divide-y divide-black/6">
+                {items.map((row) => (
+                  <tr key={row.payment_id} className="transition-colors hover:bg-neutral-50/40">
+                    <td className="px-6 py-3 text-neutral-900">
+                      {row.created_at
+                        ? new Date(row.created_at).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "—"}
+                    </td>
+                    <td className="px-3 py-3 font-medium tabular-nums text-neutral-900">
+                      {row.amount != null
+                        ? `${row.currency ?? ""} ${row.amount.toFixed(2)}`.trim()
+                        : "—"}
+                    </td>
+                    <td className="px-3 py-3">
+                      <InvoiceStatusPill status={row.status} />
+                    </td>
+                    <td className="px-6 py-3 text-right">
+                      <a
+                        href={`${config.apiBaseUrl}/api/payments/invoice/?email=${encodeURIComponent(email)}&payment_id=${encodeURIComponent(row.payment_id)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-black/8 bg-white px-2.5 py-1.5 text-[11.5px] font-medium text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50 hover:text-neutral-900"
+                      >
+                        <FileDown className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        PDF
+                        <ArrowUpRight className="h-3 w-3 text-neutral-400" strokeWidth={1.75} />
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </SettingsCard.Body>
+    </SettingsCard>
   );
 }
 
 function InvoiceStatusPill({ status }: { status: string | null }) {
-  if (!status) return <span className="text-accent-foreground">,</span>;
+  if (!status) return <span className="text-neutral-400">—</span>;
   const s = status.toLowerCase();
-  let cls = "bg-neutral-100 text-neutral-700 border-black/10";
   if (s === "succeeded" || s === "paid" || s === "completed") {
-    cls = "bg-emerald-50 text-emerald-700 border-emerald-200";
-  } else if (s === "failed" || s === "declined") {
-    cls = "bg-red-50 text-red-700 border-red-200";
-  } else if (s === "refunded" || s === "partially_refunded") {
-    cls = "bg-amber-50 text-amber-700 border-amber-200";
-  } else if (s === "pending" || s === "processing") {
-    cls = "bg-blue-50 text-blue-700 border-blue-200";
+    return (
+      <StatusPill tone="emerald">
+        <Dot tone="emerald" /> Paid
+      </StatusPill>
+    );
   }
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold capitalize ${cls}`}
-    >
-      {status.replace(/_/g, " ")}
-    </span>
-  );
+  if (s === "failed" || s === "declined") {
+    return (
+      <StatusPill tone="rose">
+        <Dot tone="rose" /> {status}
+      </StatusPill>
+    );
+  }
+  if (s === "refunded" || s === "partially_refunded") {
+    return <StatusPill tone="amber">{status.replace(/_/g, " ")}</StatusPill>;
+  }
+  if (s === "pending" || s === "processing") {
+    return (
+      <StatusPill tone="amber">
+        <Dot tone="amber" /> {status}
+      </StatusPill>
+    );
+  }
+  return <StatusPill tone="neutral">{status.replace(/_/g, " ")}</StatusPill>;
 }

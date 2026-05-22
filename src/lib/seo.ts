@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
+import { env } from "./env";
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://signalor.ai").replace(
-  /\/$/,
-  "",
-);
+export const SITE_URL = env.NEXT_PUBLIC_SITE_URL;
 
 export const SITE_NAME = "Signalor";
 export const SITE_LEGAL_NAME = "Signalor Ltd.";

@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertCircle,
   ArrowRight,
@@ -26,8 +27,6 @@ import {
 } from "@/lib/api/integrations";
 import { cn } from "@/lib/utils";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type Step = "generate" | "preview";
 type Tone = "informative" | "conversational" | "authoritative" | "educational";
 
@@ -43,8 +42,6 @@ const WORD_COUNTS = [
   { label: "Medium (~800 words)", value: 800 },
   { label: "Long (~1 200 words)", value: 1200 },
 ];
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(iso: string) {
   if (!iso) return "";
@@ -368,8 +365,6 @@ function CreatePanel({
     </SectionCard>
   );
 }
-
-// ─── Preview / publish panel ──────────────────────────────────────────────────
 
 function PreviewPanel({
   draft,
@@ -723,8 +718,6 @@ function HowItWorksSidebar() {
   );
 }
 
-// ─── Not-connected fallback ──────────────────────────────────────────────────
-
 function NotConnectedPanel({ slug }: { slug: string }) {
   return (
     <SectionCard>
@@ -732,15 +725,15 @@ function NotConnectedPanel({ slug }: { slug: string }) {
         <div>
           <p className="text-sm font-semibold text-foreground">Connect your blog to get started</p>
           <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-            Blog publishing is set up during onboarding. Once your WordPress (or other blog) is
+            Blog publishing is set up during onboarding. Once your Shopify or WordPress is
             connected, drafts you generate here can be published in one click.
           </p>
         </div>
         <Link
-          href={`/dashboard/${slug}/settings/integrations`}
+          href={`/dashboard/${slug}/settings/profile`}
           className="inline-flex items-center gap-1.5 rounded-sm bg-primary px-4 py-2 text-[12px] font-semibold text-white shadow-sm hover:brightness-110"
         >
-          Manage integrations
+          Go to Settings
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
@@ -748,14 +741,10 @@ function NotConnectedPanel({ slug }: { slug: string }) {
   );
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
-
 export default function BlogAgentPage() {
   const { slug } = useParams<{ slug: string }>();
   const { run } = useRun();
 
-  const [wpData, setWpData] = useState<BlogPostsResponse | null>(null);
-  const [wpLoading, setWpLoading] = useState(true);
   const [step, setStep] = useState<Step>("generate");
 
   const [draft, setDraft] = useState<BlogDraft | null>(null);
@@ -766,23 +755,25 @@ export default function BlogAgentPage() {
   } | null>(null);
 
   const email = run?.email ?? "";
+  const queryClient = useQueryClient();
 
-  const loadWpStatus = useCallback(async () => {
-    if (!slug) return;
-    setWpLoading(true);
-    try {
-      const data = await getBlogPosts(slug);
-      setWpData(data);
-    } catch {
-      setWpData({ connected: false, posts: [] });
-    } finally {
-      setWpLoading(false);
-    }
-  }, [slug]);
+  // Blog posts list cached by slug — survives tab switches via QueryClient.
+  const { data: wpData, isLoading: wpLoading } = useQuery({
+    queryKey: ["blog-posts", slug],
+    enabled: !!slug,
+    queryFn: () =>
+      getBlogPosts(slug).catch(() => ({ connected: false, posts: [] }) as BlogPostsResponse),
+  });
 
-  useEffect(() => {
-    loadWpStatus();
-  }, [loadWpStatus]);
+  const loadWpStatus = () => queryClient.invalidateQueries({ queryKey: ["blog-posts", slug] });
+
+  const setWpData = (
+    updater: (prev: BlogPostsResponse | null | undefined) => BlogPostsResponse | undefined,
+  ) =>
+    queryClient.setQueryData<BlogPostsResponse | undefined>(
+      ["blog-posts", slug],
+      (prev) => updater(prev) ?? prev,
+    );
 
   async function handleGenerate(topic: string, tone: Tone, wordCount: number) {
     setPublishResult(null);
@@ -799,7 +790,7 @@ export default function BlogAgentPage() {
 
   function handlePostDeleted(postId: number) {
     setWpData((prev) => {
-      if (!prev) return prev;
+      if (!prev) return undefined;
       return {
         ...prev,
         posts: prev.posts.filter((p) => p.id !== postId),
@@ -820,7 +811,6 @@ export default function BlogAgentPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-5 p-5 lg:p-7">
-      {/* Connection status bar */}
       <div className="flex items-center justify-between rounded-lg border border-black/[0.07] bg-white px-4 py-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="flex items-center gap-2.5">
           <div
@@ -857,7 +847,6 @@ export default function BlogAgentPage() {
         </div>
       </div>
 
-      {/* Publish success banner */}
       {publishResult && (
         <div className="flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
           <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
@@ -903,9 +892,7 @@ export default function BlogAgentPage() {
         </div>
       )}
 
-      {/* Main layout */}
       <div className="grid gap-5 lg:grid-cols-[1fr_272px]">
-        {/* Left: workflow */}
         <div className="min-w-0 space-y-4">
           {!isConnected && <NotConnectedPanel slug={slug} />}
 
@@ -931,7 +918,6 @@ export default function BlogAgentPage() {
           )}
         </div>
 
-        {/* Right: sidebar */}
         <div>
           {isConnected && wpData ? (
             <RecentPostsSidebar wpData={wpData} runSlug={slug} onPostDeleted={handlePostDeleted} />

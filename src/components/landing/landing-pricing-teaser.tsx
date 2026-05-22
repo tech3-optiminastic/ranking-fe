@@ -125,7 +125,7 @@ export function LandingPricingTeaser() {
     : null;
 
   return (
-    <section className="relative bg-background" aria-labelledby="landing-pricing-teaser-heading">
+    <section className="relative bg-transparent" aria-labelledby="landing-pricing-teaser-heading">
       <ScreenHR />
       <div className="mx-auto max-w-7xl px-6 pb-12 pt-14 lg:px-12 lg:pb-14 lg:pt-16">
         <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">

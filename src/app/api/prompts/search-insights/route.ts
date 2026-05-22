@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
+const requestSchema = z.object({
+  brandName: z.string().trim().min(1, "brandName is required"),
+  brandUrl: z.string().trim().optional(),
+});
 
 // ──────────────────────────────────────────────────────────────────────────
 // Real-search autocomplete signal, ranked by popularity
@@ -252,11 +258,14 @@ function buildRankedSuggestions(
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as { brandName?: string; brandUrl?: string };
-    const brandName = (body.brandName ?? "").trim();
-    if (!brandName) {
-      return NextResponse.json({ error: "brandName is required" }, { status: 400 });
+    const parsed = requestSchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request." },
+        { status: 400 },
+      );
     }
+    const brandName = parsed.data.brandName;
 
     // Intent-rich seeds that most real buyers actually search.
     const seeds = [
@@ -310,7 +319,7 @@ export async function POST(req: NextRequest) {
       rankedSuggestions: fallback,
       topTopics,
       improvements,
-      brandUrl: body.brandUrl ?? "",
+      brandUrl: parsed.data.brandUrl ?? "",
     });
   } catch {
     return NextResponse.json({ error: "Failed to load search insights" }, { status: 500 });

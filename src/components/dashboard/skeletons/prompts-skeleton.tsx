@@ -10,17 +10,14 @@ export function PromptsSkeleton() {
       </div>
 
       {/* add prompt input bar */}
-      <div className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-white p-3 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+      <div className="flex items-center gap-3 rounded-sm border border-black/6 bg-white p-3">
         <Skeleton className="h-9 flex-1 rounded-md" />
         <Skeleton className="h-9 w-24 shrink-0 rounded-md" />
       </div>
 
       {/* prompt track cards */}
       {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="overflow-hidden rounded-xl border border-neutral-100 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]"
-        >
+        <div key={i} className="overflow-hidden rounded-sm border border-black/6 bg-white">
           {/* card header */}
           <div className="flex items-start justify-between border-b border-neutral-50 px-4 py-3.5">
             <div className="space-y-1.5">

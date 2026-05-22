@@ -16,6 +16,17 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toggleSchedule, type ScheduleFrequency } from "@/lib/api/analyzer";
+import { z } from "zod";
+
+const scheduleSchema = z
+  .object({
+    runAtIso: z.string().min(1, "Pick a valid date and time."),
+    url: z.string().min(1, "Project URL is missing, can't schedule."),
+  })
+  .refine((v) => new Date(v.runAtIso) > new Date(), {
+    message: "Scheduled time must be in the future.",
+    path: ["runAtIso"],
+  });
 
 interface ScheduleAnalysisDialogProps {
   open: boolean;
@@ -99,16 +110,9 @@ export function ScheduleAnalysisDialog({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!runAtIso) {
-      setError("Pick a valid date and time.");
-      return;
-    }
-    if (!isFuture) {
-      setError("Scheduled time must be in the future.");
-      return;
-    }
-    if (!url) {
-      setError("Project URL is missing, can't schedule.");
+    const parsed = scheduleSchema.safeParse({ runAtIso: runAtIso ?? "", url });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Please review the form.");
       return;
     }
     setSubmitting(true);
@@ -117,11 +121,11 @@ export function ScheduleAnalysisDialog({
       await toggleSchedule({
         email,
         org_id: orgId,
-        url,
+        url: parsed.data.url,
         brand_name: brandName,
         frequency,
         is_active: true,
-        run_at: runAtIso,
+        run_at: parsed.data.runAtIso,
       });
       onScheduled?.();
       onClose();

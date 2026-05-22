@@ -1,78 +1,95 @@
+import { z } from "zod";
 import { apiClient } from "./client";
 
-// ============ Types ============
+// ─── Schemas ────────────────────────────────────────────────────────────────
 
-export interface Achievement {
-  code: string;
-  name: string;
-  description: string;
-  icon: string;
-  points: number;
-}
+const achievementSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  description: z.string(),
+  icon: z.string(),
+  points: z.number(),
+});
 
-export interface UserGamification {
-  user_email: string;
-  total_points: number;
-  points_this_week: number;
-  points_this_month: number;
-  level: number;
-  level_name: string;
-  current_level_points: number;
-  points_to_next_level: number;
-  level_progress: number;
-  current_streak: number;
-  longest_streak: number;
-  total_actions_completed: number;
-  total_actions_verified: number;
-  total_score_improvement: number;
-  achievements: string[];
-  achievements_detail: Achievement[];
-  created_at: string;
-  updated_at: string;
-}
+const userGamificationSchema = z.object({
+  user_email: z.string(),
+  total_points: z.number(),
+  points_this_week: z.number(),
+  points_this_month: z.number(),
+  level: z.number(),
+  level_name: z.string(),
+  current_level_points: z.number(),
+  points_to_next_level: z.number(),
+  level_progress: z.number(),
+  current_streak: z.number(),
+  longest_streak: z.number(),
+  total_actions_completed: z.number(),
+  total_actions_verified: z.number(),
+  total_score_improvement: z.number(),
+  achievements: z.array(z.string()),
+  achievements_detail: z.array(achievementSchema),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
 
-export interface UserAction {
-  id: number;
-  action_type: string;
-  title: string;
-  description: string;
-  action: string;  // The action details from recommendation
-  points_value: number;
-  status: "pending" | "in_progress" | "completed" | "verified";
-  started_at: string | null;
-  completed_at: string | null;
-  verified_at: string | null;
-  score_before: number | null;
-  score_after: number | null;
-  score_improvement: number | null;
-  notes: string;
-  created_at: string;
-  analysis_run: number | null;
-  recommendation: number | null;
-}
+const actionStatusSchema = z.enum(["pending", "in_progress", "completed", "verified"]);
 
-export interface ActionTemplate {
-  action_type: string;
-  title: string;
-  description: string;
-  points: number;
-  category: string;
-}
+const userActionSchema = z.object({
+  id: z.number(),
+  action_type: z.string(),
+  title: z.string(),
+  description: z.string(),
+  action: z.string(),
+  points_value: z.number(),
+  status: actionStatusSchema,
+  started_at: z.string().nullable(),
+  completed_at: z.string().nullable(),
+  verified_at: z.string().nullable(),
+  score_before: z.number().nullable(),
+  score_after: z.number().nullable(),
+  score_improvement: z.number().nullable(),
+  notes: z.string(),
+  created_at: z.string(),
+  analysis_run: z.number().nullable(),
+  recommendation: z.number().nullable(),
+});
 
-export interface ActionStats {
-  total_actions: number;
-  pending_actions: number;
-  in_progress_actions: number;
-  completed_actions: number;
-  verified_actions: number;
-  total_points: number;
-  points_this_week: number;
-  current_streak: number;
-  level: number;
-  level_name: string;
-  level_progress: number;
-  recent_achievements: Achievement[];
-}
+const actionTemplateSchema = z.object({
+  action_type: z.string(),
+  title: z.string(),
+  description: z.string(),
+  points: z.number(),
+  category: z.string(),
+});
+
+const actionStatsSchema = z.object({
+  total_actions: z.number(),
+  pending_actions: z.number(),
+  in_progress_actions: z.number(),
+  completed_actions: z.number(),
+  verified_actions: z.number(),
+  total_points: z.number(),
+  points_this_week: z.number(),
+  current_streak: z.number(),
+  level: z.number(),
+  level_name: z.string(),
+  level_progress: z.number(),
+  recent_achievements: z.array(achievementSchema),
+});
+
+const updateActionResponseSchema = z.object({
+  action: userActionSchema,
+  gamification: userGamificationSchema,
+  new_achievements: z.array(z.string()),
+});
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+export type Achievement = z.infer<typeof achievementSchema>;
+export type UserGamification = z.infer<typeof userGamificationSchema>;
+export type UserAction = z.infer<typeof userActionSchema>;
+export type ActionTemplate = z.infer<typeof actionTemplateSchema>;
+export type ActionStats = z.infer<typeof actionStatsSchema>;
 
 export interface CreateActionPayload {
   action_type: string;
@@ -90,90 +107,82 @@ export interface UpdateActionPayload {
   score_after?: number;
 }
 
-// ============ API Functions ============
+// ─── API calls ──────────────────────────────────────────────────────────────
 
 export async function getUserGamification(email: string): Promise<UserGamification> {
-  const { data } = await apiClient.get<UserGamification>(
-    "/api/analyzer/gamification/",
-    { params: { email } }
-  );
-  return data;
+  const { data } = await apiClient.get("/api/analyzer/gamification/", { params: { email } });
+  return userGamificationSchema.parse(data);
 }
 
 export async function getActionStats(email: string, runId?: number): Promise<ActionStats> {
-  const { data } = await apiClient.get<ActionStats>(
-    "/api/analyzer/gamification/stats/",
-    { params: { email, run_id: runId } }
-  );
-  return data;
+  const { data } = await apiClient.get("/api/analyzer/gamification/stats/", {
+    params: { email, run_id: runId },
+  });
+  return actionStatsSchema.parse(data);
 }
 
 export async function getAchievements(): Promise<Achievement[]> {
-  const { data } = await apiClient.get<Achievement[]>("/api/analyzer/achievements/");
-  return data;
+  const { data } = await apiClient.get("/api/analyzer/achievements/");
+  return z.array(achievementSchema).parse(data);
 }
 
 export async function getActionTemplates(): Promise<ActionTemplate[]> {
-  const { data } = await apiClient.get<ActionTemplate[]>("/api/analyzer/action-templates/");
-  return data;
+  const { data } = await apiClient.get("/api/analyzer/action-templates/");
+  return z.array(actionTemplateSchema).parse(data);
 }
 
-export async function getUserActions(
-  email: string,
-  status?: string
-): Promise<UserAction[]> {
-  const { data } = await apiClient.get<UserAction[]>(
-    "/api/analyzer/actions/",
-    { params: { email, status } }
-  );
-  return data;
+export async function getUserActions(email: string, status?: string): Promise<UserAction[]> {
+  const { data } = await apiClient.get("/api/analyzer/actions/", { params: { email, status } });
+  return z.array(userActionSchema).parse(data);
 }
 
 export async function createUserAction(
   email: string,
-  payload: CreateActionPayload
+  payload: CreateActionPayload,
 ): Promise<UserAction> {
-  const { data } = await apiClient.post<UserAction>(
-    "/api/analyzer/actions/create/",
-    { ...payload, email }
-  );
-  return data;
+  const { data } = await apiClient.post("/api/analyzer/actions/create/", { ...payload, email });
+  return userActionSchema.parse(data);
 }
 
 export async function updateUserAction(
   actionId: number,
-  payload: UpdateActionPayload
+  payload: UpdateActionPayload,
 ): Promise<{ action: UserAction; gamification: UserGamification; new_achievements: string[] }> {
-  const { data } = await apiClient.post(
-    `/api/analyzer/actions/${actionId}/`,
-    payload
-  );
-  return data;
+  const { data } = await apiClient.post(`/api/analyzer/actions/${actionId}/`, payload);
+  return updateActionResponseSchema.parse(data);
 }
 
 export async function createQuickAction(
   email: string,
-  recommendationId: number
+  recommendationId: number,
 ): Promise<UserAction> {
-  const { data } = await apiClient.post<UserAction>(
-    "/api/analyzer/actions/quick/",
-    { email, recommendation_id: recommendationId }
-  );
-  return data;
+  const { data } = await apiClient.post("/api/analyzer/actions/quick/", {
+    email,
+    recommendation_id: recommendationId,
+  });
+  return userActionSchema.parse(data);
 }
 
 export async function bulkCreateActions(
   email: string,
-  recommendations: Array<{id: number; title: string; description: string; action: string; priority: string; url?: string; analysis_run_id?: number}>
+  recommendations: Array<{
+    id: number;
+    title: string;
+    description: string;
+    action: string;
+    priority: string;
+    url?: string;
+    analysis_run_id?: number;
+  }>,
 ): Promise<UserAction[]> {
-  const { data } = await apiClient.post<UserAction[]>(
-    "/api/analyzer/actions/bulk-create/",
-    { email, recommendations }
-  );
-  return data;
+  const { data } = await apiClient.post("/api/analyzer/actions/bulk-create/", {
+    email,
+    recommendations,
+  });
+  return z.array(userActionSchema).parse(data);
 }
 
-// ============ Helper Functions ============
+// ─── Display helpers ────────────────────────────────────────────────────────
 
 export function getStatusColor(status: string): string {
   switch (status) {

@@ -1,4 +1,23 @@
+import { z } from "zod";
 import { apiClient } from "./client";
+
+const organizationSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  url: z.string(),
+  owner_email: z.string(),
+  created_at: z.string(),
+});
+
+const checkResponseSchema = z.object({
+  exists: z.boolean(),
+});
+
+const updatedListSchema = z.object({
+  updated: z.array(z.string()),
+});
+
+export type Organization = z.infer<typeof organizationSchema>;
 
 interface OnboardPayload {
   name: string;
@@ -6,61 +25,43 @@ interface OnboardPayload {
   email: string;
 }
 
-interface CheckResponse {
-  exists: boolean;
-}
-
-export interface Organization {
-  id: number;
-  name: string;
-  url: string;
-  owner_email: string;
-  created_at: string;
-}
-
 function normalizeEmail(email: string): string {
   return email.toLowerCase().trim();
 }
 
-export async function createOrganization(
-  payload: OnboardPayload,
-): Promise<Organization> {
-  const { data } = await apiClient.post<Organization>(
-    "/api/organizations/onboard/",
-    { ...payload, email: normalizeEmail(payload.email) },
-  );
-  return data;
+export async function createOrganization(payload: OnboardPayload): Promise<Organization> {
+  const { data } = await apiClient.post("/api/organizations/onboard/", {
+    ...payload,
+    email: normalizeEmail(payload.email),
+  });
+  return organizationSchema.parse(data);
 }
 
-export async function checkOrganizationExists(
-  email: string,
-): Promise<boolean> {
-  const { data } = await apiClient.get<CheckResponse>(
-    "/api/organizations/check/",
-    { params: { email: normalizeEmail(email) } },
-  );
-  return data.exists;
+export async function checkOrganizationExists(email: string): Promise<boolean> {
+  const { data } = await apiClient.get("/api/organizations/check/", {
+    params: { email: normalizeEmail(email) },
+  });
+  return checkResponseSchema.parse(data).exists;
 }
 
 export async function getOrganizations(email: string): Promise<Organization[]> {
-  const { data } = await apiClient.get<Organization[]>(
-    "/api/organizations/",
-    { params: { email: normalizeEmail(email) } },
-  );
-  return data;
+  const { data } = await apiClient.get("/api/organizations/", {
+    params: { email: normalizeEmail(email) },
+  });
+  return z.array(organizationSchema).parse(data);
 }
 
 export async function updateOrganization(
   id: number,
   payload: { name?: string; url?: string },
 ): Promise<Organization> {
-  const { data } = await apiClient.patch<Organization>(
-    `/api/organizations/${id}/`,
-    payload,
-  );
-  return data;
+  const { data } = await apiClient.patch(`/api/organizations/${id}/`, payload);
+  return organizationSchema.parse(data);
 }
 
 export async function deleteOrganization(id: number): Promise<void> {
   await apiClient.delete(`/api/organizations/${id}/`);
 }
+
+// Exposed in case other modules want to validate the same shape.
+export { updatedListSchema };

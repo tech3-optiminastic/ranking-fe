@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   AlertTriangle,
   ArrowDown,
@@ -49,71 +50,68 @@ const SORT_OPTIONS: { label: string; value: string }[] = [
 ];
 
 export function SitemapAuditPanel({ slug }: { slug: string }) {
-  const [data, setData] = useState<SitemapAuditResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [starting, setStarting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [startError, setStartError] = useState<string | null>(null);
   const [state, setState] = useState<StateTab>("crawled");
   const [severity, setSeverity] = useState<SeverityFilter>("all");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("-ai_score");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const aliveRef = useRef(true);
 
-  const audit = data?.audit ?? null;
-  const isRunning = audit?.status === "running" || audit?.status === "queued";
-
-  const fetchNow = useCallback(async () => {
-    try {
-      const res = await getSitemapAudit(slug, {
+  // Each filter combo gets its own cache slot. Cached across tab switches
+  // (5min staleTime, 30min gcTime via QueryClient defaults).
+  const queryKey = ["sitemap-audit", slug, state, severity, q, sort];
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+    refetch,
+  } = useQuery({
+    queryKey,
+    enabled: !!slug,
+    queryFn: () =>
+      getSitemapAudit(slug, {
         state,
         severity: severity === "all" ? undefined : severity,
         q: q || undefined,
         sort,
         page: 1,
         page_size: 100,
-      });
-      if (!aliveRef.current) return;
-      setData(res);
-      setError(null);
-    } catch {
-      if (!aliveRef.current) return;
-      setError("Couldn't load the audit. Retry in a moment.");
-    } finally {
-      if (aliveRef.current) setLoading(false);
-    }
-  }, [slug, state, severity, q, sort]);
+      }),
+  });
+  const error = startError || (queryError ? "Couldn't load the audit. Retry in a moment." : null);
 
+  const audit = data?.audit ?? null;
+  const isRunning = audit?.status === "running" || audit?.status === "queued";
+
+  // Cleanup any in-flight poll timer on unmount.
   useEffect(() => {
-    aliveRef.current = true;
     return () => {
-      aliveRef.current = false;
       if (pollRef.current) clearTimeout(pollRef.current);
     };
   }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    void fetchNow();
-  }, [fetchNow]);
-
-  // Poll while running
+  // Poll while running — refetch every 2.2s until audit finishes.
   useEffect(() => {
     if (!isRunning) return;
     if (pollRef.current) clearTimeout(pollRef.current);
     pollRef.current = setTimeout(() => {
-      void fetchNow();
+      void refetch();
     }, 2200);
-  }, [isRunning, data, fetchNow]);
+  }, [isRunning, data, refetch]);
 
   async function handleStart() {
     if (starting) return;
     setStarting(true);
+    setStartError(null);
     try {
       await startSitemapAudit(slug);
-      await fetchNow();
+      // Invalidate every cached filter combo since they all reflect the
+      // same underlying audit.
+      queryClient.invalidateQueries({ queryKey: ["sitemap-audit", slug] });
     } catch {
-      setError("Couldn't start an audit. Try again.");
+      setStartError("Couldn't start an audit. Try again.");
     } finally {
       setStarting(false);
     }
@@ -192,7 +190,7 @@ function SitemapAuditSkeleton() {
       {/* 4 stat tiles */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
         {/* Indexed Pages tile */}
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-sm border border-border bg-card p-5">
           <div className="flex items-center justify-between">
             <Skeleton className="h-[10px] w-24 rounded" />
             <Skeleton className="h-3.5 w-3.5 rounded-full" />
@@ -206,7 +204,7 @@ function SitemapAuditSkeleton() {
 
         {/* 3 vital tiles (Avg LCP, FCP, TTFB) */}
         {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-2xl border border-border bg-card p-5">
+          <div key={i} className="rounded-sm border border-border bg-card p-5">
             <div className="flex items-center justify-between">
               <Skeleton className="h-[10px] w-16 rounded" />
               <Skeleton className="h-3.5 w-3.5 rounded" />
@@ -241,7 +239,7 @@ function SitemapAuditSkeleton() {
       </div>
 
       {/* Table skeleton */}
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="overflow-hidden rounded-sm border border-border bg-card">
         {/* thead */}
         <div className="flex items-center gap-2 border-b border-border bg-muted/30 px-4 py-3">
           {["30%", "6%", "10%", "6%", "6%", "6%", "6%", "8%", "8%", "10%", "8%"].map((w, i) => (
@@ -326,7 +324,7 @@ function EmptyAudit({
   error: string | null;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-8 text-center">
+    <div className="rounded-sm border border-border bg-card p-8 text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Gauge className="h-5 w-5" />
       </div>
@@ -463,7 +461,7 @@ function IndexedTile({ audit }: { audit: SitemapAuditSummary }) {
   const pct =
     audit.crawl_limit > 0 ? Math.min(100, (audit.total_urls / audit.crawl_limit) * 100) : 0;
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-sm border border-border bg-card p-5">
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
           Indexed Pages
@@ -519,7 +517,7 @@ function VitalTile({
   const markerPct = !hasValue ? 0 : Math.min(100, (value! / bandMax) * 100);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-sm border border-border bg-card p-5">
       <div className="flex items-center justify-between">
         <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
           {label}
@@ -720,7 +718,7 @@ function PagesTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+    <div className="overflow-hidden rounded-sm border border-border bg-card">
       <table className="w-full table-fixed text-left text-[12px]">
         <thead className="border-b border-border bg-muted/30 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           <tr>

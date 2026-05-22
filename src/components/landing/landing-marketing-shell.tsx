@@ -7,9 +7,9 @@ import { CornerDiamonds } from "@/components/ui/intersection-diamonds";
 
 export function LandingMarketingShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="relative min-h-screen bg-black-10 font-sans text-foreground antialiased selection:bg-orange-100 selection:text-orange-900">
-      <div className="relative z-10 mx-auto w-full max-w-7xl border-x border-black/6 bg-black-10 backdrop-blur-[1px]">
-        <header className="relative sticky top-0 z-100 rounded-sm bg-black-10 backdrop-blur-md">
+    <main className="relative min-h-screen font-sans text-foreground antialiased selection:bg-orange-100 selection:text-orange-900">
+      <div className="relative z-10 mx-auto w-full max-w-7xl border-x border-black/6 bg-transparent">
+        <header className="relative sticky top-0 z-100 rounded-sm bg-transparent">
           <CornerDiamonds bottom />
           <div className="relative flex w-full items-center justify-between gap-4 px-6 py-3.5 lg:px-10">
             <div className="shrink-0">

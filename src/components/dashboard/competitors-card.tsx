@@ -371,7 +371,7 @@ export function CompetitorsCard({
   const scoreDelta = yourScore !== null ? Math.round((yourScore - avgScore) * 10) / 10 : null;
 
   return (
-    <div className="col-span-12 overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+    <div className="col-span-12 overflow-hidden rounded-sm border border-black/6 bg-white">
       {/* Header */}
       <div className="relative overflow-hidden border-b border-neutral-100 bg-gradient-to-br from-primary/[0.04] via-white to-neutral-50/60 px-6 py-3">
         <div
@@ -447,7 +447,7 @@ export function CompetitorsCard({
               </div>
 
               {/* Score */}
-              <div className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-3.5">
+              <div className="relative overflow-hidden rounded-sm border border-black/8 bg-white p-3.5">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Your Score
                 </p>
@@ -482,7 +482,7 @@ export function CompetitorsCard({
               </div>
 
               {/* Top 3 */}
-              <div className="relative col-span-2 overflow-hidden rounded-xl border border-neutral-200 bg-white p-3.5 lg:col-span-1">
+              <div className="relative col-span-2 overflow-hidden rounded-sm border border-black/8 bg-white p-3.5 lg:col-span-1">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Top 3
@@ -542,7 +542,7 @@ export function CompetitorsCard({
 
           {/* Right: multi-line chart */}
           <div className="lg:col-span-8">
-            <div className="flex h-full flex-col rounded-xl border border-neutral-100 bg-white p-4">
+            <div className="flex h-full flex-col rounded-sm border border-black/6 bg-white p-4">
               <div className="mb-2 flex items-start justify-between">
                 <div>
                   <p className="text-[12px] font-semibold text-foreground">Score Comparison</p>

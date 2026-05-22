@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,18 @@ import { useSession } from "@/lib/auth-client";
 import { createOrganization } from "@/lib/api/organizations";
 import { routes } from "@/lib/config";
 import axios from "axios";
+
+const companyInfoSchema = z.object({
+  name: z.string().trim().min(1, "Company name is required."),
+  // Website is optional but if provided, must be a valid URL.
+  url: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || /^https?:\/\/.+\..+/.test(v), {
+      message: "Enter a valid URL (e.g. https://example.com).",
+    }),
+});
 
 export function CompanyInfoForm() {
   const router = useRouter();
@@ -25,18 +38,23 @@ export function CompanyInfoForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !email) return;
+    if (!email) return;
+    const parsed = companyInfoSchema.safeParse({ name, url });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Please review the form.");
+      return;
+    }
 
     setLoading(true);
     setError("");
 
     try {
       await createOrganization({
-        name: name.trim(),
-        url: url.trim(),
+        name: parsed.data.name,
+        url: parsed.data.url ?? "",
         email,
       });
-      setCompanyInfo(name.trim(), url.trim());
+      setCompanyInfo(parsed.data.name, parsed.data.url ?? "");
       setStep("complete");
       router.push(routes.dashboard);
     } catch (err) {
@@ -54,7 +72,11 @@ export function CompanyInfoForm() {
     return (
       <div className="space-y-2 text-center">
         <p className="text-[12px] text-destructive">Session expired. Please sign up again.</p>
-        <Button variant="outline" className="h-9 rounded-md text-[13px]" onClick={() => router.push(routes.signUp)}>
+        <Button
+          variant="outline"
+          className="h-9 rounded-md text-[13px]"
+          onClick={() => router.push(routes.signUp)}
+        >
           Back to sign up
         </Button>
       </div>

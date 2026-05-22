@@ -29,7 +29,7 @@ export function AgentLogPanel({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-5 py-6 text-sm text-muted-foreground">
+      <div className="flex items-center gap-2 rounded-sm border border-border bg-card px-5 py-6 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
         Loading…
       </div>
@@ -40,7 +40,7 @@ export function AgentLogPanel({ slug }: { slug: string }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-2xl border border-border bg-card p-8 text-center">
+      <div className="rounded-sm border border-border bg-card p-8 text-center">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Radio className="h-5 w-5" />
         </div>
@@ -79,7 +79,7 @@ function IntegrationCard({
 }) {
   const Icon = kind === "cloudflare" ? Cloud : Triangle;
   return (
-    <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card px-5 py-4">
+    <div className="flex items-center justify-between gap-4 rounded-sm border border-border bg-card px-5 py-4">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-md bg-muted/60 text-muted-foreground">
           <Icon className="h-5 w-5" />

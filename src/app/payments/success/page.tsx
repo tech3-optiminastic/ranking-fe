@@ -35,8 +35,15 @@ export default function PaymentSuccessPage() {
   const [showSuccessIcon, setShowSuccessIcon] = useState(false);
   const startedRef = useRef(false);
 
+  // Polling is keyed on email (a stable string), not the whole session
+  // object. better-auth's useSession returns a fresh `session` reference on
+  // every render; depending on `session` directly would tear down the
+  // setInterval and the startedRef guard would silently prevent restart —
+  // so polling would die after the first re-render and the user would
+  // never see is_active flip to true.
+  const userEmail = session?.user?.email;
   useEffect(() => {
-    if (!session) return;
+    if (!userEmail) return;
     if (startedRef.current) return;
     startedRef.current = true;
 
@@ -50,15 +57,13 @@ export default function PaymentSuccessPage() {
       attempts += 1;
 
       try {
-        const status = await getSubscriptionStatus(session.user.email);
+        const status = await getSubscriptionStatus(userEmail);
         if (!status.is_active) {
           if (attempts > 20) {
             clearInterval(poll);
             if (!cancelled) {
               setShowSuccessIcon(false);
-              setMessage(
-                "Could not confirm payment yet. You can continue from the app.",
-              );
+              setMessage("Could not confirm payment yet. You can continue from the app.");
               router.replace(consumePostCheckoutPath());
             }
           }
@@ -68,9 +73,7 @@ export default function PaymentSuccessPage() {
         clearInterval(poll);
 
         const pending = readPendingAnalysisAfterPayment();
-        const emailMatch =
-          pending &&
-          pending.email.toLowerCase() === session.user.email.toLowerCase();
+        const emailMatch = pending && pending.email.toLowerCase() === userEmail.toLowerCase();
 
         if (pending && !emailMatch) {
           clearPendingAnalysisAfterPayment();
@@ -133,7 +136,7 @@ export default function PaymentSuccessPage() {
       cancelled = true;
       clearInterval(poll);
     };
-  }, [session, router]);
+  }, [userEmail, router]);
 
   if (isPending) {
     return (
@@ -171,9 +174,7 @@ export default function PaymentSuccessPage() {
       ) : (
         <>
           <CheckCircle2 className="h-12 w-12 text-primary" />
-          <h1 className="mt-4 text-xl md:text-2xl font-bold text-white">
-            Payment Successful!
-          </h1>
+          <h1 className="mt-4 text-xl md:text-2xl font-bold text-white">Payment Successful!</h1>
           <p className="mt-2 text-sm text-neutral-400">{message}</p>
         </>
       )}

@@ -54,16 +54,19 @@ export default function SignInPage() {
   const router = useRouter();
 
   // Initialise store once on mount only, must not re-run on session refetch
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     reset();
     setAuthMode("sign-in");
   }, []);
 
-  // Redirect when a valid session is detected (e.g. after OTP verify)
+  // Redirect when a valid session is detected (e.g. after OTP verify).
+  // Keyed on the stable email string so this doesn't re-fire on every
+  // session ref churn from better-auth.
+  const signedInEmail = session?.user?.email;
   useEffect(() => {
-    if (!isPending && session) router.replace(routes.dashboard);
-  }, [isPending, session, router]);
+    if (!isPending && signedInEmail) router.replace(routes.dashboard);
+  }, [isPending, signedInEmail, router]);
 
   const { title, description } = STEP_CONTENT[step] ?? STEP_CONTENT["auth-method"];
   const hero = step === "otp-verify" ? STEP_HERO["otp-verify"] : STEP_HERO["auth-method"];

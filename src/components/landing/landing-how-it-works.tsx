@@ -7,7 +7,7 @@ import { ScreenHR } from "@/components/ui/intersection-diamonds";
 
 export function LandingHowItWorks() {
   return (
-    <section className="relative bg-background" aria-labelledby="how-it-works-heading">
+    <section className="relative bg-transparent" aria-labelledby="how-it-works-heading">
       <ScreenHR />
       <div className="mx-auto max-w-7xl px-6 pb-12 pt-14 lg:px-12 lg:pb-14 lg:pt-16">
         <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">
@@ -28,8 +28,7 @@ export function LandingHowItWorks() {
           in four steps
         </h2>
         <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
-          No setup calls, no integrations headache. Every step uses the product you just signed up
-          for, no separate onboarding tool.
+          Sign up, paste a URL, get a score. No setup calls. No separate tools.
         </p>
       </div>
 

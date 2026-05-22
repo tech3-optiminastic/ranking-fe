@@ -143,7 +143,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
@@ -162,9 +162,21 @@
   }
 }
 
-/* Clean body */
+/* Full-page ambient gradient mesh. Painted on the `.signalor-body` class
+   (the class actually present on <body>) so unlayered specificity wins
+   over Tailwind's @layer base and over framework resets. `attachment:
+   fixed` pins the gradient to the viewport so it spans the whole page
+   instead of just the hero. */
 .signalor-body {
-  background-color: var(--background);
+  background-color: #f7f7f7;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 0% 0%, rgba(224, 74, 61, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 55% at 100% 0%, rgba(99, 102, 241, 0.32) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 50% at 50% 100%, rgba(255, 196, 88, 0.38) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(244, 114, 182, 0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 0% 60%, rgba(56, 189, 248, 0.22) 0%, transparent 55%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 @layer utilities {

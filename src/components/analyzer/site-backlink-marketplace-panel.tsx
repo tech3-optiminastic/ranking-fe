@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2,
   ShoppingBag,
@@ -9,13 +10,11 @@ import {
   Clock,
   X,
   AlertCircle,
-  CreditCard,
   Trash2,
 } from "@/components/icons";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  confirmBacklinkOrderPayment,
   deleteBacklinkOrder,
   getBacklinkCatalog,
   listBacklinkOrders,
@@ -78,23 +77,53 @@ interface Props {
 export function SiteBacklinkMarketplacePanel({ slug }: Props) {
   const { data: session } = useSession();
   const userEmail = session?.user?.email ?? "";
+  const queryClient = useQueryClient();
 
-  const [products, setProducts] = useState<BacklinkProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Catalog + orders cached across tab switches via QueryClient.
+  const queryKey = ["backlink-marketplace", slug, userEmail];
+  const {
+    data: initial,
+    isLoading: loading,
+    error: queryError,
+  } = useQuery({
+    queryKey,
+    enabled: !!slug,
+    queryFn: async () => {
+      const [catalog, ordersResp] = await Promise.all([
+        getBacklinkCatalog(slug),
+        listBacklinkOrders(slug, userEmail || undefined).catch(() => ({
+          orders: [] as BacklinkOrder[],
+        })),
+      ]);
+      return { products: catalog.products, orders: ordersResp.orders };
+    },
+  });
+  const products: BacklinkProduct[] = initial?.products ?? [];
+  const error =
+    queryError instanceof Error ? queryError.message : queryError ? "Couldn't load catalog." : null;
 
   const [filterLinkType, setFilterLinkType] = useState<BacklinkLinkType | "all">("all");
   const [minDa, setMinDa] = useState<number>(0);
 
+  // Local orders state seeds from the query and accepts mutations from
+  // place/pay/cancel handlers. We mirror back into the cache via setQueryData
+  // so the next tab-switch sees the latest orders, not the original snapshot.
   const [orders, setOrders] = useState<BacklinkOrder[]>([]);
+  useEffect(() => {
+    if (initial?.orders) setOrders(initial.orders);
+  }, [initial?.orders]);
+  useEffect(() => {
+    if (!initial) return;
+    queryClient.setQueryData(queryKey, { products, orders });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders]);
 
   const [buyingProduct, setBuyingProduct] = useState<BacklinkProduct | null>(null);
   const [targetUrl, setTargetUrl] = useState("");
   const [anchorText, setAnchorText] = useState("");
   const [orderError, setOrderError] = useState<string | null>(null);
   const [placing, setPlacing] = useState(false);
-  const [payingOrderId, setPayingOrderId] = useState<number | null>(null);
-  const [payError, setPayError] = useState<{ id: number; msg: string } | null>(null);
+  const [rowError, setRowError] = useState<{ id: number; msg: string } | null>(null);
   const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
 
   async function removeOrder(order: BacklinkOrder) {
@@ -108,44 +137,14 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
     setDeletingOrderId(order.id);
     try {
       await deleteBacklinkOrder(slug, order.id);
-      // BE returns the cancelled order for queued/in_progress and {deleted}
-      // for the rest. Either way we just drop it from the list, the user's
-      // intent is "I'm done with this row". Status stays viewable on a refresh
-      // if they want to see cancelled history.
       setOrders((prev) => prev.filter((o) => o.id !== order.id));
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Couldn't delete order.";
-      setPayError({ id: order.id, msg });
+      setRowError({ id: order.id, msg });
     } finally {
       setDeletingOrderId(null);
     }
   }
-
-  async function payForOrder(order: BacklinkOrder) {
-    setPayingOrderId(order.id);
-    setPayError(null);
-    try {
-      const updated = await confirmBacklinkOrderPayment(slug, order.id);
-      setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
-    } catch (e) {
-      setPayError({
-        id: order.id,
-        msg: e instanceof Error ? e.message : "Couldn't confirm payment.",
-      });
-    } finally {
-      setPayingOrderId(null);
-    }
-  }
-
-  const unpaidOrders = useMemo(
-    () => orders.filter((o) => o.status === "pending_payment"),
-    [orders],
-  );
-
-  const unpaidTotalCents = useMemo(
-    () => unpaidOrders.reduce((s, o) => s + (o.price_cents || 0), 0),
-    [unpaidOrders],
-  );
 
   const refreshOrders = useCallback(async () => {
     if (!slug) return;
@@ -155,32 +154,6 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
     } catch {
       // Non-fatal, keep prior orders on screen.
     }
-  }, [slug, userEmail]);
-
-  useEffect(() => {
-    if (!slug) return;
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    Promise.all([
-      getBacklinkCatalog(slug),
-      listBacklinkOrders(slug, userEmail || undefined).catch(() => ({ orders: [] })),
-    ])
-      .then(([catalog, ordersResp]) => {
-        if (cancelled) return;
-        setProducts(catalog.products);
-        setOrders(ordersResp.orders);
-      })
-      .catch((e) => {
-        if (cancelled) return;
-        setError(e instanceof Error ? e.message : "Couldn't load catalog.");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
   }, [slug, userEmail]);
 
   const visibleProducts = useMemo(() => {
@@ -225,7 +198,7 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="rounded-sm border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
           <Loader2 className="size-3.5 animate-spin" />
           Loading backlink marketplace…
@@ -246,7 +219,7 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-sm border border-border bg-card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <ShoppingBag className="size-4 text-orange-600 dark:text-orange-400" />
@@ -262,30 +235,12 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
         ) : null}
       </div>
 
-      {unpaidOrders.length > 0 ? (
-        <div className="mt-3 flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2">
-          <CreditCard className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-300" />
-          <div className="min-w-0 flex-1">
-            <p className="text-[12px] font-semibold text-amber-800 dark:text-amber-200">
-              {unpaidOrders.length} order{unpaidOrders.length === 1 ? "" : "s"} waiting for payment
-              · {formatPrice(unpaidTotalCents, unpaidOrders[0]?.currency || "USD")}
-            </p>
-            <p className="mt-0.5 text-[11px] leading-snug text-amber-700 dark:text-amber-300/90">
-              Your order isn&apos;t sent to the provider until you click <strong>Pay</strong> on
-              each row below.
-            </p>
-          </div>
-        </div>
-      ) : null}
-
       {/* Existing orders */}
       {orders.length > 0 ? (
         <div className="mt-3 space-y-1.5">
           {orders.map((o) => {
             const s = STATUS_STYLES[o.status];
-            const needsPayment = o.status === "pending_payment";
-            const isPaying = payingOrderId === o.id;
-            const rowError = payError && payError.id === o.id ? payError.msg : null;
+            const orderRowError = rowError && rowError.id === o.id ? rowError.msg : null;
             return (
               <div key={o.id} className="rounded-md border border-border bg-muted/15">
                 <div className="flex min-w-0 items-center gap-2 px-2.5 py-1.5">
@@ -305,24 +260,6 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
                   <span className={`rounded border px-1.5 py-px text-[9px] font-semibold ${s.cls}`}>
                     {s.label}
                   </span>
-                  {needsPayment ? (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        payForOrder(o);
-                      }}
-                      disabled={isPaying}
-                      className="inline-flex items-center gap-1 rounded-md bg-orange-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-orange-700 disabled:opacity-60"
-                    >
-                      {isPaying ? (
-                        <Loader2 className="size-3 animate-spin" />
-                      ) : (
-                        <CreditCard className="size-3" />
-                      )}
-                      {isPaying ? "Confirming…" : `Pay ${formatPrice(o.price_cents, o.currency)}`}
-                    </button>
-                  ) : null}
                   {o.proof_url ? (
                     <a
                       href={o.proof_url}
@@ -354,9 +291,9 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
                     </button>
                   ) : null}
                 </div>
-                {rowError ? (
+                {orderRowError ? (
                   <div className="border-t border-destructive/20 bg-destructive/5 px-2.5 py-1 text-[10px] text-destructive">
-                    {rowError}
+                    {orderRowError}
                   </div>
                 ) : null}
               </div>
@@ -618,10 +555,8 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
                   {orderError ? <p className="text-[11px] text-destructive">{orderError}</p> : null}
 
                   <p className="text-[10px] leading-snug text-muted-foreground">
-                    You&apos;ll be charged{" "}
-                    {formatPrice(buyingProduct.price_cents, buyingProduct.currency)} once payment is
-                    wired up. The provider handles the placement and shares the live URL when
-                    it&apos;s done.
+                    Your order will be sent to the provider immediately. They handle the placement
+                    and share the live URL when it&apos;s done.
                   </p>
 
                   <div className="flex items-center justify-end gap-2">
