@@ -508,6 +508,43 @@
   }
 }
 
+@keyframes border-beam {
+  to {
+    offset-distance: 100%;
+  }
+}
+
+.border-beam {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: calc(var(--border-width, 1.5) * 1px) solid transparent;
+  -webkit-mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+  mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
+  -webkit-mask-clip: padding-box, border-box;
+  mask-clip: padding-box, border-box;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+
+.border-beam::after {
+  content: "";
+  position: absolute;
+  aspect-ratio: 1;
+  width: calc(var(--size, 200) * 1px);
+  background: linear-gradient(
+    to left,
+    var(--color-from, #e04a3d),
+    var(--color-to, #f4748f),
+    transparent
+  );
+  offset-anchor: 90% 50%;
+  offset-path: rect(0 auto auto 0 round calc(var(--corner-radius, 0) * 1px));
+  animation: border-beam calc(var(--duration, 12) * 1s) infinite linear;
+  animation-delay: var(--delay, 0s);
+}
+
 :root {
   --sidebar: hsl(0 0% 98%);
   --sidebar-foreground: hsl(240 5.3% 26.1%);

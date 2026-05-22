@@ -44,7 +44,7 @@ const fadeUpVariants: Variants = {
 
 export function LandingHero() {
   return (
-    <section className="relative flex min-h-[92vh] flex-col justify-end overflow-hidden px-6 pb-16 pt-32 lg:px-12 lg:pb-24 lg:pt-40">
+    <section className="relative flex min-h-[92vh] flex-col justify-center overflow-hidden px-6 py-24 lg:px-12 lg:py-32">
       {/* Top hairline accent — ties the section to the page chrome above. */}
       <div
         aria-hidden
