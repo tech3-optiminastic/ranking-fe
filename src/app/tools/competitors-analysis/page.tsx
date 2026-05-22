@@ -8,6 +8,9 @@ import { CompetitorsInline } from "@/components/tools/competitors-inline";
 export default function CompetitorsAnalysisToolPage() {
   return (
     <LandingMarketingShell>
+      <p className="sr-only">
+        The Signalor Competitor Analysis tool reveals which brands AI engines recommend, compare, and cite alongside yours. It sources competitors from live Google autocomplete signals — the exact "vs", "alternatives to", and "compared to" phrases buyers type when researching your category. Results are ranked by co-mention frequency so you see which rivals appear most often in active purchase-decision queries. This AI competitor analysis goes beyond traditional backlink or keyword ranking tools: it maps the competitive landscape as generative engines like ChatGPT, Gemini, Perplexity, and Claude see it. Free, no sign-up required for the co-mention ranking. Upgrading adds per-engine AI citation breakdowns that show which competitors win on ChatGPT vs Gemini vs Perplexity — and the specific prompts where rivals are cited but you are not.
+      </p>
       <ToolPage
         theme="emerald"
         eyebrow="[ free tool · competitors analysis ]"
