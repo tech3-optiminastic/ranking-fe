@@ -83,7 +83,7 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
 
   return (
     <div className="w-full max-w-xl">
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-border bg-card shadow-sm">
         <AnimatePresence mode="wait" custom={dir}>
           {step === 0 && (
             <motion.div
@@ -95,7 +95,7 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
               exit="exit"
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              <div className="relative min-h-[86px] px-4 pt-3 pb-3">
+              <div className="relative min-h-[96px] px-4 pt-4 pb-4">
                 <input
                   ref={inputRef}
                   type="text"
