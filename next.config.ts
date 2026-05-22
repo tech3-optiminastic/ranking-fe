@@ -13,8 +13,6 @@ const devConnectSrc = isDev
       "http://localhost:* ws://localhost:* http://127.0.0.1:*",
       "https://ipapi.co",
       "https://va.vercel-scripts.com",
-      "https://sr-client-cfg.amplitude.com",
-      "https://gs.amplitude.com",
     ]
   : [];
 
@@ -52,6 +50,8 @@ const CSP = [
     "https://api.amplitude.com",
     "https://api2.amplitude.com",
     "https://analytics.amplitude.com",
+    "https://sr-client-cfg.amplitude.com",
+    "https://gs.amplitude.com",
     "https://www.google-analytics.com",
     "https://region1.google-analytics.com",
     "https://www.clarity.ms",
