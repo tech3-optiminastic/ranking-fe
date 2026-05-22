@@ -645,6 +645,7 @@ const backlinkProductSchema = z.object({
   price_cents: z.number(),
   currency: z.string(),
   lead_time_days: z.number(),
+  extras: z.record(z.string(), z.unknown()).optional(),
 });
 
 const backlinkProviderSummarySchema = z.object({
