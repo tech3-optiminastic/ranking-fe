@@ -224,10 +224,11 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
         </div>
       </div>
 
-      {/* Orange platform — peeks out below the white card. Negative margin makes
-          the white card sit ON TOP of this band, with the bottom strip visible. */}
+      {/* Orange platform — sits BEHIND the white card with ~48px overlap, so
+          only a thin strip with the "Free first scan" line peeks below.
+          Padding (pt-14 pb-3) pushes content into the visible 30-40px area. */}
       <div
-        className="relative -mt-4 flex items-center justify-center gap-2 rounded-2xl px-6 pb-2.5 pt-7 text-xs font-semibold text-white shadow-[0_20px_40px_-12px_rgba(224,74,61,0.45)]"
+        className="relative -mt-12 flex items-center justify-center gap-2 rounded-2xl px-6 pb-3 pt-14 text-xs font-semibold text-white shadow-[0_20px_40px_-12px_rgba(224,74,61,0.5)]"
         style={{
           background: "linear-gradient(90deg, #e04a3d 0%, #f4748f 50%, #fbbf24 100%)",
         }}

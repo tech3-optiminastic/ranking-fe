@@ -1,17 +1,21 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { HeroAnalyzerForm } from "../analyzer/hero-analyzer-form";
-import { Sparkles, Zap, Eye, BarChart3 } from "@/components/icons";
+import { HeroLiveTicker } from "./hero-live-ticker";
 
 // Engine logos shown inline in the subtitle. `title` doubles as the
 // tooltip + accessibility label (screen readers will read it).
+// Cycled one-at-a-time through every AI engine we have a logo for.
 const SUBTITLE_ENGINES = [
   { name: "ChatGPT", src: "/logos/chatgpt.svg" },
-  { name: "Claude", src: "/logos/claude.svg" },
-  { name: "Gemini", src: "/logos/gemini.svg" },
   { name: "Perplexity", src: "/logos/perplexity.svg" },
+  { name: "Gemini", src: "/logos/gemini.svg" },
+  { name: "Claude", src: "/logos/claude.svg" },
+  { name: "Copilot", src: "/logos/copilot.svg" },
+  { name: "Google AI", src: "/logos/google.svg" },
 ] as const;
 
 // Page-load entrance: badge first, then each headline word reveals in
@@ -43,8 +47,23 @@ const fadeUpVariants: Variants = {
 };
 
 export function LandingHero() {
+  const [engineIdx, setEngineIdx] = useState(0);
+
+  // Rotate the engine logo every 5s. Single logo visible at a time so the
+  // chip stays compact (no horizontal space taken by neighbouring icons).
+  useEffect(() => {
+    const id = setInterval(() => setEngineIdx((i) => (i + 1) % SUBTITLE_ENGINES.length), 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  const currentEngine = SUBTITLE_ENGINES[engineIdx];
+
   return (
-    <section className="relative flex min-h-[92vh] flex-col justify-center overflow-hidden px-6 py-24 lg:px-12 lg:py-32">
+    <section className="relative flex min-h-[calc(100vh-72px)] flex-col justify-center overflow-hidden bg-white px-6 py-12 lg:px-12 lg:py-16">
+      {/* Animated film-grain noise overlay — replaces the gradient mesh
+          on this section. Subtle motion every 16s, ~6% opacity. */}
+      <div aria-hidden className="hero-noise" />
+
       {/* Top hairline accent — ties the section to the page chrome above. */}
       <div
         aria-hidden
@@ -61,39 +80,33 @@ export function LandingHero() {
         animate="show"
         variants={containerVariants}
       >
-        {/* Status badge with sparkle icon + animated pulse */}
-        <motion.div
-          variants={fadeUpVariants}
-          className="mb-7 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-white/70 px-3.5 py-1.5 text-xs font-medium text-primary shadow-[0_1px_2px_rgba(0,0,0,0.04)] backdrop-blur-sm"
-        >
-          <Sparkles className="h-3 w-3" strokeWidth={2} aria-hidden />
-          <span>AI Search Visibility Platform</span>
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-          </span>
+        {/* Live audit ticker now at the top — rotating activity above the headline. */}
+        <motion.div variants={fadeUpVariants} className="mb-7 flex justify-center">
+          <HeroLiveTicker />
         </motion.div>
 
-        <h1 className="text-5xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+        {/* Eyebrow tag — matches the creators-program visual pattern */}
+        <motion.p
+          variants={fadeUpVariants}
+          className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500"
+        >
+          [ ai search visibility ]
+        </motion.p>
+
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.65rem] md:leading-[1.05] lg:text-5xl">
           <motion.span variants={wordVariants} className="inline-block will-change-[filter]">
-            Audit.
-          </motion.span>{" "}
-          <motion.span
-            variants={wordVariants}
-            className="relative inline-block text-primary will-change-[filter]"
-          >
-            Optimize.
-            <span
-              aria-hidden
-              className="absolute inset-x-1 -bottom-1 h-[3px] rounded-full"
-              style={{
-                background:
-                  "linear-gradient(90deg, transparent 0%, rgba(224, 74, 61, 0.55) 30%, rgba(224, 74, 61, 0.55) 70%, transparent 100%)",
-              }}
-            />
+            Audit your site in{" "}
+            <span className="underline decoration-primary decoration-dashed decoration-2 underline-offset-[6px]">
+              60 seconds
+            </span>
+            .
           </motion.span>{" "}
           <motion.span variants={wordVariants} className="inline-block will-change-[filter]">
-            Win.
+            Be cited by{" "}
+            <span className="underline decoration-primary decoration-dashed decoration-2 underline-offset-[6px]">
+              every AI engine
+            </span>
+            .
           </motion.span>
         </h1>
 
@@ -101,47 +114,39 @@ export function LandingHero() {
           variants={fadeUpVariants}
           className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-2 gap-y-2 text-base leading-relaxed text-muted-foreground lg:text-lg"
         >
-          <span>See how</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-black/8 bg-white px-2 py-1 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-            {SUBTITLE_ENGINES.map((engine) => (
-              <Image
-                key={engine.name}
-                src={engine.src}
-                alt={engine.name}
-                title={engine.name}
-                width={18}
-                height={18}
-                className="h-[18px] w-[18px] object-contain"
-              />
-            ))}
+          <span>Be the brand</span>
+          <span className="relative inline-flex h-[28px] w-[28px] items-center justify-center overflow-hidden rounded-full border border-black/8 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={currentEngine.name}
+                initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.6, rotate: 20 }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <Image
+                  src={currentEngine.src}
+                  alt={currentEngine.name}
+                  title={currentEngine.name}
+                  width={18}
+                  height={18}
+                  className="h-[18px] w-[18px] object-contain"
+                />
+              </motion.span>
+            </AnimatePresence>
           </span>
-          <span>describe your brand. Find what to fix. Ship it.</span>
+          <span>
+            recommends — not the one it{" "}
+            <span className="text-foreground/80 line-through decoration-primary/60 decoration-2">
+              forgets
+            </span>
+            .
+          </span>
         </motion.p>
 
         <motion.div variants={fadeUpVariants} className="mt-10 flex justify-center">
           <HeroAnalyzerForm />
-        </motion.div>
-
-        {/* Trust strip — three lightweight signals that build confidence
-            without leaning on testimonial logos we don't yet have. */}
-        <motion.div
-          variants={fadeUpVariants}
-          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-muted-foreground"
-        >
-          <span className="inline-flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5 text-primary/70" strokeWidth={2} aria-hidden />
-            Instant analysis
-          </span>
-          <span className="hidden h-1 w-1 rounded-full bg-muted-foreground/40 sm:inline-block" />
-          <span className="inline-flex items-center gap-1.5">
-            <Eye className="h-3.5 w-3.5 text-primary/70" strokeWidth={2} aria-hidden />6 AI engines
-            tracked
-          </span>
-          <span className="hidden h-1 w-1 rounded-full bg-muted-foreground/40 sm:inline-block" />
-          <span className="inline-flex items-center gap-1.5">
-            <BarChart3 className="h-3.5 w-3.5 text-primary/70" strokeWidth={2} aria-hidden />
-            Free for the first scan
-          </span>
         </motion.div>
       </motion.div>
     </section>

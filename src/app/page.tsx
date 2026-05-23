@@ -8,6 +8,7 @@ import { LandingIntegrationsStrip } from "@/components/landing/landing-integrati
 import { LandingPricingTeaser } from "@/components/landing/landing-pricing-teaser";
 import { LandingNewsletter } from "@/components/landing/landing-newsletter";
 import { LandingFaq } from "@/components/landing/landing-faq";
+import { LandingPartnersProgram } from "@/components/landing/landing-partners-program";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
 import { CornerDiamonds } from "@/components/ui/intersection-diamonds";
@@ -162,6 +163,7 @@ export default function Home() {
       <LandingIntegrationsStrip />
       <LandingPricingTeaser />
       <LandingFaq items={HOMEPAGE_FAQ} />
+      <LandingPartnersProgram />
       <LandingNewsletter />
       <LandingFooter />
     </LandingMarketingShell>
