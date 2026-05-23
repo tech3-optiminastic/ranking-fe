@@ -1,0 +1,684 @@
+================================================================================
+SIGNALOR AI — FRONTEND AGENT CONTEXT FILE
+================================================================================
+Project   : ranking-fe
+Framework : Next.js 16.1.6 (App Router)
+Package   : pnpm (NEVER npm or yarn)
+Root dir  : C:\Users\yasho\Desktop\opti-pro\ranking-fe
+================================================================================
+
+
+WHAT THIS PROJECT IS
+--------------------
+Signalor is an AI GEO (Generative Engine Optimization) platform. It tracks
+how brands appear in AI search engines (ChatGPT, Claude, Gemini, Perplexity,
+Google AI Overviews, Bing AI), analyzes citation quality, scores content
+against SEO/GEO pillars, and gives actionable recommendations to improve AI
+visibility.
+
+Core features:
+- AI visibility tracking across 6 engines
+- Multi-pillar GEO score (technical, content, citations, sentiment, competitors)
+- URL/content analysis with async run-based job system (polled)
+- Competitor benchmarking
+- Backlink marketplace (static curated provider directory — no purchase API)
+- Content optimization recommendations
+- Gamification (points, badges, leaderboard)
+- Creator/affiliate referral program
+- Blog (Sanity CMS)
+- WordPress & Shopify integrations
+- Payments via Dodo Payments
+- Error monitoring via Sentry (EU ingest)
+
+
+TECH STACK
+----------
+Framework          : Next.js 16.1.6 (App Router) + React 19.2.3
+Styling            : Tailwind CSS 4 + shadcn/ui + tw-animate-css
+Theme              : next-themes 0.4.6
+Auth               : better-auth 1.4.18 (email OTP + Google OAuth)
+Server state       : TanStack Query (@tanstack/react-query v5)
+Global state       : Zustand 5
+HTTP client        : Axios 1.13.5 (custom instances in src/lib/api/client.ts)
+Validation         : Zod 4
+Forms              : React Hook Form 7 + @hookform/resolvers
+Rich text          : Tiptap 3
+CMS                : Sanity v5 (blog only, SSR disabled in Studio route)
+Charts             : Recharts 3
+Animations         : Framer Motion 12 + motion package + Rive
+Animated numbers   : @number-flow/react
+Command menu       : cmdk
+Date picker        : react-day-picker
+OTP input          : input-otp
+PageSpeed/audit    : lighthouse + chrome-launcher (server-side tools route)
+Payments           : Dodo Payments
+Error monitoring   : Sentry @sentry/nextjs v10 (EU ingest, tunnel proxy)
+Analytics          : Amplitude, Google Analytics/GTM, Microsoft Clarity,
+                     Vercel Analytics + Speed Insights, Ahrefs
+Database           : PostgreSQL via pg (server-side ONLY — never in client code)
+
+
+QUICK START
+-----------
+  pnpm install
+  pnpm env:local       # copies env/local.env to .env.local
+  pnpm dev             # http://localhost:3000 (webpack)
+  pnpm dev:turbo       # http://localhost:3000 (turbopack, faster)
+
+Backend (ranking-be Django) must run at http://localhost:8000
+
+
+AVAILABLE SCRIPTS
+-----------------
+  pnpm dev             next dev --webpack
+  pnpm dev:turbo       next dev --turbopack
+  pnpm build           Production build — run before every push
+  pnpm start           Start production server
+  pnpm lint            ESLint check
+  pnpm lint:fix        ESLint auto-fix
+  pnpm format          Prettier format all files
+  pnpm format:check    Prettier check (CI)
+  pnpm typecheck       TypeScript check (tsc --noEmit)
+  pnpm env:local       Switch to local environment
+  pnpm env:staging     Switch to staging environment
+  pnpm env:production  Switch to production environment
+
+
+DIRECTORY STRUCTURE
+-------------------
+src/
+  app/
+    layout.tsx                     Root layout (fonts, providers, analytics)
+    page.tsx                       Landing page
+    globals.css                    Global styles
+    manifest.ts                    PWA manifest
+    robots.ts                      robots.txt generation
+    sitemap.ts                     sitemap.xml generation
+    error.tsx                      Root error boundary
+    global-error.tsx               Global error boundary
+    not-found.tsx                  404 page
+
+    (auth)/                        Grouped layout for unauthenticated auth
+      sign-in/
+      sign-up/
+
+    auth/callback/                 OAuth callback handler
+
+    creator/                       Creator-specific auth (NOT inside (auth))
+      sign-in/
+      sign-up/
+
+    dashboard/
+      new/                         Create new organization
+      [slug]/                      Main authenticated user workspace
+        _components/               Dashboard shell (layout, breadcrumbs, topbar)
+        analytics/
+        backlinks/
+        blog-agent/
+        competitors/
+        optimisation/content/
+        prompts/                   Prompt tracking sub-sections
+          actions/
+          backlinks/
+          engine/
+          history/
+          ranking/
+        recommendations/
+        settings/
+          billing/
+          profile/
+          referrals/
+        sitemap/
+        visibility/
+          explorer/
+
+    analyzer/[runId]/              Per-run analysis pages
+
+    creator-dashboard/             Creator program workspace
+      _components/
+      settings/
+
+    creators-program/              Public creators program
+      [code]/                      Referral/invite link
+      apply/
+
+    settings/                      Top-level account settings
+      account/                     (SEPARATE from dashboard/[slug]/settings/)
+      billing/
+
+    tools/                         Free public tools
+      competitors-analysis/
+      llms-check/
+      schema-validator/
+      url-analyzer/
+
+    integration/
+      shopify/
+      wordpress/
+
+    prompt-tracking/               Public prompt tracking feature pages
+      ai-surfaces/
+      prompt-library/
+
+    explorer/                      Public explorer tool
+    recommendations/               Public recommendations landing
+
+    blog/                          Blog (Sanity CMS)
+      [blog_id]/
+      rss.xml/
+
+    studio/[[...tool]]/            Sanity Studio (MUST stay ssr: false)
+
+    payments/success/
+    onboarding/company-info/
+    pricing/
+    about-us/
+    ai-visibility/
+    policy/
+    terms/
+    terms-and-condition/
+
+    api/
+      auth/[...all]/               better-auth handler (all auth ops)
+      tunnel/                      Sentry tunnel proxy (POST)
+      email/welcome/
+      nav-posts/
+      prompts/search-insights/
+      tools/
+        competitors/
+        llms-check/
+        schema-validator/
+
+  components/
+    analyzer/                      ~44 panel/card components
+      ActionDropdown.tsx
+      agent-log-panel.tsx
+      ai-chat.tsx
+      ai-monitoring-tab.tsx
+      backlink-marketplace-panel.tsx
+      backlink-opportunities-panel.tsx
+      brand-kit-card.tsx
+      brand-visibility-tab.tsx
+      citation-authority-panel.tsx
+      citation-sources-panel.tsx
+      citation-trend-chart.tsx
+      competitor-table.tsx
+      crawl-essentials-panel.tsx
+      create-org-dialog.tsx
+      domain-analytics-panel.tsx
+      fix-cta-card.tsx
+      fix-preview-modal.tsx
+      gamification-panel.tsx
+      hero-analyzer-form.tsx
+      org-switcher.tsx
+      pdf-download-button.tsx
+      pillar-breakdown.tsx
+      pillar-legend.tsx
+      prompt-rank-plan-panel.tsx
+      prompt-tracker.tsx
+      rank-tracker-panel.tsx
+      rank-tracker-shell.tsx
+      recommendations-panel.tsx
+      report-header.tsx
+      schedule-toggle.tsx
+      score-card.tsx
+      score-gauge.tsx
+      score-history-chart.tsx
+      sentiment-breakdown.tsx
+      share-of-voice-panel.tsx
+      site-backlink-marketplace-panel.tsx   (backlink provider directory)
+      site-backlink-opportunities-panel.tsx (AI-discovered opportunities)
+      sitemap-audit-panel.tsx
+      sitemap-audit-shell.tsx
+      social-brand-reach-card.tsx
+      summary-cards.tsx
+      url-input-form.tsx
+      visibility-summary.tsx
+      world-presence-map.tsx
+      world-presence-map-libre.tsx
+
+    dashboard/                     Dashboard card components
+      ai-engine-probes-card.tsx
+      ai-recommendation-card.tsx   <-- canonical TanStack Query pattern
+      competitors-card.tsx
+      geo-score-card.tsx
+      geo-score-history-card.tsx
+      pillar-breakdown-card.tsx
+      prediction-sentiment-row.tsx
+      score-prediction-card.tsx
+      sentiment-analysis-card.tsx
+      top-issues-card.tsx
+      visibility-by-platform-card.tsx
+      weekly-performance-section.tsx
+      constants.ts
+      types.ts
+      skeletons/                   Loading skeleton variants
+
+    landing/                       Marketing page components (~25 files)
+      LandingMegaNav.tsx
+      landing-hero.tsx
+      landing-hero-analyzer-form.tsx
+      landing-footer.tsx
+      landing-features-grid.tsx
+      landing-how-it-works.tsx
+      landing-integrations-strip.tsx
+      landing-pricing-teaser.tsx
+      landing-testimonials.tsx
+      landing-faq.tsx
+      landing-newsletter.tsx
+      landing-creators-program.tsx
+      landing-why-signalor.tsx
+      landing-marketing-shell.tsx
+      integration-hero.tsx
+      integration-platform-hero.tsx
+      integration-mid-section.tsx
+      integration-detail-cta.tsx
+      feature-detail-hero.tsx
+      hero-background-grid.tsx
+      prompt-tracking-hero.tsx
+      prompt-tracking-features-grid.tsx
+      prompt-tracking-why-section.tsx
+      prompt-tracking-chat-answer-parts.tsx
+      rotating-engine-icon.tsx
+      constants.ts
+
+    ui/                            shadcn primitives + custom Signalor UI
+      button.tsx, input.tsx, label.tsx, select.tsx
+      popover.tsx, command-palette.tsx, calendar.tsx
+      table.tsx, tooltip.tsx, sheet.tsx, sidebar.tsx
+      separator.tsx, input-otp.tsx, card.tsx, chart.tsx, skeleton.tsx
+      background-beams.tsx, spotlight.tsx, sparkles.tsx
+      moving-border.tsx, intersection-diamonds.tsx
+      signalor-loader.tsx, signalor-rings.tsx
+      analyzing-radar.tsx, rive-loader.tsx, rotating-geo-fact.tsx
+      ai-chip.tsx, engine-badge.tsx, user-avatar.tsx, vis-charts.tsx
+
+    icons/                         Custom icon set
+      index.tsx                    All standard icons
+      nav.tsx                      Navigation icons
+      (NEVER import from lucide-react directly)
+
+    analytics/                     Analytics init components
+      clarity.tsx, google-analytics.tsx
+      referral-capture.tsx, affiliate-capture.tsx
+      gitbook-widget.tsx
+
+    visibility/                    AI visibility panel components
+      google-details-panel.tsx
+      platform-bar-chart.tsx
+      platform-score-card.tsx
+      reddit-details-panel.tsx
+      web-mentions-panel.tsx
+
+    optimisation/                  Content optimization UI
+      browser-chrome.tsx, page-iframe.tsx
+      element-editor.tsx
+      raw-files-panel.tsx
+      suggestion-card.tsx, suggestions-rail.tsx
+
+    auth/                          Auth UI (OTP input, sign-in/up forms)
+    navigation/app-sidebar.tsx     Main dashboard sidebar
+    providers/query-provider.tsx   TanStack QueryClientProvider
+    settings/                      Settings section components
+    tools/                         Free tool UI components
+    integrations/                  Shopify/WordPress UI
+    editor/                        Tiptap rich text editor
+    seo/json-ld.tsx                JSON-LD / structured data
+    pricing/                       Pricing page components
+    onboarding/                    Onboarding flow components
+    creator/                       Creator program components
+    blog/                          Blog cards/listing
+    cookies/cookie-consent.tsx     Cookie consent banner
+
+  lib/
+    api/                           Axios API wrappers (one file per Django app)
+      client.ts                    apiClient (30s) + apiClientLong (60s)
+      analyzer.ts                  Run analysis, scoring, backlinks, orders
+      organizations.ts             Org CRUD, onboarding
+      visibility.ts                AI visibility data per platform
+      payments.ts                  Billing/subscriptions
+      profile.ts                   User profile
+      referrals.ts                 Referral tracking & rewards
+      gamification.ts              Points/badges
+      integrations.ts              Shopify, WP, etc.
+      actions.ts                   Prompt/action endpoints
+      partners.ts                  Partner endpoints
+      partners-program.ts          Partner program
+      content-optimisation.ts      Content optimization
+
+    stores/                        Zustand stores
+      org-store.ts                 useOrgStore — activeOrg persists to localStorage
+      analyzer-store.ts
+      gamification-store.ts
+      onboarding-store.ts
+      consent-store.ts
+
+    services/email.ts
+    hooks/use-currency.ts
+
+    auth-client.ts                 better-auth client (OTP plugin)
+    auth.ts                        Auth utilities
+    config.ts                      Routes config + feature flags
+    env.ts                         Zod-validated NEXT_PUBLIC_* env vars
+    utils.ts                       cn(), general helpers
+    engines.ts                     AI engine/LLM engine metadata
+    countries.ts                   Country list
+    seo.ts                         Metadata + JSON-LD builders
+    internal-nav.ts                Internal navigation route helpers
+    confetti.ts                    Confetti animation
+    geo-loading-facts.ts           Loading tip copy
+    recommendations-filters.ts
+    [landing-*-content.ts]         Static content for landing page sections
+
+  sanity/                          Sanity CMS integration (blog only)
+    env.ts
+    lib/                           client, image builder, GROQ queries, live preview
+    schemaTypes/                   post, blockContent, category, author
+    structure.ts                   Studio structure config
+
+  types/maplibre.d.ts
+  amplitude.ts                     Amplitude event tracking setup
+  instrumentation.ts               Sentry server/edge init hook (Next.js hook)
+  instrumentation-client.ts        Sentry client init + Session Replay
+  proxy.ts                         Proxy utility
+
+env/
+  example.env                      Template for all env variables
+  local.env / staging.env / production.env
+
+Root config files:
+  next.config.ts                   Next.js config (CSP, images)
+  sentry.server.config.ts          Sentry server-side init
+  sentry.edge.config.ts            Sentry edge runtime init
+  sanity.config.ts                 Sanity Studio config
+  sanity.cli.ts                    Sanity CLI config
+  vercel.json                      Vercel deployment config
+  tsconfig.json
+  components.json                  shadcn/ui config
+  postcss.config.mjs
+  eslint.config.mjs
+  CLAUDE.md                        Claude Code project instructions
+  agents.md                        Markdown agent context file
+  agents.txt                       This file (plain text)
+
+
+CODING CONVENTIONS
+------------------
+
+Package manager:
+  Always pnpm. Never npm or yarn.
+
+Icons:
+  Import from @/components/icons, NOT lucide-react.
+  CORRECT: import { AlertCircle, Loader2 } from "@/components/icons";
+  WRONG:   import { AlertCircle } from "lucide-react";
+
+API calls:
+  All backend calls go through apiClient or apiClientLong from
+  src/lib/api/client.ts. Never use raw fetch or axios in components.
+  Always validate responses with Zod schemas.
+
+Data fetching:
+  New components MUST use TanStack Query, not useState + useEffect.
+  Canonical pattern: see src/components/dashboard/ai-recommendation-card.tsx
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["things", id],
+    queryFn: () => getThings(id),
+  });
+
+Client vs Server components:
+  Default to Server Components.
+  Add "use client" only when using: useState, useEffect, useQuery,
+  browser APIs, or event handlers.
+
+Comments:
+  Write no comments by default. Only add one when the WHY is non-obvious
+  (hidden constraint, workaround for a bug). Never describe what the code does.
+
+TypeScript:
+  Strict mode on. No "any" types. Validate all API responses with Zod.
+
+Styling:
+  Tailwind utility classes only — no inline styles, no CSS modules.
+  Theme is managed by next-themes. Root html starts as className="light".
+  Use cn() from @/lib/utils for conditional class merging.
+
+Env vars:
+  Client-side must be prefixed NEXT_PUBLIC_.
+  Source of truth: env/ folder. Switch with pnpm env:<target>.
+  All validated via Zod in src/lib/env.ts.
+
+
+ENVIRONMENT VARIABLES
+---------------------
+NEXT_PUBLIC_API_URL            Django backend URL
+NEXT_PUBLIC_SITE_URL           Public site origin (for share links)
+DATABASE_URL                   PostgreSQL connection string
+BETTER_AUTH_SECRET             Session signing key (32+ chars random)
+BETTER_AUTH_URL                Auth server origin
+NEXT_PUBLIC_BETTER_AUTH_URL    Client-side auth URL
+GOOGLE_CLIENT_ID               Google OAuth
+GOOGLE_CLIENT_SECRET           Google OAuth
+SENDGRID_API_KEY               Transactional email (SG.xxx)
+FROM_EMAIL                     Sender address
+NEXT_PUBLIC_SANITY_PROJECT_ID  bf4vwhx5
+NEXT_PUBLIC_SANITY_DATASET     blogs
+NEXT_PUBLIC_SANITY_API_VERSION 2026-05-02
+NEXT_PUBLIC_SENTRY_DSN         Sentry DSN (client-side)
+SENTRY_DSN                     Sentry DSN (server-side, same value)
+NEXT_PUBLIC_SKIP_PAYMENT_GATE  true on local, false on staging/prod
+
+API base URLs:
+  Local:      NEXT_PUBLIC_API_URL=http://localhost:8000
+              NEXT_PUBLIC_SITE_URL=http://localhost:3000
+  Staging:    NEXT_PUBLIC_API_URL=https://staging-api.signalor.ai
+              NEXT_PUBLIC_SITE_URL=https://staging.signalor.ai
+  Production: NEXT_PUBLIC_API_URL=https://api.signalor.ai
+              NEXT_PUBLIC_SITE_URL=https://signalor.ai
+
+
+AUTHENTICATION
+--------------
+Provider    : better-auth — email OTP (no passwords) + Google OAuth
+Session     : Cookie-based, managed at /api/auth/[...all]/
+Client hook : useSession() from @/lib/auth-client
+Org context : useOrgStore() provides activeOrg
+              Org slug is the URL segment in /dashboard/[slug]/
+Middleware  : NO middleware.ts exists — route protection is client-side only
+
+
+SENTRY ERROR MONITORING
+-----------------------
+SDK         : @sentry/nextjs v10 — uses instrumentation.ts pattern (Next.js 15+)
+              NOT the old sentry.client.config.ts pattern
+
+Client init : src/instrumentation-client.ts
+              - replayIntegration() for Session Replay
+              - tunnel: "/api/tunnel" (valid — browsers use relative URLs)
+              - sendDefaultPii: true
+              - tracesSampleRate: 1 (always 1 on client)
+              - replaysSessionSampleRate: 0.1
+              - replaysOnErrorSampleRate: 1.0
+
+Server init : sentry.server.config.ts (via instrumentation.ts, nodejs runtime)
+              - NO tunnel option (servers connect directly to Sentry ingest)
+              - tracesSampleRate: env-conditional (1.0 dev, 0.1 prod)
+              - includeLocalVariables: true
+
+Edge init   : sentry.edge.config.ts (via instrumentation.ts, edge runtime)
+              - NO tunnel option
+              - tracesSampleRate: env-conditional
+
+Tunnel      : src/app/api/tunnel/route.ts (POST)
+              Proxies browser Sentry envelopes through Next.js to bypass
+              ad-blockers. Browsers point to /api/tunnel.
+
+DSN         : EU ingest
+              https://89b64a7b24803bc2d81b6a2946a47f96@
+              o4511432219688960.ingest.de.sentry.io/4511437825572944
+
+CSP rule    : connect-src must include:
+              https://*.sentry.io https://*.de.sentry.io
+
+CRITICAL: tunnel option is valid ONLY in the browser (client) config.
+          Remove it from sentry.server.config.ts and sentry.edge.config.ts.
+
+
+CONTENT SECURITY POLICY (CSP)
+------------------------------
+Defined in next.config.ts, applied to all routes via headers().
+
+script-src   : self, unsafe-inline, unsafe-eval, GTM, GA, Amplitude,
+               Clarity, Bing, GitBook
+connect-src  : self
+               api.signalor.ai, staging-api.signalor.ai, staging.signalor.ai
+               Sanity CDN (cdn.sanity.io, bf4vwhx5.api.sanity.io)
+               Amplitude (api.amplitude.com, api2.amplitude.com,
+                          analytics.amplitude.com, sr-client-cfg.amplitude.com,
+                          gs.amplitude.com)
+               Google Analytics (www.google-analytics.com,
+                                 region1.google-analytics.com)
+               Clarity (www.clarity.ms, c.bing.com)
+               Sentry: https://*.sentry.io https://*.de.sentry.io
+               GitBook: https://guide.signalor.ai
+frame-src    : https://checkout.dodopayments.com
+               https://app.dodopayments.com
+               https://guide.signalor.ai
+img-src      : https:, data:, blob:
+font-src     : self, https://fonts.gstatic.com, data:
+style-src    : self, unsafe-inline, https://fonts.googleapis.com
+
+Dev adds: http://localhost:* ws://localhost:* http://127.0.0.1:*
+          https://ipapi.co, https://va.vercel-scripts.com
+          https://scripts.clarity.ms
+
+
+BRANCHES AND DEPLOYMENT
+-----------------------
+Branch        Environment   URL
+main          Production    https://signalor.ai
+staging       Staging       https://staging.signalor.ai
+tushar-05     Feature       (local only)
+arkit-01      Feature       (local only)
+blog          Blog/Sanity   (local only)
+
+Workflow: feature branch -> staging -> main
+
+CRITICAL: Never push to any branch without explicit user approval first.
+
+
+KEY COMPONENTS
+--------------
+Dashboard cards (src/components/dashboard/):
+  ai-recommendation-card.tsx     Canonical TanStack Query pattern — read first
+  geo-score-card.tsx             Main GEO score display
+  visibility-by-platform-card.tsx Per-engine AI mention breakdown
+  competitors-card.tsx           Competitor benchmarking
+  weekly-performance-section.tsx Weekly metrics summary
+  skeletons/                     Loading skeleton variants
+
+Analyzer panels (src/components/analyzer/):
+  site-backlink-marketplace-panel.tsx   Backlink provider directory (static list)
+  site-backlink-opportunities-panel.tsx AI-discovered opportunities
+  citation-authority-panel.tsx          Citation quality analysis
+  brand-visibility-tab.tsx              AI mention tracking
+  ai-chat.tsx                           In-app AI assistant chat
+  rank-tracker-panel.tsx                Rank tracking UI
+  world-presence-map-libre.tsx          Geographic presence map (MapLibre)
+  sitemap-audit-panel.tsx               Sitemap audit
+
+Landing (src/components/landing/):
+  LandingMegaNav.tsx             Main marketing navigation
+  landing-hero.tsx               Hero section
+  landing-pricing-teaser.tsx     Pricing preview
+  prompt-tracking-hero.tsx       Prompt tracking feature hero
+
+Visibility (src/components/visibility/):
+  platform-score-card.tsx        Per-engine score card
+  platform-bar-chart.tsx         Engine comparison chart
+  google-details-panel.tsx       Google AI Overviews details
+  reddit-details-panel.tsx       Reddit mentions details
+
+Optimisation (src/components/optimisation/):
+  suggestions-rail.tsx           Sidebar list of optimization suggestions
+  element-editor.tsx             Inline HTML element editing
+  page-iframe.tsx                Live page preview
+
+Navigation:
+  src/components/navigation/app-sidebar.tsx   Main dashboard sidebar
+
+
+SANITY CMS (BLOG)
+-----------------
+Studio route : /studio — MUST use next/dynamic({ ssr: false })
+               It references window at import. Never remove ssr: false.
+Dataset      : blogs
+Schemas      : post, blockContent, category, author
+GROQ queries : src/sanity/lib/queries.ts
+IMPORTANT    : Author fields are intentionally removed from the schema.
+               Do NOT re-add post.author references anywhere.
+
+
+PRE-COMMIT HOOKS
+----------------
+Husky + lint-staged runs on every git commit:
+
+  *.{ts,tsx,js,jsx,mjs,cjs} files:
+    eslint --fix --no-warn-ignored
+    prettier --write
+
+  *.{json,css,md} files:
+    prettier --write
+
+Never use --no-verify to skip hooks.
+
+
+COMMON PITFALLS
+---------------
+1. Sanity Studio MUST use next/dynamic({ ssr: false })
+   It references window at import time — SSR will crash.
+
+2. Date.toLocaleString() without a fixed locale causes SSR hydration mismatch.
+   Always pass "en-US" locale with UTC options.
+
+3. Vercel "Sensitive" env vars are NOT inlined into NEXT_PUBLIC_* builds.
+   Uncheck "Sensitive" for any NEXT_PUBLIC_ variable in Vercel dashboard.
+
+4. pg and better-sqlite3 are serverExternalPackages in next.config.ts.
+   Never import them in any client component.
+
+5. Dev uses Turbopack (pnpm dev:turbo). Production always uses webpack
+   (pnpm build). Some Turbopack quirks do not appear in production builds.
+
+6. After deleting a route, Next.js may cache stale TypeScript types.
+   Delete .next/dev/types/app/<route>/ manually to clear the cache.
+
+7. Amplitude CSP: sr-client-cfg.amplitude.com and gs.amplitude.com must be
+   in the PRODUCTION connect-src, not inside the dev-only devConnectSrc block.
+
+8. Sentry EU DSN: *.sentry.io only matches ONE subdomain level.
+   The EU ingest host has 3 levels: o4511432219688960.ingest.de.sentry.io
+   Always add *.de.sentry.io separately in CSP connect-src.
+
+9. Sentry tunnel option: valid ONLY in instrumentation-client.ts (browser).
+   sentry.server.config.ts and sentry.edge.config.ts must NOT have tunnel.
+   Server-side Sentry connects directly to ingest.
+
+10. No middleware.ts exists in this project.
+    Route protection is handled client-side inside page components.
+
+
+BEFORE PUSHING — CHECKLIST
+---------------------------
+[ ] pnpm typecheck     (must show 0 errors)
+[ ] pnpm lint          (must pass with no errors)
+[ ] pnpm build         (must compile successfully)
+[ ] User has given EXPLICIT approval to push to the specific branch
+
+
+================================================================================
+END OF AGENT CONTEXT FILE
+Last updated: 2026-05-23
+Project: Signalor AI frontend (ranking-fe)
+================================================================================
