@@ -1,24 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2,
-  ShoppingBag,
   ExternalLink,
   CheckCircle2,
   Clock,
-  X,
   AlertCircle,
   Trash2,
 } from "@/components/icons";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   deleteBacklinkOrder,
   getBacklinkCatalog,
   listBacklinkOrders,
-  placeBacklinkOrder,
   type BacklinkLinkType,
   type BacklinkOrder,
   type BacklinkOrderStatus,
@@ -61,15 +55,6 @@ const STATUS_STYLES: Record<BacklinkOrderStatus, { label: string; cls: string }>
   cancelled: { label: "Cancelled", cls: "bg-muted/40 text-muted-foreground border-border" },
 };
 
-function formatPrice(cents: number, currency: string) {
-  const n = (cents || 0) / 100;
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: currency || "USD",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
 interface Props {
   slug: string;
 }
@@ -77,57 +62,20 @@ interface Props {
 export function SiteBacklinkMarketplacePanel({ slug }: Props) {
   const { data: session } = useSession();
   const userEmail = session?.user?.email ?? "";
-  const queryClient = useQueryClient();
 
-  // Catalog + orders cached across tab switches via QueryClient.
-  const queryKey = ["backlink-marketplace", slug, userEmail];
-  const {
-    data: initial,
-    isLoading: loading,
-    error: queryError,
-  } = useQuery({
-    queryKey,
-    enabled: !!slug,
-    queryFn: async () => {
-      const [catalog, ordersResp] = await Promise.all([
-        getBacklinkCatalog(slug),
-        listBacklinkOrders(slug, userEmail || undefined).catch(() => ({
-          orders: [] as BacklinkOrder[],
-        })),
-      ]);
-      return { products: catalog.products, orders: ordersResp.orders };
-    },
-  });
-  const products: BacklinkProduct[] = initial?.products ?? [];
-  const error =
-    queryError instanceof Error ? queryError.message : queryError ? "Couldn't load catalog." : null;
+  const [products, setProducts] = useState<BacklinkProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [filterLinkType, setFilterLinkType] = useState<BacklinkLinkType | "all">("all");
   const [minDa, setMinDa] = useState<number>(0);
 
-  // Local orders state seeds from the query and accepts mutations from
-  // place/pay/cancel handlers. We mirror back into the cache via setQueryData
-  // so the next tab-switch sees the latest orders, not the original snapshot.
   const [orders, setOrders] = useState<BacklinkOrder[]>([]);
-  useEffect(() => {
-    if (initial?.orders) setOrders(initial.orders);
-  }, [initial?.orders]);
-  useEffect(() => {
-    if (!initial) return;
-    queryClient.setQueryData(queryKey, { products, orders });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orders]);
-
-  const [buyingProduct, setBuyingProduct] = useState<BacklinkProduct | null>(null);
-  const [targetUrl, setTargetUrl] = useState("");
-  const [anchorText, setAnchorText] = useState("");
-  const [orderError, setOrderError] = useState<string | null>(null);
-  const [placing, setPlacing] = useState(false);
   const [rowError, setRowError] = useState<{ id: number; msg: string } | null>(null);
   const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
 
   async function removeOrder(order: BacklinkOrder) {
-    if (order.status === "delivered") return; // BE refuses delivered too
+    if (order.status === "delivered") return;
     const confirmed = window.confirm(
       order.status === "queued" || order.status === "in_progress"
         ? `Cancel this order on ${order.domain}? It will be marked cancelled.`
@@ -156,6 +104,32 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
     }
   }, [slug, userEmail]);
 
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      getBacklinkCatalog(slug),
+      listBacklinkOrders(slug, userEmail || undefined).catch(() => ({ orders: [] })),
+    ])
+      .then(([catalog, ordersResp]) => {
+        if (cancelled) return;
+        setProducts(catalog.products);
+        setOrders(ordersResp.orders);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "Couldn't load catalog.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, userEmail]);
+
   const visibleProducts = useMemo(() => {
     let list = [...products];
     if (filterLinkType !== "all") list = list.filter((p) => p.link_type === filterLinkType);
@@ -163,45 +137,12 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
     return list;
   }, [products, filterLinkType, minDa]);
 
-  function openBuy(product: BacklinkProduct) {
-    setBuyingProduct(product);
-    setOrderError(null);
-  }
-
-  async function submitOrder() {
-    if (!buyingProduct) return;
-    if (!userEmail) {
-      setOrderError("Sign in to place an order.");
-      return;
-    }
-    if (!targetUrl.trim() || !anchorText.trim()) {
-      setOrderError("Target URL and anchor text are required.");
-      return;
-    }
-    setPlacing(true);
-    setOrderError(null);
-    try {
-      const order = await placeBacklinkOrder(slug, {
-        product_id: buyingProduct.id,
-        target_url: targetUrl.trim(),
-        anchor_text: anchorText.trim(),
-        user_email: userEmail,
-      });
-      setOrders((prev) => [order, ...prev]);
-      setBuyingProduct(null);
-    } catch (e) {
-      setOrderError(e instanceof Error ? e.message : "Couldn't place order.");
-    } finally {
-      setPlacing(false);
-    }
-  }
-
   if (loading) {
     return (
-      <div className="rounded-sm border border-border bg-card p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
           <Loader2 className="size-3.5 animate-spin" />
-          Loading backlink marketplace…
+          Discovering guest post opportunities…
         </div>
       </div>
     );
@@ -219,13 +160,13 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
   }
 
   return (
-    <div className="rounded-sm border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="flex items-center gap-1.5">
-          <ShoppingBag className="size-4 text-orange-600 dark:text-orange-400" />
-          <p className="text-sm font-semibold text-foreground">Buy backlinks</p>
+          <ExternalLink className="size-4 text-orange-600 dark:text-orange-400" />
+          <p className="text-sm font-semibold text-foreground">Guest Post Opportunities</p>
           <span className="text-[11px] text-muted-foreground">
-            {visibleProducts.length} listings
+            {visibleProducts.length} sites found
           </span>
         </div>
         {orders.length > 0 ? (
@@ -334,12 +275,12 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
         </div>
       </div>
 
-      {/* Catalog grid, premium cards (high DA) get a peach gradient. */}
+      {/* Catalog grid */}
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {visibleProducts.length === 0 ? (
           <div className="col-span-full rounded-md border border-dashed border-border/70 bg-muted/15 px-3 py-8 text-center">
             <p className="text-[12px] font-medium text-foreground">
-              No listings match these filters
+              No opportunities match these filters
             </p>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
               Try removing the DA cutoff or switching link type.
@@ -347,10 +288,9 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
           </div>
         ) : (
           visibleProducts.map((p) => {
-            // Treat anything priced above $300 as premium. Price is in
-            // cents on the BE, so the threshold is 30_000.
-            const isPremium = (p.price_cents ?? 0) > 30_000;
+            const isPremium = (p.domain_authority ?? 0) >= 50;
             const initial = (p.domain || "?").trim().charAt(0).toUpperCase();
+            const visitUrl = (p.extras?.contact_url as string) || `https://${p.domain}`;
             return (
               <div
                 key={p.id}
@@ -375,16 +315,13 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
                   </span>
                   {isPremium ? (
                     <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                      Premium
+                      High DA
                     </span>
                   ) : null}
                 </div>
 
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <p className="truncate text-[11px] text-muted-foreground">
-                    {p.provider_name}
-                    <span className="text-muted-foreground/70"> · {p.lead_time_days}d</span>
-                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">{p.provider_name}</p>
                   <p
                     className="truncate text-[15px] font-semibold leading-tight text-foreground"
                     title={p.domain}
@@ -409,187 +346,28 @@ export function SiteBacklinkMarketplacePanel({ slug }: Props) {
                   ) : null}
                 </div>
 
-                <div className="mt-auto flex items-center justify-between gap-2 pt-1">
-                  <p
+                <div className="mt-auto pt-1">
+                  <a
+                    href={visitUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
                     className={cn(
-                      "truncate text-[16px] font-bold tabular-nums",
-                      isPremium ? "text-orange-700 dark:text-orange-300" : "text-foreground",
-                    )}
-                  >
-                    {formatPrice(p.price_cents, p.currency)}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openBuy(p);
-                    }}
-                    className={cn(
-                      "shrink-0 rounded-full px-3.5 py-1.5 text-[11px] font-semibold transition",
+                      "inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[11px] font-semibold transition",
                       isPremium
                         ? "bg-orange-600 text-white hover:bg-orange-700"
                         : "bg-foreground text-background hover:bg-foreground/85",
                     )}
                   >
-                    Buy now
-                  </button>
+                    Visit Site
+                    <ExternalLink className="size-3" />
+                  </a>
                 </div>
               </div>
             );
           })
         )}
       </div>
-
-      {/* Order modal, visual language matches the catalog cards: rounded-2xl,
-          soft shadow, pill action buttons, peach-orange highlights for premium. */}
-      {buyingProduct
-        ? (() => {
-            const isPremiumModal = (buyingProduct.price_cents ?? 0) > 30_000;
-            const initial = (buyingProduct.domain || "?").trim().charAt(0).toUpperCase();
-            return (
-              <div
-                className="fixed inset-0 z-200 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
-                onClick={() => !placing && setBuyingProduct(null)}
-                role="presentation"
-              >
-                <div
-                  className={cn(
-                    "relative flex w-full max-w-md flex-col gap-4 rounded-2xl p-5 shadow-2xl",
-                    isPremiumModal
-                      ? "bg-gradient-to-br from-orange-200/80 via-orange-100 to-amber-50 dark:from-orange-500/25 dark:via-orange-500/10 dark:to-amber-500/10"
-                      : "bg-card border border-border/70",
-                  )}
-                  onClick={(e) => e.stopPropagation()}
-                  role="dialog"
-                  aria-modal="true"
-                >
-                  <button
-                    type="button"
-                    disabled={placing}
-                    onClick={() => setBuyingProduct(null)}
-                    className="absolute right-3 top-3 rounded-full p-1.5 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
-                    aria-label="Close"
-                  >
-                    <X className="size-4" />
-                  </button>
-
-                  {/* Header, matches the card top: avatar + premium pill */}
-                  <div className="flex items-start justify-between gap-2 pr-8">
-                    <span
-                      className={cn(
-                        "flex size-10 shrink-0 items-center justify-center rounded-full text-[15px] font-bold",
-                        isPremiumModal
-                          ? "bg-white/90 text-orange-700 dark:bg-orange-500/90 dark:text-white"
-                          : "bg-muted text-foreground",
-                      )}
-                      aria-hidden
-                    >
-                      {initial}
-                    </span>
-                    {isPremiumModal ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                        Premium
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <p className="text-[11px] text-muted-foreground">
-                      {buyingProduct.provider_name}
-                      <span className="text-muted-foreground/70">
-                        {" "}
-                        · {buyingProduct.lead_time_days}d delivery
-                      </span>
-                    </p>
-                    <p className="truncate text-base font-semibold leading-tight text-foreground">
-                      {buyingProduct.domain}
-                    </p>
-                    <p
-                      className={cn(
-                        "text-lg font-bold tabular-nums",
-                        isPremiumModal ? "text-orange-700 dark:text-orange-300" : "text-foreground",
-                      )}
-                    >
-                      {formatPrice(buyingProduct.price_cents, buyingProduct.currency)}
-                      <span className="ml-1 text-[11px] font-medium text-muted-foreground">
-                        · {LINK_TYPE_LABEL[buyingProduct.link_type]}
-                      </span>
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="bl-target-url"
-                        className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
-                      >
-                        Target URL on your site
-                      </Label>
-                      <Input
-                        id="bl-target-url"
-                        value={targetUrl}
-                        onChange={(e) => setTargetUrl(e.target.value)}
-                        placeholder="https://yourbrand.com/page"
-                        disabled={placing}
-                        className="rounded-lg bg-background/70"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label
-                        htmlFor="bl-anchor"
-                        className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground"
-                      >
-                        Anchor text
-                      </Label>
-                      <Input
-                        id="bl-anchor"
-                        value={anchorText}
-                        onChange={(e) => setAnchorText(e.target.value)}
-                        placeholder="The clickable text linking back to you"
-                        disabled={placing}
-                        className="rounded-lg bg-background/70"
-                      />
-                    </div>
-                  </div>
-
-                  {orderError ? <p className="text-[11px] text-destructive">{orderError}</p> : null}
-
-                  <p className="text-[10px] leading-snug text-muted-foreground">
-                    Your order will be sent to the provider immediately. They handle the placement
-                    and share the live URL when it&apos;s done.
-                  </p>
-
-                  <div className="flex items-center justify-end gap-2">
-                    <button
-                      type="button"
-                      disabled={placing}
-                      onClick={() => setBuyingProduct(null)}
-                      className="rounded-full px-4 py-2 text-[12px] font-medium text-muted-foreground transition hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      disabled={placing}
-                      onClick={submitOrder}
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-semibold transition disabled:opacity-60",
-                        isPremiumModal
-                          ? "bg-orange-600 text-white hover:bg-orange-700"
-                          : "bg-foreground text-background hover:bg-foreground/85",
-                      )}
-                    >
-                      {placing ? <Loader2 className="size-3.5 animate-spin" /> : null}
-                      {placing
-                        ? "Placing…"
-                        : `Order ${formatPrice(buyingProduct.price_cents, buyingProduct.currency)}`}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })()
-        : null}
 
       {orders.length > 0 ? (
         <button

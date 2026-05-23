@@ -120,7 +120,7 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
                 animate="center"
                 exit="exit"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="flex min-h-[140px] flex-col"
+                className="flex min-h-35 flex-col"
               >
                 {/* Input row with left accent bar */}
                 <div className="relative flex flex-1 items-start gap-2 px-4 pt-4">

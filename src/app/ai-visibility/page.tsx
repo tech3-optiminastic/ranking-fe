@@ -22,6 +22,18 @@ import {
 export default function ContentSignalsPage() {
   return (
     <LandingMarketingShell>
+      <p className="sr-only">
+        Signalor AI Visibility scoring audits how ChatGPT, Claude, Gemini, Perplexity, and Google AI
+        Overview see and cite your brand. The platform checks schema.org JSON-LD coverage across
+        Organization, Product, Article, FAQ, HowTo, and BreadcrumbList types, detects missing or
+        malformed structured data, and evaluates trust signals including authorship markers,
+        citation authority, and credibility indicators that large language models weigh when
+        deciding what to recommend. Every audit maps findings to a 0–100 GEO score pillar breakdown
+        — Structure, Schema, Trust, Content, and Citations — so SEO teams, content managers, and
+        developers know exactly which fixes deliver the highest citation lift. Signalor AI
+        Visibility is built for brands optimizing for generative engine optimization (GEO) and
+        answer engine optimization (AEO) across the AI search landscape.
+      </p>
       <PromptTrackingHero hero={CONTENT_SIGNALS_HERO} cards={CONTENT_SIGNALS_HUB_CARDS} />
       <PromptTrackingFeaturesGrid
         intro={CONTENT_SIGNALS_FEATURES_INTRO}
