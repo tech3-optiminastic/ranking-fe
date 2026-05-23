@@ -127,13 +127,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(undefined, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
   org: "signalor-ai",
 
-  project: "javascript-nextjs",
+  project: "49135b595da543b5b4c20a741f0a763f",
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

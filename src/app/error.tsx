@@ -1,6 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Home, RefreshCw } from "@/components/icons";
@@ -14,10 +13,6 @@ export default function ErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    Sentry.captureException(error);
-  }, [error]);
-
   return (
     <div className="signalor-body min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
       <header className="absolute top-0 left-0 right-0 z-10 border-b border-border/50 bg-background/80 backdrop-blur-md">
