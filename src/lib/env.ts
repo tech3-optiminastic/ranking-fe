@@ -38,6 +38,15 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_SANITY_PROJECT_ID: z.string().min(1).optional(),
   NEXT_PUBLIC_SANITY_DATASET: z.string().min(1).optional(),
   NEXT_PUBLIC_SANITY_API_VERSION: z.string().min(1).default("2026-05-02"),
+  // The dev URL the Signalor plugin serves from. Users paste this into
+  // Framer's "Open Development Plugin" dialog (Framer doesn't expose a
+  // deep-link to open a dev plugin from an external URL). Override with
+  // the marketplace listing once published.
+  NEXT_PUBLIC_FRAMER_PLUGIN_URL: z
+    .string()
+    .url()
+    .default("https://localhost:5176/")
+    .transform(trimTrailingSlash),
 });
 
 const parsed = publicEnvSchema.safeParse({
@@ -48,6 +57,7 @@ const parsed = publicEnvSchema.safeParse({
   NEXT_PUBLIC_SANITY_PROJECT_ID: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET,
   NEXT_PUBLIC_SANITY_API_VERSION: process.env.NEXT_PUBLIC_SANITY_API_VERSION,
+  NEXT_PUBLIC_FRAMER_PLUGIN_URL: process.env.NEXT_PUBLIC_FRAMER_PLUGIN_URL,
 });
 
 if (!parsed.success) {
