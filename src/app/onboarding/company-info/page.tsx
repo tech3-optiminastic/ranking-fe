@@ -18,6 +18,9 @@ import { createOrganization } from "@/lib/api/organizations";
 import { startAnalysis } from "@/lib/api/analyzer";
 import { getSubscriptionStatus, getUsage } from "@/lib/api/payments";
 import { getShopifyAuthUrl, connectWordPress } from "@/lib/api/integrations";
+import { createApiKey } from "@/lib/api/api-keys";
+import { getOrFetchOnboardingToken } from "@/lib/api/onboarding-security";
+import { TurnstileWidget } from "@/components/onboarding/turnstile-widget";
 import { OnboardingStepper } from "@/components/auth/onboarding-stepper";
 import { config, routes, signalorWpPlugin } from "@/lib/config";
 import { ONBOARDING_DRAFT_KEY, storePendingAnalysisAfterPayment } from "@/lib/internal-nav";
@@ -34,9 +37,11 @@ import {
   Download,
   ExternalLink,
   CheckCircle2,
+  Copy,
+  Check,
 } from "@/components/icons";
 
-type Platform = "shopify" | "wordpress";
+type Platform = "shopify" | "wordpress" | "webflow" | "framer" | "nextjs";
 type Step = "company" | "platform" | "url" | "install" | "prompts" | "analytics" | "launch";
 
 const STEP_ORDER: Step[] = [
@@ -90,8 +95,8 @@ const STATUS_BOX =
 const STEP_CONTENT: Record<Step, { title: string; description: string }> = {
   company: { title: "", description: "" },
   platform: {
-    title: "Shopify or WordPress",
-    description: "Pick where your storefront or site is hosted.",
+    title: "Choose your platform",
+    description: "Pick where your site is built.",
   },
   url: {
     title: "Project URL",
@@ -167,6 +172,162 @@ function SiteFavicon({ url }: { url: string }) {
   );
 }
 
+/**
+ * Next.js install step — pnpm install + four code snippets + auto-minted
+ * API key. Extracted from the main page render to keep the file
+ * navigable; the parent owns the API-key minting and the continue
+ * handlers, this component just renders.
+ */
+function NextJsInstall({
+  apiKey,
+  apiKeyError,
+  minting,
+  copied,
+  onCopy,
+  onBack,
+  onSkip,
+  onContinue,
+}: {
+  apiKey: string;
+  apiKeyError: string;
+  minting: boolean;
+  copied: string | null;
+  onCopy: (label: string, text: string) => void;
+  onBack: () => void;
+  onSkip: () => void;
+  onContinue: () => void;
+}) {
+  const blocks: { id: string; label: string; lang: string; code: string }[] = [
+    {
+      id: "install",
+      label: "Install",
+      lang: "bash",
+      code: "pnpm add @signalor/nextjs",
+    },
+    {
+      id: "env",
+      label: ".env",
+      lang: "ini",
+      code: `SIGNALOR_API_KEY=${apiKey || "sk_live_…"}`,
+    },
+    {
+      id: "middleware",
+      label: "middleware.ts",
+      lang: "ts",
+      code: `export { signalorMiddleware as default } from "@signalor/nextjs/middleware";
+export const config = {
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+};`,
+    },
+    {
+      id: "layout",
+      label: "app/layout.tsx",
+      lang: "tsx",
+      code: `import { SignalorSchema } from "@signalor/nextjs";
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <head><SignalorSchema /></head>
+      <body>{children}</body>
+    </html>
+  );
+}`,
+    },
+    {
+      id: "llms",
+      label: "app/llms.txt/route.ts",
+      lang: "ts",
+      code: `export { GET } from "@signalor/nextjs/llms-txt";`,
+    },
+    {
+      id: "deploy",
+      label: "package.json",
+      lang: "json",
+      code: `{
+  "scripts": {
+    "postbuild": "signalor-deploy"
+  }
+}`,
+    },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className={`${PANEL} p-4`}>
+        <div className="mb-3 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-900/5">
+            <img src="/logos/nextjs.svg" alt="Next.js" className="h-5 w-5 object-contain" />
+          </div>
+          <div>
+            <p className="text-[13px] font-medium text-foreground">@signalor/nextjs</p>
+            <p className="text-[11px] leading-relaxed text-muted-foreground">
+              Auto-injects schema, serves <code>/llms.txt</code>, and notifies Signalor on every
+              deploy. Four files, zero runtime deps.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-2.5">
+          {blocks.map((b, i) => (
+            <div key={b.id}>
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {i + 1}. {b.label}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onCopy(b.id, b.code)}
+                  className="text-[10.5px] font-medium text-muted-foreground hover:text-foreground"
+                >
+                  {copied === b.id ? "Copied" : "Copy"}
+                </button>
+              </div>
+              <pre className="overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2.5 font-mono text-[11px] leading-relaxed text-foreground">
+                <code>{b.code}</code>
+              </pre>
+            </div>
+          ))}
+        </div>
+
+        {minting ? (
+          <p className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
+            <Loader2 className="h-3 w-3 animate-spin" /> Minting your API key…
+          </p>
+        ) : null}
+        {apiKeyError ? <p className={`${ERR_BOX} mt-3`}>{apiKeyError}</p> : null}
+      </div>
+
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium"
+          onClick={onBack}
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium text-muted-foreground hover:text-foreground"
+          onClick={onSkip}
+        >
+          Skip for now
+        </Button>
+        <Button
+          type="button"
+          onClick={onContinue}
+          disabled={minting}
+          className="auth-cta-btn h-9 min-w-0 flex-[2] rounded-md text-[13px] font-medium text-white hover:text-white"
+        >
+          I&rsquo;ve installed it <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function CompanyInfoPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
@@ -185,8 +346,21 @@ export default function CompanyInfoPage() {
   const [wpStep, setWpStep] = useState(1);
   const [orgId, setOrgId] = useState<number | null>(null);
   const [appInstalled, setAppInstalled] = useState(false);
+  // Framer install — plugin is install-only (no API key, no fetch).
+  // We just track whether the plugin URL has been copied to the clipboard.
+  const [framerUrlCopied, setFramerUrlCopied] = useState(false);
+  // Next.js install — API key is minted on the spot so devs can paste it
+  // into their .env without leaving onboarding.
+  const [nextjsApiKey, setNextjsApiKey] = useState("");
+  const [nextjsKeyError, setNextjsKeyError] = useState("");
+  const [mintingNextjsKey, setMintingNextjsKey] = useState(false);
+  const [nextjsCopied, setNextjsCopied] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
+  // Latest Cloudflare Turnstile token (when configured). Refreshes itself ~5min.
+  // Forwarded to the backend on the very next onboarding-start call so the
+  // minted token comes from a verified-human session.
+  const turnstileTokenRef = useRef<string>("");
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -329,6 +503,26 @@ export default function CompanyInfoPage() {
     setCanPersist(true);
   }, [session?.user?.email]);
 
+  // Auto-mint a Signalor API key on landing in the Next.js install step.
+  // Avoids forcing devs to context-switch to Settings → Developers just to
+  // get a key for their .env.
+  useEffect(() => {
+    if (step !== "install" || platform !== "nextjs") return;
+    if (!session?.user?.email || !orgId) return;
+    if (nextjsApiKey || mintingNextjsKey) return;
+    const email = session.user.email;
+    setMintingNextjsKey(true);
+    setNextjsKeyError("");
+    createApiKey({ email, orgId, name: "Next.js SDK", environment: "live" })
+      .then((res) => setNextjsApiKey(res.key))
+      .catch(() =>
+        setNextjsKeyError(
+          "Couldn't generate an API key. Make sure the backend is running, or create one manually from Settings → Developers.",
+        ),
+      )
+      .finally(() => setMintingNextjsKey(false));
+  }, [step, platform, session?.user?.email, orgId, nextjsApiKey, mintingNextjsKey]);
+
   // Persist draft
   useEffect(() => {
     if (typeof window === "undefined" || !session?.user?.email || !canPersist) return;
@@ -441,11 +635,19 @@ export default function CompanyInfoPage() {
       }
       setOrgId(org?.id);
 
-      if (platform === "shopify") {
+      if (
+        platform === "shopify" ||
+        platform === "wordpress" ||
+        platform === "framer" ||
+        platform === "nextjs"
+      ) {
+        // Shopify (OAuth), WordPress (plugin), Framer (paste plugin URL),
+        // Next.js (npm install + env key) all have real install steps.
+        // Webflow falls through to prompts for now — data-client not deployed.
         setStep("install");
       } else {
-        // WordPress goes to install step too (plugin install)
-        setStep("install");
+        if (prompts.length === 0) genPrompts(companyName.trim(), url);
+        setStep("prompts");
       }
     } catch (err) {
       // Plan-limit 403 → bounce to /pricing so user can upgrade
@@ -543,9 +745,13 @@ export default function CompanyInfoPage() {
   async function genPrompts(brand: string, url: string) {
     setLoadingPrompts(true);
     try {
+      const onboardingToken = await getOrFetchOnboardingToken(turnstileTokenRef.current);
       const r = await fetch(`${config.apiBaseUrl}/api/analyzer/generate-prompts/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Onboarding-Token": onboardingToken,
+        },
         body: JSON.stringify({ brand_name: brand, brand_url: url }),
       });
       if (r.ok) {
@@ -679,20 +885,45 @@ export default function CompanyInfoPage() {
             headline: "Your store URL",
             sub: "Enter your Shopify store domain (e.g. your-store.myshopify.com).",
           }
-        : {
-            headline: "Your website URL",
-            sub: "Enter your public WordPress site address.",
-          }
+        : platform === "webflow"
+          ? {
+              headline: "Your Webflow site URL",
+              sub: "Enter your published Webflow site (e.g. yoursite.com or yoursite.webflow.io).",
+            }
+          : platform === "framer"
+            ? {
+                headline: "Your Framer site URL",
+                sub: "Enter your published Framer site (e.g. yoursite.com or yoursite.framer.website).",
+              }
+            : platform === "nextjs"
+              ? {
+                  headline: "Your Next.js site URL",
+                  sub: "The public URL of your deployed app (Vercel, Netlify, self-hosted).",
+                }
+              : {
+                  headline: "Your website URL",
+                  sub: "Enter your public WordPress site address.",
+                }
       : step === "install"
         ? platform === "shopify"
           ? {
               headline: "Install Signalor",
               sub: "Install the app on your store for schema, meta tags, and llms.txt.",
             }
-          : {
-              headline: "Install plugin",
-              sub: "Add Signalor GEO in WordPress, then connect with your API key.",
-            }
+          : platform === "framer"
+            ? {
+                headline: "Install the Framer plugin",
+                sub: "See your GEO score inside the Framer canvas. Takes about 30 seconds.",
+              }
+            : platform === "nextjs"
+              ? {
+                  headline: "Install @signalor/nextjs",
+                  sub: "One pnpm install + four lines of code. Schema, llms.txt, sitemap, deploy notify.",
+                }
+              : {
+                  headline: "Install plugin",
+                  sub: "Add Signalor GEO in WordPress, then connect with your API key.",
+                }
         : STEP_HERO[step];
 
   if (isPending || !session) {
@@ -723,6 +954,13 @@ export default function CompanyInfoPage() {
   return (
     <div>
       <OnboardingStepper current={sn} total={totalSteps} className="mb-5" />
+      <div className="mb-3 flex flex-col items-center gap-1.5">
+        <TurnstileWidget
+          onToken={(t) => {
+            turnstileTokenRef.current = t;
+          }}
+        />
+      </div>
       <CardHeader className="space-y-2 border-b border-black/6 px-0 pb-4 pt-0">
         <div className="space-y-1.5">
           <CardTitle className="text-xl font-semibold tracking-tight text-foreground">
@@ -821,6 +1059,37 @@ export default function CompanyInfoPage() {
                     />
                   ),
                   wrap: "bg-[#21759b]/10",
+                },
+                {
+                  id: "webflow" as Platform,
+                  label: "Webflow",
+                  desc: "Run analysis by URL",
+                  icon: (
+                    <img
+                      src="/logos/webflow.svg"
+                      alt="Webflow"
+                      className="h-7 w-7 object-contain"
+                    />
+                  ),
+                  wrap: "bg-[#146EF5]/10",
+                },
+                {
+                  id: "framer" as Platform,
+                  label: "Framer",
+                  desc: "Run analysis by URL",
+                  icon: (
+                    <img src="/logos/framer.svg" alt="Framer" className="h-7 w-7 object-contain" />
+                  ),
+                  wrap: "bg-[#0055FF]/10",
+                },
+                {
+                  id: "nextjs" as Platform,
+                  label: "Next.js",
+                  desc: "Install the SDK on your app",
+                  icon: (
+                    <img src="/logos/nextjs.svg" alt="Next.js" className="h-7 w-7 object-contain" />
+                  ),
+                  wrap: "bg-neutral-900/5",
                 },
               ].map((p) => (
                 <button
@@ -935,7 +1204,7 @@ export default function CompanyInfoPage() {
           </form>
         )}
 
-        {step === "url" && platform === "wordpress" && (
+        {step === "url" && platform !== "shopify" && (
           <form onSubmit={handleUrlNext} className="space-y-3">
             <div className="space-y-1.5">
               <Label htmlFor="onboarding-wp-url" className="text-[12px] font-medium">
@@ -1209,6 +1478,150 @@ export default function CompanyInfoPage() {
               )}
             </div>
           </div>
+        )}
+
+        {step === "install" && platform === "framer" && (
+          <div className="space-y-3">
+            <div className={`${PANEL} p-4`}>
+              <div className="mb-3 flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0055FF]/10">
+                  <img src="/logos/framer.svg" alt="Framer" className="h-5 w-5 object-contain" />
+                </div>
+                <div>
+                  <p className="text-[13px] font-medium text-foreground">Signalor for Framer</p>
+                  <p className="text-[11px] leading-relaxed text-muted-foreground">
+                    Confirms your site is linked. Your GEO analysis still runs on Signalor — no
+                    setup needed inside the plugin.
+                  </p>
+                </div>
+              </div>
+
+              <ol className="mb-3 list-decimal space-y-1.5 pl-4 text-[12px] leading-relaxed text-muted-foreground">
+                <li>
+                  In Framer&rsquo;s main menu, open{" "}
+                  <span className="font-medium text-foreground">Plugins</span> and enable{" "}
+                  <span className="font-medium text-foreground">Developer Tools</span>.
+                </li>
+                <li>
+                  From the project toolbar, open the{" "}
+                  <span className="font-medium text-foreground">Plugins</span> menu →{" "}
+                  <span className="font-medium text-foreground">Open Development Plugin</span>.
+                </li>
+                <li>Paste the URL below and accept the local certificate warning.</li>
+              </ol>
+
+              <div className="flex gap-2">
+                <Input
+                  readOnly
+                  value={config.framerPluginInstallUrl}
+                  className="h-9 flex-1 rounded-md border-neutral-200 bg-white font-mono text-[12px]"
+                  onFocus={(e) => e.target.select()}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-9 rounded-md border-neutral-200 bg-white px-3 text-[12px] font-medium"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(config.framerPluginInstallUrl);
+                      setFramerUrlCopied(true);
+                      setTimeout(() => setFramerUrlCopied(false), 2000);
+                    } catch {
+                      /* ignore */
+                    }
+                  }}
+                >
+                  {framerUrlCopied ? (
+                    <>
+                      <Check className="h-3.5 w-3.5" /> Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" /> Copy
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <a
+                href="https://www.framer.com/developers/plugins-quick-start#opening-in-framer"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+              >
+                <ExternalLink className="h-3 w-3" /> Framer docs: opening a development plugin
+              </a>
+            </div>
+
+            {error ? <p className={ERR_BOX}>{error}</p> : null}
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium"
+                onClick={() => {
+                  setStep("url");
+                  setError("");
+                }}
+              >
+                <ArrowLeft className="h-4 w-4" /> Back
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-9 flex-1 rounded-md border-neutral-200 bg-white text-[13px] font-medium text-muted-foreground hover:text-foreground"
+                onClick={() => {
+                  if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
+                  setStep("prompts");
+                }}
+              >
+                Skip for now
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  setAppInstalled(true);
+                  if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
+                  setStep("prompts");
+                }}
+                className="auth-cta-btn h-9 min-w-0 flex-[2] rounded-md text-[13px] font-medium text-white hover:text-white"
+              >
+                I&rsquo;ve installed it <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {step === "install" && platform === "nextjs" && (
+          <NextJsInstall
+            apiKey={nextjsApiKey}
+            apiKeyError={nextjsKeyError}
+            minting={mintingNextjsKey}
+            copied={nextjsCopied}
+            onCopy={(label, text) =>
+              navigator.clipboard
+                .writeText(text)
+                .then(() => {
+                  setNextjsCopied(label);
+                  setTimeout(() => setNextjsCopied(null), 2000);
+                })
+                .catch(() => {})
+            }
+            onBack={() => {
+              setStep("url");
+              setError("");
+            }}
+            onSkip={() => {
+              if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
+              setStep("prompts");
+            }}
+            onContinue={() => {
+              setAppInstalled(true);
+              if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
+              setStep("prompts");
+            }}
+          />
         )}
 
         {/* ── Step 5: Prompts ── */}

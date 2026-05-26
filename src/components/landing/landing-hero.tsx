@@ -78,7 +78,7 @@ export function LandingHero() {
           variants={fadeUpVariants}
           className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500"
         >
-          [ ai search visibility ]
+          now
         </motion.p>
 
         <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.65rem] md:leading-[1.05] lg:text-5xl">

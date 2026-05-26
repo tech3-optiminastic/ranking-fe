@@ -7,7 +7,7 @@ const syncStatusSchema = z.enum(["pending", "syncing", "complete", "failed"]);
 
 const integrationInfoSchema = z.object({
   id: z.number(),
-  provider: z.enum(["google_analytics", "shopify", "wordpress"]),
+  provider: z.enum(["google_analytics", "shopify", "wordpress", "woocommerce", "webflow"]),
   provider_display: z.string(),
   is_active: z.boolean(),
   metadata: z.record(z.string(), z.unknown()),
