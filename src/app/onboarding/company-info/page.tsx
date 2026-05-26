@@ -19,6 +19,8 @@ import { startAnalysis } from "@/lib/api/analyzer";
 import { getSubscriptionStatus, getUsage } from "@/lib/api/payments";
 import { getShopifyAuthUrl, connectWordPress } from "@/lib/api/integrations";
 import { createApiKey } from "@/lib/api/api-keys";
+import { getOrFetchOnboardingToken } from "@/lib/api/onboarding-security";
+import { TurnstileWidget } from "@/components/onboarding/turnstile-widget";
 import { OnboardingStepper } from "@/components/auth/onboarding-stepper";
 import { config, routes, signalorWpPlugin } from "@/lib/config";
 import { ONBOARDING_DRAFT_KEY, storePendingAnalysisAfterPayment } from "@/lib/internal-nav";
@@ -355,6 +357,10 @@ export default function CompanyInfoPage() {
   const [nextjsCopied, setNextjsCopied] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
+  // Latest Cloudflare Turnstile token (when configured). Refreshes itself ~5min.
+  // Forwarded to the backend on the very next onboarding-start call so the
+  // minted token comes from a verified-human session.
+  const turnstileTokenRef = useRef<string>("");
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editText, setEditText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -739,9 +745,13 @@ export default function CompanyInfoPage() {
   async function genPrompts(brand: string, url: string) {
     setLoadingPrompts(true);
     try {
+      const onboardingToken = await getOrFetchOnboardingToken(turnstileTokenRef.current);
       const r = await fetch(`${config.apiBaseUrl}/api/analyzer/generate-prompts/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Onboarding-Token": onboardingToken,
+        },
         body: JSON.stringify({ brand_name: brand, brand_url: url }),
       });
       if (r.ok) {
@@ -946,6 +956,13 @@ export default function CompanyInfoPage() {
   return (
     <div>
       <OnboardingStepper current={sn} total={totalSteps} className="mb-5" />
+      <div className="mb-3 flex flex-col items-center gap-1.5">
+        <TurnstileWidget
+          onToken={(t) => {
+            turnstileTokenRef.current = t;
+          }}
+        />
+      </div>
       <CardHeader className="space-y-2 border-b border-black/6 px-0 pb-4 pt-0">
         <div className="space-y-1.5">
           <CardTitle className="text-xl font-semibold tracking-tight text-foreground">

@@ -47,6 +47,10 @@ const publicEnvSchema = z.object({
     .url()
     .default("https://localhost:5176/")
     .transform(trimTrailingSlash),
+  // Cloudflare Turnstile site key. When unset, the onboarding bot-check is
+  // skipped; the backend matches by leaving TURNSTILE_SECRET unset.
+  // Set BOTH (FE site key + BE secret) in prod to enable end-to-end.
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
 });
 
 const parsed = publicEnvSchema.safeParse({
@@ -58,6 +62,7 @@ const parsed = publicEnvSchema.safeParse({
   NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET,
   NEXT_PUBLIC_SANITY_API_VERSION: process.env.NEXT_PUBLIC_SANITY_API_VERSION,
   NEXT_PUBLIC_FRAMER_PLUGIN_URL: process.env.NEXT_PUBLIC_FRAMER_PLUGIN_URL,
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
 });
 
 if (!parsed.success) {
