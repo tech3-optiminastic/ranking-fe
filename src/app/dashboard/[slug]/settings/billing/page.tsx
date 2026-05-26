@@ -186,7 +186,7 @@ export default function BillingSettingsPage() {
                             : "border-black/8 bg-neutral-50 text-neutral-400 line-through",
                         )}
                       >
-                        <EngineBadge engine={eng} size={14} />
+                        <EngineBadge engine={eng} size={14} showLabel={false} />
                         {engineLabel(eng)}
                       </span>
                     );
