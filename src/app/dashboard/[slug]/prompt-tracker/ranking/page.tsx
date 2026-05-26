@@ -7,11 +7,7 @@ export const metadata: Metadata = {
     "See what's ranking in Google, Reddit, Quora, and across AI models for queries tailored to your brand.",
 };
 
-export default async function RankingPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function RankingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   return <RankTrackerShell slug={slug} />;
 }

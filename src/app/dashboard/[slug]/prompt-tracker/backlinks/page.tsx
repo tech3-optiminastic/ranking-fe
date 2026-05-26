@@ -2,10 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import {
-  getPromptTracks,
-  type PromptTrack,
-} from "@/lib/api/analyzer";
+import { getPromptTracks, type PromptTrack } from "@/lib/api/analyzer";
 import { PromptTracker } from "@/components/analyzer/prompt-tracker";
 import { AlertCircle } from "@/components/icons";
 import { PromptPageSkeleton } from "@/components/dashboard/skeletons";
@@ -40,8 +37,8 @@ export default function PromptsBacklinksPage() {
           Backlinks
         </h2>
         <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
-          Pick a prompt to see free submission targets or buy placements through
-          our backlink providers.
+          Pick a prompt to see free submission targets or buy placements through our backlink
+          providers.
         </p>
       </div>
 
@@ -60,9 +57,7 @@ export default function PromptsBacklinksPage() {
           tracks={tracks}
           onAdded={(track) => setTracks((prev) => [track, ...prev])}
           onRechecked={() => fetchData()}
-          onDeleted={(trackId) =>
-            setTracks((prev) => prev.filter((t) => t.id !== trackId))
-          }
+          onDeleted={(trackId) => setTracks((prev) => prev.filter((t) => t.id !== trackId))}
           expandedMode="backlinks"
         />
       )}

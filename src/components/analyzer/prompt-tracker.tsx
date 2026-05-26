@@ -1597,7 +1597,7 @@ function BacklinksPreviewCard({ slug }: { slug: string }) {
           </div>
         </div>
         <Link
-          href={`/dashboard/${slug}/prompts/backlinks`}
+          href={`/dashboard/${slug}/prompt-tracker/backlinks`}
           className="shrink-0 rounded-md bg-orange-600 px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-500"
           onClick={(e) => e.stopPropagation()}
         >
@@ -1624,7 +1624,7 @@ function BacklinksPreviewCard({ slug }: { slug: string }) {
           top.map((p) => (
             <Link
               key={p.id}
-              href={`/dashboard/${slug}/prompts/backlinks`}
+              href={`/dashboard/${slug}/prompt-tracker/backlinks`}
               onClick={(e) => e.stopPropagation()}
               className="flex min-w-0 flex-col gap-1 rounded-md border border-border/60 bg-card/80 p-2.5 transition hover:border-orange-500/50 hover:bg-card"
             >
@@ -1821,7 +1821,7 @@ function WebRankingCard({
           </span>
         ) : !query ? (
           <Link
-            href={`/dashboard/${slug}/prompts/ranking`}
+            href={`/dashboard/${slug}/prompt-tracker/ranking`}
             className="text-[10px] font-medium text-orange-600 hover:underline dark:text-orange-400"
             onClick={(e) => e.stopPropagation()}
           >

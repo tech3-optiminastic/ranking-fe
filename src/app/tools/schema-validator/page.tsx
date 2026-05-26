@@ -8,6 +8,18 @@ import { SchemaValidatorInline } from "@/components/tools/schema-validator-inlin
 export default function SchemaValidatorToolPage() {
   return (
     <LandingMarketingShell>
+      <p className="sr-only">
+        The Signalor Schema Validator is a free JSON-LD and Schema.org coverage checker that scans
+        any public URL for structured data completeness. It detects 18 schema types including
+        Organization, Product, Article, FAQPage, HowTo, BreadcrumbList, Event, Review,
+        AggregateRating, LocalBusiness, SoftwareApplication, and more. The validator flags missing
+        required fields by property name, identifies partial definitions that confuse language model
+        parsers, and catches conflicting duplicate JSON-LD blocks that cause AI engines to discard
+        structured data entirely. Complete, valid schema is one of the strongest signals generative
+        engines use when deciding whether to cite, paraphrase, or attribute a page. The free scan
+        covers one URL with no account required. Pro plans add site-wide coverage rollups per
+        template and ready-to-paste JSON-LD fix snippets ranked by projected GEO score improvement.
+      </p>
       <ToolPage
         theme="violet"
         eyebrow="[ free tool · schema validator ]"

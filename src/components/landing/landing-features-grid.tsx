@@ -123,37 +123,22 @@ export function LandingFeaturesGrid() {
               <div className="mt-auto w-full rounded-xl border border-black/8 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
                 <ul className="divide-y divide-black/6 text-[12px] font-medium">
                   {[
-                    {
-                      name: "ChatGPT",
-                      path: "/blog/security-…",
-                      tone: "bg-emerald-600",
-                    },
-                    {
-                      name: "Claude",
-                      path: "/pricing/com…",
-                      tone: "bg-violet-600",
-                    },
-                    {
-                      name: "Perplexity",
-                      path: "/docs/api-v2…",
-                      tone: "bg-sky-600",
-                    },
-                    {
-                      name: "Copilot",
-                      path: "/resources/…",
-                      tone: "bg-blue-600",
-                    },
+                    { name: "ChatGPT", path: "/blog/security-…", domain: "chatgpt.com" },
+                    { name: "Claude", path: "/pricing/com…", domain: "claude.ai" },
+                    { name: "Perplexity", path: "/docs/api-v2…", domain: "perplexity.ai" },
+                    { name: "Copilot", path: "/resources/…", domain: "copilot.microsoft.com" },
                   ].map((row) => (
                     <li
                       key={row.name}
                       className="flex items-center gap-2.5 py-2.5 first:pt-1 last:pb-1"
                     >
-                      <span
-                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white ${row.tone}`}
-                        aria-hidden
-                      >
-                        {row.name.slice(0, 1)}
-                      </span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${row.domain}&size=64`}
+                        alt={row.name}
+                        aria-hidden="true"
+                        className="h-7 w-7 shrink-0 rounded-md object-cover"
+                      />
                       <div className="min-w-0 flex-1">
                         <div className="font-semibold text-neutral-900">{row.name}</div>
                         <div className="truncate text-[11px] text-neutral-500">{row.path}</div>

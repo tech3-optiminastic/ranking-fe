@@ -45,7 +45,6 @@ const fadeUpVariants: Variants = {
   hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
-
 export function LandingHero() {
   const [engineIdx, setEngineIdx] = useState(0);
 
@@ -67,88 +66,42 @@ export function LandingHero() {
       {/* Top hairline accent — ties the section to the page chrome above. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px"
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-full"
         style={{
           background:
-            "linear-gradient(90deg, transparent 0%, rgba(224, 74, 61, 0.35) 50%, transparent 100%)",
+            "radial-gradient(ellipse 65% 55% at 50% 20%, rgba(224, 74, 61, 0.09) 0%, transparent 68%)",
         }}
       />
 
-      <motion.div
-        className="relative z-10 mx-auto max-w-3xl text-center"
-        initial="hidden"
-        animate="show"
-        variants={containerVariants}
-      >
-        {/* Live audit ticker now at the top — rotating activity above the headline. */}
-        <motion.div variants={fadeUpVariants} className="mb-7 flex justify-center">
-          <HeroLiveTicker />
-        </motion.div>
+      {/* Secondary cooler accent for depth */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 z-0 h-full"
+        style={{
+          background:
+            "radial-gradient(ellipse 45% 40% at 70% 60%, rgba(99, 102, 241, 0.04) 0%, transparent 65%)",
+        }}
+      />
 
-        {/* Eyebrow tag — matches the creators-program visual pattern */}
-        <motion.p
-          variants={fadeUpVariants}
-          className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500"
-        >
-          [ ai search visibility ]
-        </motion.p>
+      <div className="relative z-10 mx-auto max-w-3xl text-center">
+        {/* Badge */}
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-medium text-primary">
+          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+          AI Search Visibility Platform
+        </div>
 
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.65rem] md:leading-[1.05] lg:text-5xl">
-          <motion.span variants={wordVariants} className="inline-block will-change-[filter]">
-            Audit your site in{" "}
-            <span className="underline decoration-primary decoration-dashed decoration-2 underline-offset-[6px]">
-              60 seconds
-            </span>
-            .
-          </motion.span>{" "}
-          <motion.span variants={wordVariants} className="inline-block will-change-[filter]">
-            Be cited by{" "}
-            <span className="underline decoration-primary decoration-dashed decoration-2 underline-offset-[6px]">
-              every AI engine
-            </span>
-            .
-          </motion.span>
+        <h1 className="text-5xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl lg:text-7xl">
+          Audit. <span className="text-primary">Optimize.</span> Win.
         </h1>
 
-        <motion.p
-          variants={fadeUpVariants}
-          className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-2 gap-y-2 text-base leading-relaxed text-muted-foreground lg:text-lg"
-        >
-          <span>Be the brand</span>
-          <span className="relative inline-flex h-[28px] w-[28px] items-center justify-center overflow-hidden rounded-full border border-black/8 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={currentEngine.name}
-                initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                exit={{ opacity: 0, scale: 0.6, rotate: 20 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <Image
-                  src={currentEngine.src}
-                  alt={currentEngine.name}
-                  title={currentEngine.name}
-                  width={18}
-                  height={18}
-                  className="h-[18px] w-[18px] object-contain"
-                />
-              </motion.span>
-            </AnimatePresence>
-          </span>
-          <span>
-            recommends — not the one it{" "}
-            <span className="text-foreground/80 line-through decoration-primary/60 decoration-2">
-              forgets
-            </span>
-            .
-          </span>
-        </motion.p>
+        <p className="mx-auto mt-5 max-w-lg text-base text-muted-foreground lg:text-lg">
+          Measure, optimize, and win AI citations — all in one workflow.
+        </p>
 
-        <motion.div variants={fadeUpVariants} className="mt-10 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <HeroAnalyzerForm />
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

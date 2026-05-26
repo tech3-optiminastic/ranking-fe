@@ -3,7 +3,6 @@ import { LandingFeaturesGrid } from "@/components/landing/landing-features-grid"
 import { LandingWhySignalor } from "@/components/landing/landing-why-signalor";
 import { LandingHero } from "@/components/landing/landing-hero";
 import { LandingHowItWorks } from "@/components/landing/landing-how-it-works";
-import { LandingTestimonials } from "@/components/landing/landing-testimonials";
 import { LandingIntegrationsStrip } from "@/components/landing/landing-integrations-strip";
 import { LandingPricingTeaser } from "@/components/landing/landing-pricing-teaser";
 import { LandingNewsletter } from "@/components/landing/landing-newsletter";
@@ -22,6 +21,7 @@ import {
   SITE_BRAND,
   SITE_URL,
 } from "@/lib/seo";
+import { LandingCreatorsProgram } from "@/components/landing/landing-creators-program";
 
 const LLM_LOGOS = [
   {
@@ -158,12 +158,11 @@ export default function Home() {
 
       <LandingHowItWorks />
       <LandingFeaturesGrid />
-      <LandingTestimonials />
       <LandingWhySignalor />
       <LandingIntegrationsStrip />
       <LandingPricingTeaser />
       <LandingFaq items={HOMEPAGE_FAQ} />
-      <LandingPartnersProgram />
+      <LandingCreatorsProgram />
       <LandingNewsletter />
       <LandingFooter />
     </LandingMarketingShell>
