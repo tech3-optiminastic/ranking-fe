@@ -58,7 +58,7 @@ const CSP = [
     "https://c.bing.com",
     // GitBook embed widget
     "https://guide.signalor.ai",
-    // Sentry error/session reporting (EU region: ingest.de.sentry.io is 3 levels deep)
+    // Sentry error reporting — EU ingest is 3 levels deep so *.sentry.io alone isn't enough
     "https://*.sentry.io https://*.de.sentry.io",
     ...devConnectSrc,
   ].join(" "),
@@ -133,7 +133,7 @@ export default withSentryConfig(nextConfig, {
 
   org: "signalor-ai",
 
-  project: "javascript-nextjs",
+  project: "signalor-fe",
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
