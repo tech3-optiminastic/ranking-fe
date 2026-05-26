@@ -8,6 +8,7 @@ import { LandingPricingTeaser } from "@/components/landing/landing-pricing-tease
 import { LandingNewsletter } from "@/components/landing/landing-newsletter";
 import { LandingFaq } from "@/components/landing/landing-faq";
 import { LandingPartnersProgram } from "@/components/landing/landing-partners-program";
+import { LandingCreatorsProgram } from "@/components/landing/landing-creators-program";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
 import { CornerDiamonds } from "@/components/ui/intersection-diamonds";
@@ -21,7 +22,6 @@ import {
   SITE_BRAND,
   SITE_URL,
 } from "@/lib/seo";
-import { LandingCreatorsProgram } from "@/components/landing/landing-creators-program";
 
 const LLM_LOGOS = [
   {

@@ -3,6 +3,7 @@ import { env } from "./env";
 export const config = {
   apiBaseUrl: env.NEXT_PUBLIC_API_URL,
   authBaseUrl: env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  framerPluginInstallUrl: env.NEXT_PUBLIC_FRAMER_PLUGIN_URL,
 } as const;
 
 /**

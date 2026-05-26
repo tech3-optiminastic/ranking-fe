@@ -79,7 +79,17 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
   }
 
   return (
-    <div className="w-full max-w-xl">
+    <div className="relative w-full max-w-xl">
+      {/* Soft horizontal halo glow below the card — primary palette */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-2 -bottom-3 h-16 rounded-full opacity-80 blur-2xl"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 0%, #e04a3d 15%, #f4748f 45%, #fbbf24 75%, transparent 100%)",
+        }}
+      />
+
       {/* White input card — sits on top with z-10 over the orange platform below */}
       <div className="relative z-10 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_12px_30px_-12px_rgba(15,23,42,0.18)]">
         {/* Animated border beams — two for a chase effect */}
@@ -110,7 +120,7 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
                 animate="center"
                 exit="exit"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="flex min-h-[140px] flex-col"
+                className="flex min-h-35 flex-col"
               >
                 {/* Input row with left accent bar */}
                 <div className="relative flex flex-1 items-start gap-2 px-4 pt-4">

@@ -38,6 +38,19 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_SANITY_PROJECT_ID: z.string().min(1).optional(),
   NEXT_PUBLIC_SANITY_DATASET: z.string().min(1).optional(),
   NEXT_PUBLIC_SANITY_API_VERSION: z.string().min(1).default("2026-05-02"),
+  // The dev URL the Signalor plugin serves from. Users paste this into
+  // Framer's "Open Development Plugin" dialog (Framer doesn't expose a
+  // deep-link to open a dev plugin from an external URL). Override with
+  // the marketplace listing once published.
+  NEXT_PUBLIC_FRAMER_PLUGIN_URL: z
+    .string()
+    .url()
+    .default("https://localhost:5176/")
+    .transform(trimTrailingSlash),
+  // Cloudflare Turnstile site key. When unset, the onboarding bot-check is
+  // skipped; the backend matches by leaving TURNSTILE_SECRET unset.
+  // Set BOTH (FE site key + BE secret) in prod to enable end-to-end.
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
 });
 
 const parsed = publicEnvSchema.safeParse({
@@ -48,6 +61,8 @@ const parsed = publicEnvSchema.safeParse({
   NEXT_PUBLIC_SANITY_PROJECT_ID: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET,
   NEXT_PUBLIC_SANITY_API_VERSION: process.env.NEXT_PUBLIC_SANITY_API_VERSION,
+  NEXT_PUBLIC_FRAMER_PLUGIN_URL: process.env.NEXT_PUBLIC_FRAMER_PLUGIN_URL,
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
 });
 
 if (!parsed.success) {
