@@ -6,5 +6,5 @@ export default async function PromptsEngineRedirectPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  redirect(`/dashboard/${slug}/prompts/history`);
+  redirect(`/dashboard/${slug}/prompt-tracker/history`);
 }

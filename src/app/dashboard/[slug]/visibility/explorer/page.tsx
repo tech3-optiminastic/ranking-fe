@@ -277,7 +277,7 @@ export default function PromptsRecommendationsPage() {
     setError("");
     try {
       await addPromptTrack(slug, text);
-      router.push(`/dashboard/${slug}/prompts/actions`);
+      router.push(`/dashboard/${slug}/prompt-tracker/actions`);
     } catch {
       setError("Failed to add prompt. It may already exist or hit your plan limit.");
     } finally {

@@ -113,13 +113,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                   icon={MessageSquare}
                   label="Prompts"
                   desc="Quick snapshot & walkthrough"
-                  onSelect={() => go(`${base}/prompts`)}
+                  onSelect={() => go(`${base}/prompt-tracker`)}
                 />
                 <PaletteItem
                   icon={MessageSquare}
                   label="Prompts, Actions"
                   desc="Add, recheck, and do the work"
-                  onSelect={() => go(`${base}/prompts/actions`)}
+                  onSelect={() => go(`${base}/prompt-tracker/actions`)}
                 />
                 <PaletteItem
                   icon={Eye}

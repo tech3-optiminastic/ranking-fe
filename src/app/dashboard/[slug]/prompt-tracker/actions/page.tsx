@@ -2,11 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import {
-  getPromptTracks,
-  recheckAllPrompts,
-  type PromptTrack,
-} from "@/lib/api/analyzer";
+import { getPromptTracks, recheckAllPrompts, type PromptTrack } from "@/lib/api/analyzer";
 import { PromptTracker } from "@/components/analyzer/prompt-tracker";
 import { AlertCircle } from "@/components/icons";
 import { PromptPageSkeleton } from "@/components/dashboard/skeletons";
@@ -52,7 +48,9 @@ export default function PromptsActionsPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">Actions</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+            Actions
+          </h2>
           <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
             Add prompts, run rechecks, and keep scores fresh across engines.
           </p>

@@ -53,7 +53,7 @@ export function sectionForPathname(pathname: string, basePath: string): TourSect
   if (rel.startsWith("/visibility")) return "visibility";
   if (rel.startsWith("/sitemap")) return "sitemap";
   if (rel.startsWith("/recommendations")) return "tasks";
-  if (rel.startsWith("/prompts")) return "tracker";
+  if (rel.startsWith("/prompt-tracker")) return "tracker";
   if (rel.startsWith("/competitors")) return "competitors";
   if (rel.startsWith("/optimisation/content")) return "content";
   if (rel.startsWith("/backlinks")) return "backlinks";

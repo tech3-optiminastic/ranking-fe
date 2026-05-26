@@ -235,6 +235,16 @@ const promptTrackSchema = z.object({
   factor_third_party: z.number(),
 });
 
+const competitorMentionSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  url: z.string(),
+});
+
+const competitorPromptSchema = promptTrackSchema.extend({
+  mentioned_competitors_detail: z.array(competitorMentionSchema).optional().default([]),
+});
+
 const shareOfVoiceItemSchema = z.object({
   engine: engineSchema,
   total: z.number(),
@@ -727,6 +737,8 @@ export type CitationSourcesResponse = z.infer<typeof citationSourcesResponseSche
 export type PromptSearchIntent = z.infer<typeof promptSearchIntentSchema>;
 export type PromptSurfaceType = z.infer<typeof promptSurfaceTypeSchema>;
 export type PromptTrack = z.infer<typeof promptTrackSchema>;
+export type CompetitorMention = z.infer<typeof competitorMentionSchema>;
+export type CompetitorPrompt = z.infer<typeof competitorPromptSchema>;
 export type ShareOfVoiceItem = z.infer<typeof shareOfVoiceItemSchema>;
 export type CitationTrendPoint = z.infer<typeof citationTrendPointSchema>;
 export type AiRecommendationEnginePoint = z.infer<typeof aiRecommendationEnginePointSchema>;
@@ -1045,6 +1057,21 @@ export async function updateCompetitor(
 
 export async function deleteCompetitor(slug: string, id: number): Promise<void> {
   await apiClient.delete(`/api/analyzer/runs/s/${slug}/competitors/${id}/`);
+}
+
+// ─── Competitor Prompts ──────────────────────────────────────────────────────
+
+export async function getCompetitorPrompts(slug: string): Promise<CompetitorPrompt[]> {
+  const { data } = await apiClientLong.get(`/api/analyzer/runs/s/${slug}/competitor-prompts/`);
+  return z.array(competitorPromptSchema).parse(data);
+}
+
+export async function generateCompetitorPrompts(slug: string): Promise<CompetitorPrompt[]> {
+  const { data } = await apiClientLong.post(
+    `/api/analyzer/runs/s/${slug}/competitor-prompts/generate/`,
+    {},
+  );
+  return z.array(competitorPromptSchema).parse(data);
 }
 
 // ─── Score history + scheduling ─────────────────────────────────────────────

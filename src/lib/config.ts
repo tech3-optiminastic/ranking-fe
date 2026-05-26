@@ -26,7 +26,7 @@ export const routes = {
   dashboardProject: (slug: string) => `/dashboard/${slug}`,
   dashboardProjectRecommendations: (slug: string) => `/dashboard/${slug}/recommendations`,
   dashboardProjectVisibility: (slug: string) => `/dashboard/${slug}/visibility`,
-  dashboardProjectPrompts: (slug: string) => `/dashboard/${slug}/prompts`,
+  dashboardProjectPrompts: (slug: string) => `/dashboard/${slug}/prompt-tracker`,
   dashboardProjectAnalytics: (slug: string) => `/dashboard/${slug}/analytics`,
   dashboardProjectIntegrations: (slug: string) => `/dashboard/${slug}/integrations`,
   analyzer: "/sign-up",

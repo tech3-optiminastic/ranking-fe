@@ -67,22 +67,22 @@ export function getDashboardBreadcrumbs(
     return crumbs;
   }
 
-  if (rel.startsWith("/prompts/actions")) {
-    crumbs.push({ label: "Prompts", href: `${basePath}/prompts` });
+  if (rel.startsWith("/prompt-tracker/actions")) {
+    crumbs.push({ label: "Prompts", href: `${basePath}/prompt-tracker` });
     crumbs.push({ label: "Actions", href: null });
     return crumbs;
   }
-  if (rel.startsWith("/prompts/history")) {
-    crumbs.push({ label: "Prompts", href: `${basePath}/prompts` });
+  if (rel.startsWith("/prompt-tracker/history")) {
+    crumbs.push({ label: "Prompts", href: `${basePath}/prompt-tracker` });
     crumbs.push({ label: "History", href: null });
     return crumbs;
   }
-  if (rel.startsWith("/prompts/engine")) {
-    crumbs.push({ label: "Prompts", href: `${basePath}/prompts` });
+  if (rel.startsWith("/prompt-tracker/engine")) {
+    crumbs.push({ label: "Prompts", href: `${basePath}/prompt-tracker` });
     crumbs.push({ label: "Engine", href: null });
     return crumbs;
   }
-  if (rel.startsWith("/prompts")) {
+  if (rel.startsWith("/prompt-tracker")) {
     crumbs.push({ label: "Prompts", href: null });
     return crumbs;
   }

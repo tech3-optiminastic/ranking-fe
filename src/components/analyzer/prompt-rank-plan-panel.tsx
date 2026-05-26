@@ -76,7 +76,7 @@ const ACTIONS: ActionDef[] = [
     impact: "high",
     effort: "5 min to order",
     kind: "deeplink",
-    href: "/prompts/backlinks",
+    href: "/prompt-tracker/backlinks",
     cta: "Open marketplace",
   },
   {
@@ -121,7 +121,7 @@ const ACTIONS: ActionDef[] = [
     impact: "medium",
     effort: "30 min",
     kind: "deeplink",
-    href: "/prompts/backlinks",
+    href: "/prompt-tracker/backlinks",
     cta: "See free targets",
   },
 ];
@@ -362,7 +362,7 @@ export function PromptRankPlanPanel({ track }: { track: PromptTrack }) {
         <ShoppingBag className="size-3" />
         Want a hands-off path? Open the
         <Link
-          href={`/dashboard/${slug}/prompts/backlinks`}
+          href={`/dashboard/${slug}/prompt-tracker/backlinks`}
           className="text-orange-600 hover:underline dark:text-orange-300"
           onClick={(e) => e.stopPropagation()}
         >

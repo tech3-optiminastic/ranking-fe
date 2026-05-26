@@ -74,11 +74,14 @@ const MAIN_NAV_GROUPS: MainNavGroup[] = [
   },
   {
     heading: "Prompts",
-    items: [{ icon: TrackerIcon, label: "Tracker", path: "/prompts" }],
+    items: [{ icon: TrackerIcon, label: "Tracker", path: "/prompt-tracker" }],
   },
   {
     heading: "Sources",
-    items: [{ icon: CompetitorsIcon, label: "Competitors", path: "/competitors" }],
+    items: [
+      { icon: CompetitorsIcon, label: "Competitors", path: "/competitors" },
+      { icon: TrackerIcon, label: "Prompts", path: "/prompts" },
+    ],
   },
   {
     heading: "Optimisation",
@@ -123,6 +126,12 @@ function sectionForDashboardPath(pathname: string, basePath: string): DashboardA
       hint: "How models and search surfaces see your brand.",
     };
   }
+  if (rel.startsWith("/prompts")) {
+    return {
+      title: "Prompts",
+      hint: "AI-generated prompts where competitor brands appear in responses.",
+    };
+  }
   if (rel.startsWith("/competitors")) {
     return {
       title: "Competitors",
@@ -154,37 +163,37 @@ function sectionForDashboardPath(pathname: string, basePath: string): DashboardA
       docsUrl: "https://docs.signalor.ai/backlinks",
     };
   }
-  if (rel.startsWith("/prompts/backlinks")) {
+  if (rel.startsWith("/prompt-tracker/backlinks")) {
     return {
       title: "Backlinks",
       hint: "Free submission targets and paid placements via backlink providers.",
     };
   }
-  if (rel.startsWith("/prompts/actions")) {
+  if (rel.startsWith("/prompt-tracker/actions")) {
     return {
       title: "Prompt actions",
       hint: "Tune prompts and automated follow-ups.",
     };
   }
-  if (rel.startsWith("/prompts/ranking")) {
+  if (rel.startsWith("/prompt-tracker/ranking")) {
     return {
       title: "Ranking",
       hint: "What's ranking in Google, Reddit, and Quora for queries tailored to your brand.",
     };
   }
-  if (rel.startsWith("/prompts/history")) {
+  if (rel.startsWith("/prompt-tracker/history")) {
     return {
       title: "Prompt history",
       hint: "Past runs and responses for this workspace.",
     };
   }
-  if (rel.startsWith("/prompts/engine")) {
+  if (rel.startsWith("/prompt-tracker/engine")) {
     return {
       title: "Prompt engine",
       hint: "Engine configuration and routing.",
     };
   }
-  if (rel.startsWith("/prompts")) {
+  if (rel.startsWith("/prompt-tracker")) {
     return {
       title: "Prompts",
       hint: "Actions, recommendations, and history for AI prompts.",

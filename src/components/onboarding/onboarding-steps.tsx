@@ -380,7 +380,7 @@ export const ONBOARDING_STEPS: TourStep[] = [
     title: "Tracker",
     body: "Watch real LLM responses for prompts that matter to your category.",
     side: "right",
-    route: "/prompts",
+    route: "/prompt-tracker",
   },
   {
     kind: "spotlight",
@@ -391,7 +391,7 @@ export const ONBOARDING_STEPS: TourStep[] = [
     body: "Add a prompt with New prompt, search across what you've added, filter by strength, sort, or hit Recheck all to re-run every prompt across every engine.",
     side: "bottom",
     align: "start",
-    route: "/prompts",
+    route: "/prompt-tracker",
   },
   {
     kind: "spotlight",
@@ -402,7 +402,7 @@ export const ONBOARDING_STEPS: TourStep[] = [
     body: "At-a-glance health of your tracked prompts, average score, visibility percentage, count of strong prompts, and total runs. The first two move when you add prompts or fix issues; watch them weekly.",
     side: "bottom",
     align: "start",
-    route: "/prompts",
+    route: "/prompt-tracker",
   },
   {
     kind: "spotlight",
@@ -413,7 +413,7 @@ export const ONBOARDING_STEPS: TourStep[] = [
     body: "Each card is one prompt you're watching. The score on the left shows current visibility; click to expand and see the actual responses from ChatGPT, Gemini, Perplexity, etc., including whether your brand was cited.",
     side: "bottom",
     align: "start",
-    route: "/prompts",
+    route: "/prompt-tracker",
   },
 
   // ── Competitors ───────────────────────────────────────────────────────
