@@ -3,12 +3,12 @@ import { LandingFeaturesGrid } from "@/components/landing/landing-features-grid"
 import { LandingWhySignalor } from "@/components/landing/landing-why-signalor";
 import { LandingHero } from "@/components/landing/landing-hero";
 import { LandingHowItWorks } from "@/components/landing/landing-how-it-works";
+import { LandingTestimonials } from "@/components/landing/landing-testimonials";
 import { LandingIntegrationsStrip } from "@/components/landing/landing-integrations-strip";
 import { LandingPricingTeaser } from "@/components/landing/landing-pricing-teaser";
 import { LandingNewsletter } from "@/components/landing/landing-newsletter";
 import { LandingFaq } from "@/components/landing/landing-faq";
 import { LandingPartnersProgram } from "@/components/landing/landing-partners-program";
-import { LandingCreatorsProgram } from "@/components/landing/landing-creators-program";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
 import { CornerDiamonds } from "@/components/ui/intersection-diamonds";
@@ -158,11 +158,12 @@ export default function Home() {
 
       <LandingHowItWorks />
       <LandingFeaturesGrid />
+      <LandingTestimonials />
       <LandingWhySignalor />
       <LandingIntegrationsStrip />
       <LandingPricingTeaser />
       <LandingFaq items={HOMEPAGE_FAQ} />
-      <LandingCreatorsProgram />
+      <LandingPartnersProgram />
       <LandingNewsletter />
       <LandingFooter />
     </LandingMarketingShell>

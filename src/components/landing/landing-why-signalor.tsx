@@ -172,13 +172,6 @@ export function LandingWhySignalor() {
                       <li key={r.domain}>
                         <div className="flex items-center justify-between gap-2 text-[12px] font-semibold text-neutral-800">
                           <span className="flex min-w-0 items-center gap-1.5">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={`https://www.google.com/s2/favicons?domain=${r.domain}&sz=32`}
-                              alt=""
-                              aria-hidden="true"
-                              className="h-3.5 w-3.5 shrink-0 rounded-sm"
-                            />
                             <span className="truncate">{r.domain}</span>
                             {r.tag && (
                               <span
