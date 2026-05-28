@@ -10,12 +10,7 @@ type LogoCompProps = {
   className?: string;
 };
 
-const LogoComp = ({
-  size = 36,
-  compact = false,
-  animated = true,
-  className,
-}: LogoCompProps) => {
+const LogoComp = ({ size = 36, compact = false, animated = true, className }: LogoCompProps) => {
   const iconSize = compact ? Math.round(size * 0.92) : size;
 
   return (
@@ -71,7 +66,8 @@ const LogoComp = ({
         </svg>
       </div>
       <span>Signalor</span>
-      <span className="text-primary rounded-full">.</span>AI
+      <span className="text-primary rounded-full">.</span>
+      <span className="font-semibold">AI</span>
     </div>
   );
 };
