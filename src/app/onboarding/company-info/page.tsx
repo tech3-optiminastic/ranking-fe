@@ -625,11 +625,12 @@ export default function CompanyInfoPage() {
       }
       setSiteUrl(url);
 
-      // Create org
+      // Create org — no onboarding token needed; the user already has a
+      // better-auth session and Turnstile may not have solved yet at this
+      // step (Managed mode shows a visible checkbox).
       let org;
       try {
-        const onboardingToken = await getOrFetchOnboardingToken(turnstileTokenRef.current);
-        org = await createOrganization({ name: companyName.trim(), url, email }, onboardingToken);
+        org = await createOrganization({ name: companyName.trim(), url, email });
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 409) org = err.response.data;
         else throw err;
@@ -825,19 +826,19 @@ export default function CompanyInfoPage() {
         return;
       }
       setStatusMsg("Starting analysis...");
-      const onboardingToken = await getOrFetchOnboardingToken(turnstileTokenRef.current);
-      const a = await startAnalysis(
-        {
-          url: siteUrl,
-          run_type: "single_page",
-          email: session.user.email,
-          brand_name: companyName.trim(),
-          org_id: orgId,
-          verify_org_workspace: true,
-          prompts: promptList,
-        },
-        onboardingToken,
-      );
+      // No onboarding token needed: the user created an org in step 1, so
+      // the backend's subscriber_bypass (Organization-history check) skips
+      // the Turnstile gate. Anonymous tools that never created an org are
+      // still gated.
+      const a = await startAnalysis({
+        url: siteUrl,
+        run_type: "single_page",
+        email: session.user.email,
+        brand_name: companyName.trim(),
+        org_id: orgId,
+        verify_org_workspace: true,
+        prompts: promptList,
+      });
       try {
         sessionStorage.removeItem(ONBOARDING_DRAFT_KEY);
       } catch {
