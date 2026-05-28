@@ -1076,32 +1076,15 @@ export default function CompanyInfoPage() {
         {/* ── Step 3: Enter URL ── */}
         {step === "url" && platform === "shopify" && (
           <form onSubmit={handleUrlNext} className="space-y-5">
-            <div className="relative overflow-hidden rounded-2xl border border-black/6 bg-neutral-50/60 px-5 py-7">
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle, rgba(0,0,0,0.065) 1px, transparent 1px)",
-                  backgroundSize: "20px 20px",
-                }}
-              />
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(ellipse 110% 60% at 50% 0%, rgba(255,255,255,0.94) 0%, transparent 78%)",
-                }}
-              />
-              <div className="relative">
-                <IntegrationConnectBanner platform={platform} />
-                <div className="text-center">
-                  <p className="text-[15px] font-semibold text-foreground">
-                    Connect your Shopify store
-                  </p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-                    Enter your store domain to start GEO analysis and enable auto-fixes.
-                  </p>
-                </div>
+            <div>
+              <IntegrationConnectBanner platform={platform} />
+              <div className="text-center">
+                <p className="text-[15px] font-semibold text-foreground">
+                  Connect your Shopify store
+                </p>
+                <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                  Enter your store domain to start GEO analysis and enable auto-fixes.
+                </p>
               </div>
             </div>
             <div className="space-y-2">
@@ -1176,42 +1159,25 @@ export default function CompanyInfoPage() {
 
         {step === "url" && platform !== "shopify" && (
           <form onSubmit={handleUrlNext} className="space-y-5">
-            <div className="relative overflow-hidden rounded-2xl border border-black/6 bg-neutral-50/60 px-5 py-7">
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle, rgba(0,0,0,0.065) 1px, transparent 1px)",
-                  backgroundSize: "20px 20px",
-                }}
-              />
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(ellipse 110% 60% at 50% 0%, rgba(255,255,255,0.94) 0%, transparent 78%)",
-                }}
-              />
-              <div className="relative">
-                <IntegrationConnectBanner platform={platform} />
-                <div className="text-center">
-                  <p className="text-[15px] font-semibold text-foreground">
-                    {platform === "wordpress" && "Enter your WordPress URL"}
-                    {platform === "webflow" && "Enter your Webflow URL"}
-                    {platform === "framer" && "Enter your Framer site URL"}
-                    {platform === "nextjs" && "Enter your Next.js site URL"}
-                  </p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-                    {platform === "wordpress" &&
-                      "We'll connect your site via the Signalor plugin after verifying your URL."}
-                    {platform === "webflow" &&
-                      "We'll run GEO analysis directly — no plugin required for Webflow."}
-                    {platform === "framer" &&
-                      "We'll verify your site before connecting via the Framer plugin."}
-                    {platform === "nextjs" &&
-                      "We'll verify your site before generating your SDK API key."}
-                  </p>
-                </div>
+            <div>
+              <IntegrationConnectBanner platform={platform} />
+              <div className="text-center">
+                <p className="text-[15px] font-semibold text-foreground">
+                  {platform === "wordpress" && "Enter your WordPress URL"}
+                  {platform === "webflow" && "Enter your Webflow URL"}
+                  {platform === "framer" && "Enter your Framer site URL"}
+                  {platform === "nextjs" && "Enter your Next.js site URL"}
+                </p>
+                <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                  {platform === "wordpress" &&
+                    "We'll connect your site via the Signalor plugin after verifying your URL."}
+                  {platform === "webflow" &&
+                    "We'll run GEO analysis directly — no plugin required for Webflow."}
+                  {platform === "framer" &&
+                    "We'll verify your site before connecting via the Framer plugin."}
+                  {platform === "nextjs" &&
+                    "We'll verify your site before generating your SDK API key."}
+                </p>
               </div>
             </div>
             <div className="space-y-2">
