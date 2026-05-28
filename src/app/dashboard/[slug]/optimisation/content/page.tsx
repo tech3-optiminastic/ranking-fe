@@ -96,7 +96,7 @@ export default function ContentOptimisationPage() {
         setPageFields(data);
         if (!data.preview_image) {
           setPageError(
-            "Visual preview unavailable — run `playwright install chromium` on the server to enable screenshots.",
+            "Couldn't generate a visual preview for this page. Try again, or pick a different page.",
           );
         }
       } catch (err: unknown) {
