@@ -154,6 +154,44 @@ function IntegrationConnectBanner({ platform }: { platform: Platform }) {
   );
 }
 
+function BrandConnectBanner({ siteUrl }: { siteUrl: string }) {
+  const [failed, setFailed] = useState(false);
+  const domain = siteUrl
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "")
+    .split("/")[0];
+
+  return (
+    <div className="mb-4 flex items-center justify-center gap-3">
+      <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
+        {domain && !failed ? (
+          <img
+            src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
+            alt={domain}
+            className="h-9 w-9 rounded-lg object-contain"
+            onError={() => setFailed(true)}
+          />
+        ) : (
+          <Globe className="h-8 w-8 text-muted-foreground/30" />
+        )}
+      </div>
+
+      <div className="flex items-center gap-1 text-muted-foreground/40">
+        <span className="block h-px w-5 border-t-2 border-dashed border-current" />
+        <span className="block h-1.5 w-1.5 rounded-full bg-current" />
+        <span className="block h-px w-5 border-t-2 border-dashed border-current" />
+      </div>
+
+      <div
+        className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl border border-black/8 shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
+        style={{ background: SIGNALOR_STAR_BG }}
+      >
+        <img src="/icon.svg" alt="Signalor" className="h-9 w-9 object-contain" />
+      </div>
+    </div>
+  );
+}
+
 function SiteFavicon({ url }: { url: string }) {
   const [failed, setFailed] = useState(false);
   const domain = url
@@ -1037,15 +1075,34 @@ export default function CompanyInfoPage() {
 
         {/* ── Step 3: Enter URL ── */}
         {step === "url" && platform === "shopify" && (
-          <form onSubmit={handleUrlNext} className="space-y-4">
-            <IntegrationConnectBanner platform={platform} />
-            <div className="text-center">
-              <p className="text-[15px] font-semibold text-foreground">
-                Connect your Shopify store
-              </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-                Enter your store domain to start GEO analysis and enable auto-fixes.
-              </p>
+          <form onSubmit={handleUrlNext} className="space-y-5">
+            <div className="relative overflow-hidden rounded-2xl border border-black/6 bg-neutral-50/60 px-5 py-7">
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(circle, rgba(0,0,0,0.065) 1px, transparent 1px)",
+                  backgroundSize: "20px 20px",
+                }}
+              />
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 110% 60% at 50% 0%, rgba(255,255,255,0.94) 0%, transparent 78%)",
+                }}
+              />
+              <div className="relative">
+                <IntegrationConnectBanner platform={platform} />
+                <div className="text-center">
+                  <p className="text-[15px] font-semibold text-foreground">
+                    Connect your Shopify store
+                  </p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                    Enter your store domain to start GEO analysis and enable auto-fixes.
+                  </p>
+                </div>
+              </div>
             </div>
             <div className="space-y-2">
               <Input
@@ -1118,25 +1175,44 @@ export default function CompanyInfoPage() {
         )}
 
         {step === "url" && platform !== "shopify" && (
-          <form onSubmit={handleUrlNext} className="space-y-4">
-            <IntegrationConnectBanner platform={platform} />
-            <div className="text-center">
-              <p className="text-[15px] font-semibold text-foreground">
-                {platform === "wordpress" && "Enter your WordPress URL"}
-                {platform === "webflow" && "Enter your Webflow URL"}
-                {platform === "framer" && "Enter your Framer site URL"}
-                {platform === "nextjs" && "Enter your Next.js site URL"}
-              </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
-                {platform === "wordpress" &&
-                  "We'll connect your site via the Signalor plugin after verifying your URL."}
-                {platform === "webflow" &&
-                  "We'll run GEO analysis directly — no plugin required for Webflow."}
-                {platform === "framer" &&
-                  "We'll verify your site before connecting via the Framer plugin."}
-                {platform === "nextjs" &&
-                  "We'll verify your site before generating your SDK API key."}
-              </p>
+          <form onSubmit={handleUrlNext} className="space-y-5">
+            <div className="relative overflow-hidden rounded-2xl border border-black/6 bg-neutral-50/60 px-5 py-7">
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  backgroundImage:
+                    "radial-gradient(circle, rgba(0,0,0,0.065) 1px, transparent 1px)",
+                  backgroundSize: "20px 20px",
+                }}
+              />
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 110% 60% at 50% 0%, rgba(255,255,255,0.94) 0%, transparent 78%)",
+                }}
+              />
+              <div className="relative">
+                <IntegrationConnectBanner platform={platform} />
+                <div className="text-center">
+                  <p className="text-[15px] font-semibold text-foreground">
+                    {platform === "wordpress" && "Enter your WordPress URL"}
+                    {platform === "webflow" && "Enter your Webflow URL"}
+                    {platform === "framer" && "Enter your Framer site URL"}
+                    {platform === "nextjs" && "Enter your Next.js site URL"}
+                  </p>
+                  <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                    {platform === "wordpress" &&
+                      "We'll connect your site via the Signalor plugin after verifying your URL."}
+                    {platform === "webflow" &&
+                      "We'll run GEO analysis directly — no plugin required for Webflow."}
+                    {platform === "framer" &&
+                      "We'll verify your site before connecting via the Framer plugin."}
+                    {platform === "nextjs" &&
+                      "We'll verify your site before generating your SDK API key."}
+                  </p>
+                </div>
+              </div>
             </div>
             <div className="space-y-2">
               <Input
@@ -1208,7 +1284,7 @@ export default function CompanyInfoPage() {
         {/* ── Step 4: Install App ── */}
         {step === "install" && platform === "shopify" && (
           <div className="space-y-4">
-            <IntegrationConnectBanner platform={platform} />
+            <BrandConnectBanner siteUrl={shopDomain} />
             <div className="text-center">
               <p className="text-[15px] font-semibold text-foreground">
                 Install Signalor on Shopify
@@ -1290,7 +1366,7 @@ export default function CompanyInfoPage() {
 
         {step === "install" && platform === "wordpress" && (
           <div className="space-y-4">
-            <IntegrationConnectBanner platform={platform} />
+            <BrandConnectBanner siteUrl={wpSiteUrl} />
             <div className="text-center">
               <p className="text-[15px] font-semibold text-foreground">
                 Install the Signalor plugin
@@ -1412,7 +1488,7 @@ export default function CompanyInfoPage() {
 
         {step === "install" && platform === "framer" && (
           <div className="space-y-4">
-            <IntegrationConnectBanner platform={platform} />
+            <BrandConnectBanner siteUrl={wpSiteUrl} />
             <div className="text-center">
               <p className="text-[15px] font-semibold text-foreground">Open the Signalor plugin</p>
               <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
@@ -1519,7 +1595,7 @@ export default function CompanyInfoPage() {
 
         {step === "install" && platform === "nextjs" && (
           <div className="space-y-4">
-            <IntegrationConnectBanner platform={platform} />
+            <BrandConnectBanner siteUrl={wpSiteUrl} />
             <div className="text-center">
               <p className="text-[15px] font-semibold text-foreground">Install @signalor/nextjs</p>
               <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
