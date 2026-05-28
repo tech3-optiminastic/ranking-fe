@@ -9,7 +9,16 @@ export default function LlmsCheckToolPage() {
   return (
     <LandingMarketingShell>
       <p className="sr-only">
-        The Signalor LLM Checker is a free tool that diagnoses whether AI search engines can discover, access, and cite your website. It validates the presence and structure of your llms.txt manifest — the file that guides language models to your most important content. The checker parses robots.txt for AI bot directives covering GPTBot (ChatGPT / OpenAI), ClaudeBot (Anthropic Claude), PerplexityBot (Perplexity AI), Google-Extended (Gemini / AI Overviews), and OAI-SearchBot. It also verifies sitemap reachability and scans on-page signals including Organization schema, Article JSON-LD, canonical tags, and Open Graph metadata. Missing or blocking configurations silently prevent AI citations even when content quality is high. Results are instant with no account required. The full Signalor GEO audit adds live probes that show exactly how each AI engine describes and cites your brand.
+        The Signalor LLM Checker is a free tool that diagnoses whether AI search engines can
+        discover, access, and cite your website. It validates the presence and structure of your
+        llms.txt manifest — the file that guides language models to your most important content. The
+        checker parses robots.txt for AI bot directives covering GPTBot (ChatGPT / OpenAI),
+        ClaudeBot (Anthropic Claude), PerplexityBot (Perplexity AI), Google-Extended (Gemini / AI
+        Overviews), and OAI-SearchBot. It also verifies sitemap reachability and scans on-page
+        signals including Organization schema, Article JSON-LD, canonical tags, and Open Graph
+        metadata. Missing or blocking configurations silently prevent AI citations even when content
+        quality is high. Results are instant with no account required. The full Signalor GEO audit
+        adds live probes that show exactly how each AI engine describes and cites your brand.
       </p>
       <ToolPage
         theme="blue"

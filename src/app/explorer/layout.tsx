@@ -47,7 +47,12 @@ const explorerWebPageJsonLd = {
     name: "Signalor Explorer",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free GEO audit available" },
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      description: "Free GEO audit available",
+    },
     featureList: [
       "Emerging AI prompt discovery before competitors",
       "Citation trend tracking across ChatGPT, Claude, Gemini, Perplexity",

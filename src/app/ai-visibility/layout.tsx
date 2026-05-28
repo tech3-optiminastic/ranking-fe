@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/json-ld";
 import { breadcrumbJsonLd, buildMetadata, faqJsonLd, SITE_URL } from "@/lib/seo";
-import {
-  CONTENT_SIGNALS_FAQ,
-} from "@/lib/landing-content-signals-content";
+import { CONTENT_SIGNALS_FAQ } from "@/lib/landing-content-signals-content";
 
 export const metadata: Metadata = buildMetadata({
   title: "AI Visibility Scoring — Schema, Trust & Citation Signals",
@@ -41,7 +39,12 @@ const aiVisibilityWebPageJsonLd = {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: "AI Visibility", item: `${SITE_URL}/ai-visibility` },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "AI Visibility",
+        item: `${SITE_URL}/ai-visibility`,
+      },
     ],
   },
   mainEntity: {
@@ -49,7 +52,12 @@ const aiVisibilityWebPageJsonLd = {
     name: "Signalor AI Visibility",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free GEO audit available" },
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      description: "Free GEO audit available",
+    },
     featureList: [
       "Schema.org coverage audit across 18 types",
       "Trust signal scoring for authorship, citations, and credibility markers",

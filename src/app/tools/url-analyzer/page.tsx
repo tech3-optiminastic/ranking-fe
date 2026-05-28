@@ -9,7 +9,16 @@ export default function UrlAnalyzerToolPage() {
   return (
     <LandingMarketingShell>
       <p className="sr-only">
-        The Signalor URL Analyzer is a free Generative Engine Optimization (GEO) and Answer Engine Optimization (AEO) audit tool that scores any public URL for AI citation readiness. It checks schema.org JSON-LD coverage across Organization, Product, Article, FAQPage, and HowTo types, validates llms.txt presence and structure, parses robots.txt for GPTBot, ClaudeBot, PerplexityBot, and Google-Extended directives, and evaluates on-page trust signals including canonical tags, Open Graph metadata, and authorship markers. The free GEO score report surfaces the three highest-impact fixes ranked by expected citation lift across ChatGPT, Claude, Gemini, Perplexity, and Google AI Overviews. No sign-up is required for the summary audit. Signing up unlocks the full fix queue, live per-engine AI probes, competitor benchmarking, and scheduled weekly or monthly re-analysis to catch score drift.
+        The Signalor URL Analyzer is a free Generative Engine Optimization (GEO) and Answer Engine
+        Optimization (AEO) audit tool that scores any public URL for AI citation readiness. It
+        checks schema.org JSON-LD coverage across Organization, Product, Article, FAQPage, and HowTo
+        types, validates llms.txt presence and structure, parses robots.txt for GPTBot, ClaudeBot,
+        PerplexityBot, and Google-Extended directives, and evaluates on-page trust signals including
+        canonical tags, Open Graph metadata, and authorship markers. The free GEO score report
+        surfaces the three highest-impact fixes ranked by expected citation lift across ChatGPT,
+        Claude, Gemini, Perplexity, and Google AI Overviews. No sign-up is required for the summary
+        audit. Signing up unlocks the full fix queue, live per-engine AI probes, competitor
+        benchmarking, and scheduled weekly or monthly re-analysis to catch score drift.
       </p>
       <ToolPage
         theme="orange"

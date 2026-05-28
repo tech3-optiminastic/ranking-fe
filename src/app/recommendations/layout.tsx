@@ -39,7 +39,12 @@ const recommendationsWebPageJsonLd = {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: "Recommendations", item: `${SITE_URL}/recommendations` },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Recommendations",
+        item: `${SITE_URL}/recommendations`,
+      },
     ],
   },
   mainEntity: {
@@ -47,7 +52,12 @@ const recommendationsWebPageJsonLd = {
     name: "Signalor GEO Recommendations",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free GEO audit available" },
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      description: "Free GEO audit available",
+    },
     featureList: [
       "Prioritized fix queue ranked by GEO score impact",
       "One-click Shopify schema and content publishing",

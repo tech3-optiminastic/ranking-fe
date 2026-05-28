@@ -209,7 +209,7 @@ function MegaMenuLinkCell({
     >
       <Link
         href={item.href}
-        className="group flex gap-3 rounded-sm border border-transparent p-2 text-left transition-colors hover:bg-neutral-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1"
+        className="group flex gap-3 rounded-sm border border-transparent p-2 text-left transition-colors hover:bg-neutral-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1"
         onClick={onNavigate}
       >
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-black/8 text-primary shadow-sm">
@@ -325,6 +325,7 @@ function ResourcesMegaGrid({
           key={key}
           item={item}
           className={pos}
+          isActive={hovered === key}
           onHover={() => scheduleActivate(key)}
           onActivate={() => setHovered(key)}
           onNavigate={() => setOpen(null)}
@@ -357,6 +358,7 @@ function ResourcesMegaGrid({
 function ResourceHoverCell({
   item,
   className,
+  isActive,
   onHover,
   onActivate,
   onNavigate,
@@ -366,6 +368,7 @@ function ResourceHoverCell({
 }: {
   item: MegaMenuItem;
   className?: string;
+  isActive: boolean;
   onHover: () => void;
   onActivate: () => void;
   onNavigate: () => void;
@@ -384,8 +387,9 @@ function ResourceHoverCell({
         ref={linkRef}
         href={item.href}
         className={cn(
-          "flex h-full flex-col justify-center rounded-sm border border-transparent p-2 transition-colors hover:bg-neutral-100",
+          "flex h-full flex-col justify-center rounded-sm border p-2 transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1",
+          isActive ? "border-primary/20 bg-primary/5" : "border-transparent hover:bg-neutral-50/80",
         )}
         onPointerEnter={onHover}
         onFocus={onActivate}
@@ -401,11 +405,23 @@ function ResourceHoverCell({
         }}
       >
         <span className="flex gap-3 text-left">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border border-black/8 text-primary shadow-sm">
+          <span
+            className={cn(
+              "flex h-12 w-12 shrink-0 items-center justify-center rounded-sm border shadow-sm transition-colors",
+              isActive
+                ? "border-primary/20 bg-primary/8 text-primary"
+                : "border-black/8 text-primary",
+            )}
+          >
             <Icon className="h-[15px] w-[15px]" strokeWidth={1.75} aria-hidden />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="text-[14px] font-semibold leading-snug tracking-tight text-neutral-900">
+            <span
+              className={cn(
+                "text-[14px] font-semibold leading-snug tracking-tight transition-colors",
+                isActive ? "text-primary" : "text-neutral-900",
+              )}
+            >
               {item.title}
             </span>
             <span className="mt-0.5 block text-xs font-light leading-snug text-accent-foreground">
@@ -816,7 +832,7 @@ export function LandingMegaNav() {
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1",
                     isOpen
                       ? "bg-neutral-100 text-neutral-900"
-                      : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900",
+                      : "text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900",
                   )}
                   onClick={() => toggleMenu(key)}
                   onKeyDown={(e) => {
@@ -841,7 +857,7 @@ export function LandingMegaNav() {
           })}
           <Link
             href="/pricing"
-            className="rounded-md px-3 py-2 text-[14px] font-medium tracking-tight text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1"
+            className="rounded-md px-3 py-2 text-[14px] font-medium tracking-tight text-neutral-700 transition-colors hover:bg-neutral-50 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-1"
           >
             Pricing
           </Link>

@@ -23,7 +23,18 @@ export default function ExplorerPage() {
   return (
     <LandingMarketingShell>
       <p className="sr-only">
-        Signalor Explorer surfaces the emerging AI prompts buyers are beginning to ask before those queries become competitive battlegrounds. The prompt discovery engine monitors autocomplete signals, citation velocity, and co-mention shifts across ChatGPT, Claude, Gemini, Perplexity, and Google AI Overviews to flag rising questions in your niche. Explorer converts GEO score history, citation trend data, and fix delivery timelines into stakeholder-ready outputs — one-page executive summaries, branded PDF decks for client review cycles, and row-level CSV exports for analyst dashboards. Agency accounts white-label every report with client logos and color palettes so deliverables look native to the agency. Recurring weekly or monthly email digests ship automatically on Pro and above plans, keeping clients and stakeholders informed without manual slide rebuilds. Signalor Explorer is the AI search analytics and GEO reporting layer built for marketing teams, SEO agencies, and in-house brand managers tracking generative engine visibility.
+        Signalor Explorer surfaces the emerging AI prompts buyers are beginning to ask before those
+        queries become competitive battlegrounds. The prompt discovery engine monitors autocomplete
+        signals, citation velocity, and co-mention shifts across ChatGPT, Claude, Gemini,
+        Perplexity, and Google AI Overviews to flag rising questions in your niche. Explorer
+        converts GEO score history, citation trend data, and fix delivery timelines into
+        stakeholder-ready outputs — one-page executive summaries, branded PDF decks for client
+        review cycles, and row-level CSV exports for analyst dashboards. Agency accounts white-label
+        every report with client logos and color palettes so deliverables look native to the agency.
+        Recurring weekly or monthly email digests ship automatically on Pro and above plans, keeping
+        clients and stakeholders informed without manual slide rebuilds. Signalor Explorer is the AI
+        search analytics and GEO reporting layer built for marketing teams, SEO agencies, and
+        in-house brand managers tracking generative engine visibility.
       </p>
       <PromptTrackingHero hero={REPORTING_HERO} cards={REPORTING_HUB_CARDS} />
       <PromptTrackingFeaturesGrid

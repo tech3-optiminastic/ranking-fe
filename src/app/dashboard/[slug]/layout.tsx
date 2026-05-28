@@ -28,6 +28,7 @@ import {
   Compass,
   GitFork,
   Gift,
+  Code2,
   type LucideIcon,
 } from "@/components/icons";
 import {
@@ -97,6 +98,7 @@ const SETTINGS_NAV = [
   { icon: User, label: "Profile", path: "/settings/profile" },
   { icon: CreditCard, label: "Billing", path: "/settings/billing" },
   { icon: Gift, label: "Referrals", path: "/settings/referrals" },
+  { icon: Code2, label: "Developers", path: "/settings/developers" },
 ];
 
 function sectionForDashboardPath(pathname: string, basePath: string): DashboardAppSection {
@@ -227,6 +229,12 @@ function sectionForDashboardPath(pathname: string, basePath: string): DashboardA
     return {
       title: "Referrals",
       hint: "Refer friends and earn discounts on your subscription.",
+    };
+  }
+  if (rel.startsWith("/settings/developers")) {
+    return {
+      title: "Developers",
+      hint: "API keys and webhooks for Webflow, Framer, and custom integrations.",
     };
   }
   if (rel.startsWith("/settings")) {
