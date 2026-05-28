@@ -121,9 +121,12 @@ export function SitemapAuditPanel({ slug }: { slug: string }) {
     return <SitemapAuditSkeleton />;
   }
 
-  // No audit yet, empty state
+  // No audit yet — should only happen briefly while the worker is picking
+  // up the auto-fired task, or on legacy AnalysisRuns that pre-date the
+  // auto-fire. Show a waiting placeholder (no manual button — sitemap
+  // audits now always fire automatically with the main analysis).
   if (!audit) {
-    return <EmptyAudit onStart={handleStart} starting={starting} error={error} />;
+    return <WaitingForAudit error={error} />;
   }
 
   return (
@@ -311,40 +314,21 @@ function SitemapAuditSkeleton() {
 }
 
 // ---------------------------------------------------------------------------
-// Empty state
+// Waiting placeholder (shown while the Celery worker is picking up the
+// auto-fired audit, or on old runs that pre-date the auto-fire flow).
 // ---------------------------------------------------------------------------
 
-function EmptyAudit({
-  onStart,
-  starting,
-  error,
-}: {
-  onStart: () => void;
-  starting: boolean;
-  error: string | null;
-}) {
+function WaitingForAudit({ error }: { error: string | null }) {
   return (
     <div className="rounded-sm border border-border bg-card p-8 text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Gauge className="h-5 w-5" />
+        <Loader2 className="h-5 w-5 animate-spin" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold text-foreground">No sitemap audit yet</h3>
+      <h3 className="mt-4 text-lg font-semibold text-foreground">Sitemap audit is starting…</h3>
       <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-muted-foreground">
-        Fetch your sitemap, score every page for Core Web Vitals, structure, and AI readiness. Up to
-        200 URLs per run.
+        We crawl up to 200 URLs and score each for Core Web Vitals, structure, and AI readiness.
+        This runs automatically alongside the main analysis.
       </p>
-      <button
-        type="button"
-        onClick={onStart}
-        disabled={starting}
-        className={cn(
-          "mt-5 inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90",
-          starting ? "opacity-80" : "",
-        )}
-      >
-        {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-        Run audit
-      </button>
       {error ? <p className="mt-3 text-[12px] text-destructive">{error}</p> : null}
     </div>
   );
