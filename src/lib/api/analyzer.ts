@@ -840,8 +840,12 @@ export interface RankAuditQuery {
 
 // ─── Runs ───────────────────────────────────────────────────────────────────
 
-export async function startAnalysis(payload: StartAnalysisPayload): Promise<StartAnalysisResponse> {
-  const { data } = await apiClient.post("/api/analyzer/analyze/", payload);
+export async function startAnalysis(
+  payload: StartAnalysisPayload,
+  onboardingToken?: string,
+): Promise<StartAnalysisResponse> {
+  const headers = onboardingToken ? { "X-Onboarding-Token": onboardingToken } : undefined;
+  const { data } = await apiClient.post("/api/analyzer/analyze/", payload, { headers });
   return startAnalysisResponseSchema.parse(data);
 }
 

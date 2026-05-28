@@ -29,11 +29,19 @@ function normalizeEmail(email: string): string {
   return email.toLowerCase().trim();
 }
 
-export async function createOrganization(payload: OnboardPayload): Promise<Organization> {
-  const { data } = await apiClient.post("/api/organizations/onboard/", {
-    ...payload,
-    email: normalizeEmail(payload.email),
-  });
+export async function createOrganization(
+  payload: OnboardPayload,
+  onboardingToken?: string,
+): Promise<Organization> {
+  const headers = onboardingToken ? { "X-Onboarding-Token": onboardingToken } : undefined;
+  const { data } = await apiClient.post(
+    "/api/organizations/onboard/",
+    {
+      ...payload,
+      email: normalizeEmail(payload.email),
+    },
+    { headers },
+  );
   return organizationSchema.parse(data);
 }
 

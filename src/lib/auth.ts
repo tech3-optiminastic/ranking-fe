@@ -29,9 +29,7 @@ function getDatabaseClient() {
 const dbClient = getDatabaseClient();
 
 const authSecret =
-  process.env.BETTER_AUTH_SECRET ??
-  process.env.AUTH_SECRET ??
-  process.env.NEXTAUTH_SECRET;
+  process.env.BETTER_AUTH_SECRET ?? process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 
 if (
   !authSecret ||
@@ -60,6 +58,15 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: "better-auth",
     useSecureCookies: isProduction, // false for localhost (HTTP), true for production (HTTPS)
+  },
+  user: {
+    // Required for authClient.deleteUser() to work. Without this the FE
+    // delete-account handler only clears the current session cookie; the
+    // better-auth user/account rows persist and the next sign-in silently
+    // restores the account.
+    deleteUser: {
+      enabled: true,
+    },
   },
   emailAndPassword: {
     enabled: false,

@@ -12,6 +12,7 @@ import {
   type PageScore,
 } from "@/lib/api/analyzer";
 import { getSubscriptionStatus, type SubscriptionStatus } from "@/lib/api/payments";
+import { getOrFetchOnboardingToken } from "@/lib/api/onboarding-security";
 import { routes } from "@/lib/config";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -114,11 +115,15 @@ export function UrlAnalyzerToolInline() {
       if (!finalUrl) return;
       setState({ kind: "running", runId: 0, progress: 0 });
       try {
-        const run = await startAnalysis({
-          url: finalUrl,
-          run_type: "single_page",
-          country: "United States",
-        });
+        const onboardingToken = await getOrFetchOnboardingToken();
+        const run = await startAnalysis(
+          {
+            url: finalUrl,
+            run_type: "single_page",
+            country: "United States",
+          },
+          onboardingToken,
+        );
         setState({ kind: "running", runId: run.id, progress: 0 });
         void pollDetail(run.id);
       } catch {

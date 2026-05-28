@@ -16,6 +16,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MovingBorder } from "@/components/ui/moving-border";
 import { startAnalysis } from "@/lib/api/analyzer";
+import { getOrFetchOnboardingToken } from "@/lib/api/onboarding-security";
 import { useAnalyzerStore } from "@/lib/stores/analyzer-store";
 import { routes } from "@/lib/config";
 
@@ -54,21 +55,22 @@ export function UrlInputForm({
 
     try {
       let normalizedUrl = url.trim();
-      if (
-        !normalizedUrl.startsWith("http://") &&
-        !normalizedUrl.startsWith("https://")
-      ) {
+      if (!normalizedUrl.startsWith("http://") && !normalizedUrl.startsWith("https://")) {
         normalizedUrl = `https://${normalizedUrl}`;
       }
 
-      const result = await startAnalysis({
-        url: normalizedUrl,
-        run_type: "single_page",
-        email,
-        brand_name: brandName.trim() || orgName || undefined,
-        country: country.trim() || undefined,
-        org_id: orgId,
-      });
+      const onboardingToken = await getOrFetchOnboardingToken();
+      const result = await startAnalysis(
+        {
+          url: normalizedUrl,
+          run_type: "single_page",
+          email,
+          brand_name: brandName.trim() || orgName || undefined,
+          country: country.trim() || undefined,
+          org_id: orgId,
+        },
+        onboardingToken,
+      );
 
       reset();
       setRunId(result.id);
@@ -89,12 +91,9 @@ export function UrlInputForm({
     >
       <Card className="glass-card w-full max-w-2xl border-border/70 shadow-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl gradient-text md:text-3xl">
-            Analyze Your Website
-          </CardTitle>
+          <CardTitle className="text-2xl gradient-text md:text-3xl">Analyze Your Website</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Enter a page URL to evaluate AI visibility, technical readiness, and
-            brand strength.
+            Enter a page URL to evaluate AI visibility, technical readiness, and brand strength.
           </p>
         </CardHeader>
         <CardContent>
@@ -128,7 +127,10 @@ export function UrlInputForm({
               <div className="space-y-2">
                 <Label htmlFor="country">Target Country</Label>
                 <Select value={country} onValueChange={setCountry} required>
-                  <SelectTrigger id="country" className="h-10 w-full border-input bg-background text-sm focus:ring-0 focus:border-border">
+                  <SelectTrigger
+                    id="country"
+                    className="h-10 w-full border-input bg-background text-sm focus:ring-0 focus:border-border"
+                  >
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent>
@@ -143,8 +145,8 @@ export function UrlInputForm({
             </div>
 
             <div className="rounded-lg border border-border/70 bg-background/70 p-3 text-xs text-muted-foreground">
-              Tip: For best results, use a specific page URL (product page,
-              category, blog article) instead of only the homepage.
+              Tip: For best results, use a specific page URL (product page, category, blog article)
+              instead of only the homepage.
             </div>
 
             <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">

@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { startAnalysis } from "@/lib/api/analyzer";
+import { getOrFetchOnboardingToken } from "@/lib/api/onboarding-security";
 import { routes } from "@/lib/config";
 import { ArrowRight, Sparkles, BarChart3, Target } from "@/components/icons";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
@@ -64,11 +65,15 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
     setStep(1);
 
     try {
-      await startAnalysis({
-        url: normalizedUrl,
-        run_type: "full_site",
-        country,
-      });
+      const onboardingToken = await getOrFetchOnboardingToken();
+      await startAnalysis(
+        {
+          url: normalizedUrl,
+          run_type: "full_site",
+          country,
+        },
+        onboardingToken,
+      );
       router.push(routes.signUp);
     } catch {
       setError("Couldn't start the audit. Check the URL and try again.");

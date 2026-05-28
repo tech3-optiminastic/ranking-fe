@@ -30,7 +30,7 @@ import {
   uploadProfilePhoto,
   type ProfileData,
 } from "@/lib/api/profile";
-import { signOut } from "@/lib/auth-client";
+import { authClient, signOut } from "@/lib/auth-client";
 import { routes } from "@/lib/config";
 import { DashboardSettingsNav } from "@/components/settings/dashboard-settings-nav";
 import { cn } from "@/lib/utils";
@@ -290,6 +290,16 @@ export default function ProfileSettingsPage() {
     if (!email || deleteConfirmText !== "delete my account") return;
     setDeleting(true);
     setError(null);
+    // Wipe the better-auth user/session/account rows first. Without this,
+    // signing in again with the same Google account silently restores access
+    // even after the Django side is deleted.
+    try {
+      await authClient.deleteUser();
+    } catch {
+      setError("Failed to delete account. Please try again.");
+      setDeleting(false);
+      return;
+    }
     try {
       await deleteAccount(email, deleteConfirmText);
     } catch {

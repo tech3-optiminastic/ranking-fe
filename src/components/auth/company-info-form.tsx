@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 import { useSession } from "@/lib/auth-client";
 import { createOrganization } from "@/lib/api/organizations";
+import { getOrFetchOnboardingToken } from "@/lib/api/onboarding-security";
 import { routes } from "@/lib/config";
 import axios from "axios";
 
@@ -49,11 +50,15 @@ export function CompanyInfoForm() {
     setError("");
 
     try {
-      await createOrganization({
-        name: parsed.data.name,
-        url: parsed.data.url ?? "",
-        email,
-      });
+      const onboardingToken = await getOrFetchOnboardingToken();
+      await createOrganization(
+        {
+          name: parsed.data.name,
+          url: parsed.data.url ?? "",
+          email,
+        },
+        onboardingToken,
+      );
       setCompanyInfo(parsed.data.name, parsed.data.url ?? "");
       setStep("complete");
       router.push(routes.dashboard);

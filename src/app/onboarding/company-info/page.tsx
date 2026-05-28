@@ -628,7 +628,8 @@ export default function CompanyInfoPage() {
       // Create org
       let org;
       try {
-        org = await createOrganization({ name: companyName.trim(), url, email });
+        const onboardingToken = await getOrFetchOnboardingToken(turnstileTokenRef.current);
+        org = await createOrganization({ name: companyName.trim(), url, email }, onboardingToken);
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 409) org = err.response.data;
         else throw err;
@@ -824,15 +825,19 @@ export default function CompanyInfoPage() {
         return;
       }
       setStatusMsg("Starting analysis...");
-      const a = await startAnalysis({
-        url: siteUrl,
-        run_type: "single_page",
-        email: session.user.email,
-        brand_name: companyName.trim(),
-        org_id: orgId,
-        verify_org_workspace: true,
-        prompts: promptList,
-      });
+      const onboardingToken = await getOrFetchOnboardingToken(turnstileTokenRef.current);
+      const a = await startAnalysis(
+        {
+          url: siteUrl,
+          run_type: "single_page",
+          email: session.user.email,
+          brand_name: companyName.trim(),
+          org_id: orgId,
+          verify_org_workspace: true,
+          prompts: promptList,
+        },
+        onboardingToken,
+      );
       try {
         sessionStorage.removeItem(ONBOARDING_DRAFT_KEY);
       } catch {
