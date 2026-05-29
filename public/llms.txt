@@ -39,6 +39,11 @@ Key concepts:
 
 - [Blog](https://signalor.ai/blog): playbooks, research, and guides on GEO, AI search visibility, citations, llms.txt, and structured data.
 
+## Programs
+
+- [Creators program](https://signalor.ai/creators-program): 20% commission affiliate program for creators sharing Signalor with their audience.
+- [Apply to creators program](https://signalor.ai/creators-program/apply): instant auto-approved application for a Signalor creator link.
+
 ## Legal
 
 - [Privacy policy](https://signalor.ai/policy): how Signalor handles user and crawl data.

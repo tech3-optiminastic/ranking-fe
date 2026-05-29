@@ -5,7 +5,6 @@ export default function robots(): MetadataRoute.Robots {
   const disallow = [
     "/api/",
     "/auth/",
-    "/(auth)/",
     "/sign-in",
     "/sign-up",
     "/dashboard",
@@ -16,7 +15,12 @@ export default function robots(): MetadataRoute.Robots {
     "/settings/",
     "/payments",
     "/payments/",
-    "/analyzer/",
+    "/studio",
+    "/studio/",
+    "/creator/sign-in",
+    "/creator/sign-up",
+    "/creator-dashboard",
+    "/creator-dashboard/",
   ];
 
   return {

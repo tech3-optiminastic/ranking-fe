@@ -1,8 +1,26 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { ScreenHR } from "@/components/ui/intersection-diamonds";
 import { ArrowRight, ChevronDown } from "@/components/icons";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbJsonLd, buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Signalor Creators Program — Earn 20% on every referral",
+  description:
+    "Share Signalor with your audience and earn 20% commission on every first-time GEO subscription. Auto-approved links, 30-day refund window, transparent payouts.",
+  path: "/creators-program",
+  keywords: [
+    "Signalor creators program",
+    "GEO affiliate program",
+    "AI SEO referral",
+    "creator partnerships",
+    "SaaS affiliate",
+    "GEO platform commissions",
+  ],
+});
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
@@ -140,6 +158,13 @@ function PrimaryCta({ size = "lg" }: { size?: "lg" | "sm" }) {
 export default function CreatorsProgramPage() {
   return (
     <LandingMarketingShell>
+      <JsonLd
+        id="ld-creators-program-breadcrumb"
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Creators Program", path: "/creators-program" },
+        ])}
+      />
       {/* Hero */}
       <section className="px-6 py-16 sm:py-20 lg:px-12">
         <div className="mx-auto max-w-3xl text-center">

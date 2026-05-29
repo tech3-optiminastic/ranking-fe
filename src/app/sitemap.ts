@@ -26,6 +26,8 @@ const PUBLIC_ROUTES: Route[] = [
   { path: "/tools/llms-check", changeFrequency: "weekly", priority: 0.7 },
   { path: "/tools/schema-validator", changeFrequency: "weekly", priority: 0.7 },
   { path: "/tools/url-analyzer", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/creators-program", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/creators-program/apply", changeFrequency: "monthly", priority: 0.5 },
   { path: "/policy", changeFrequency: "yearly", priority: 0.3 },
   { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
 ];
