@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 import { useSession } from "@/lib/auth-client";
 import { createOrganization } from "@/lib/api/organizations";
+import { getOrFetchOnboardingToken } from "@/lib/api/onboarding-security";
 import { routes } from "@/lib/config";
 import axios from "axios";
 
@@ -49,11 +50,25 @@ export function CompanyInfoForm() {
     setError("");
 
     try {
-      await createOrganization({
-        name: parsed.data.name,
-        url: parsed.data.url ?? "",
-        email,
-      });
+      // Single-use onboarding token gates /organizations/onboard/ — fetch
+      // one even if the user can bypass server-side (internal email /
+      // active sub); the extra round-trip is cheap and removes the only
+      // branch where we'd otherwise hit a 401.
+      let onboardingToken: string | undefined;
+      try {
+        onboardingToken = await getOrFetchOnboardingToken();
+      } catch {
+        // Best-effort — fall through and let the server's 401 surface.
+      }
+
+      await createOrganization(
+        {
+          name: parsed.data.name,
+          url: parsed.data.url ?? "",
+          email,
+        },
+        onboardingToken,
+      );
       setCompanyInfo(parsed.data.name, parsed.data.url ?? "");
       setStep("complete");
       router.push(routes.dashboard);

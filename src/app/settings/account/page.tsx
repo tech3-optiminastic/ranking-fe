@@ -6,13 +6,7 @@ import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { SettingsNav } from "@/components/settings/settings-nav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { routes } from "@/lib/config";
 import { signOut, useSession } from "@/lib/auth-client";
 import {
@@ -22,6 +16,7 @@ import {
   updateOrganization,
   type Organization,
 } from "@/lib/api/organizations";
+import { getOrFetchOnboardingToken } from "@/lib/api/onboarding-security";
 import { useOrgStore } from "@/lib/stores/org-store";
 
 export default function AccountSettingsPage() {
@@ -83,11 +78,27 @@ export default function AccountSettingsPage() {
     setError(null);
     setNotice(null);
     try {
-      const created = await createOrganization({
-        name: newName.trim(),
-        url: newUrl.trim(),
-        email,
-      });
+      // /organizations/onboard/ requires a single-use onboarding token.
+      // Best-effort fetch — for active subscribers the server bypasses the
+      // gate so the call still works even if Turnstile isn't available on
+      // this page. TODO: add a TurnstileWidget here so free-tier users can
+      // also reliably create additional orgs in environments where
+      // TURNSTILE_SECRET is enabled.
+      let onboardingToken: string | undefined;
+      try {
+        onboardingToken = await getOrFetchOnboardingToken();
+      } catch {
+        /* surface server 401 below if the gate rejects */
+      }
+
+      const created = await createOrganization(
+        {
+          name: newName.trim(),
+          url: newUrl.trim(),
+          email,
+        },
+        onboardingToken,
+      );
       const next = [created, ...organizations];
       setLocalOrganizations(next);
       setOrganizations(next);
@@ -177,15 +188,9 @@ export default function AccountSettingsPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h1 className="text-2xl font-bold">Account</h1>
-                <p className="mt-1 text-muted-foreground">
-                  Manage your organizations and session.
-                </p>
+                <p className="mt-1 text-muted-foreground">Manage your organizations and session.</p>
               </div>
-              <Button
-                variant="destructive"
-                onClick={handleSignOut}
-                disabled={signingOut}
-              >
+              <Button variant="destructive" onClick={handleSignOut} disabled={signingOut}>
                 {signingOut ? "Signing Out..." : "Sign Out"}
               </Button>
             </div>
@@ -211,9 +216,7 @@ export default function AccountSettingsPage() {
             <Card className="glass-card border-border/70">
               <CardHeader>
                 <CardTitle>Organizations</CardTitle>
-                <CardDescription>
-                  Edit name/URL or delete organizations from here.
-                </CardDescription>
+                <CardDescription>Edit name/URL or delete organizations from here.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <form onSubmit={handleCreateOrg} className="grid gap-2 md:grid-cols-3">
@@ -279,11 +282,7 @@ export default function AccountSettingsPage() {
                                 </p>
                               </div>
                               <div className="flex items-center gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => startEdit(org)}
-                                >
+                                <Button variant="outline" size="sm" onClick={() => startEdit(org)}>
                                   Edit
                                 </Button>
                                 <Button
@@ -317,7 +316,8 @@ export default function AccountSettingsPage() {
             <h3 className="text-lg font-semibold text-foreground mb-2">Delete project</h3>
             <p className="text-sm text-muted-foreground mb-4 text-left">
               This cannot be undone. Type the project name{" "}
-              <strong className="text-foreground">&ldquo;{deleteOrgDialog.name}&rdquo;</strong> to confirm.
+              <strong className="text-foreground">&ldquo;{deleteOrgDialog.name}&rdquo;</strong> to
+              confirm.
             </p>
             <label className="block text-left text-xs font-medium text-muted-foreground mb-1.5">
               Project name
@@ -333,7 +333,11 @@ export default function AccountSettingsPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  if (!deleteOrgDialog || deleteOrgConfirmText.trim() !== deleteOrgDialog.name.trim()) return;
+                  if (
+                    !deleteOrgDialog ||
+                    deleteOrgConfirmText.trim() !== deleteOrgDialog.name.trim()
+                  )
+                    return;
                   handleDeleteOrg(deleteOrgDialog.id);
                 }}
                 disabled={deleteOrgConfirmText.trim() !== deleteOrgDialog.name.trim()}

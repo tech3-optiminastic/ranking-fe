@@ -1,12 +1,14 @@
 /**
  * Client for the analyzer onboarding gate.
  *
- * Flow: fetchOnboardingToken() → store token in memory → pass via the
- * `X-Onboarding-Token` header on calls to /api/analyzer/generate-prompts/
- * (and any future public AI endpoint we gate this way).
+ * Flow: fetch a fresh token before each gated call, pass it via the
+ * `X-Onboarding-Token` header. Tokens are **single-use** server-side
+ * (issue #16 / sec/onboarding-replay): the server marks each token
+ * consumed after a successful verify, so caching across calls breaks.
  *
- * Tokens are ~15 min — usually one fetch per onboarding session is enough.
- * On 401 from a gated endpoint, refetch and retry once.
+ * Tokens have a 15-minute server-side TTL — that's the maximum lifetime
+ * before signature expiry, not a reuse window. On 401 ("consumed" or
+ * "expired") from a gated endpoint, fetch a fresh token and retry once.
  */
 import { z } from "zod";
 
@@ -34,21 +36,16 @@ export async function fetchOnboardingToken(turnstileToken?: string): Promise<Onb
 }
 
 /**
- * Module-scoped cache so repeated callers in a single page session reuse
- * the same token. Cleared on refresh — fine for the onboarding flow.
+ * Always returns a freshly-minted token — tokens are single-use server-side,
+ * so caching would yield 401 ("consumed") on the second call.
+ *
+ * Name kept for backwards compatibility with existing call sites; the
+ * "or fetch" is now redundant but harmless.
  */
-let cached: { token: string; expiresAt: number } | null = null;
-
 export async function getOrFetchOnboardingToken(turnstileToken?: string): Promise<string> {
-  const now = Date.now();
-  if (cached && cached.expiresAt > now + 30_000) {
-    return cached.token;
-  }
   const fresh = await fetchOnboardingToken(turnstileToken);
-  cached = { token: fresh.token, expiresAt: now + fresh.expires_in * 1000 };
   return fresh.token;
 }
 
-export function clearOnboardingToken() {
-  cached = null;
-}
+/** No-op — kept for callers that still import it. Token caching was removed. */
+export function clearOnboardingToken() {}

@@ -625,15 +625,30 @@ export default function CompanyInfoPage() {
       }
       setSiteUrl(url);
 
-      // Create org — no onboarding token needed; the user already has a
-      // better-auth session and Turnstile may not have solved yet at this
-      // step (Managed mode shows a visible checkbox).
+      // Fetch a single-use onboarding token before creating the org so the
+      // /organizations/onboard/ gate has something to verify. Internal
+      // emails and active subscribers bypass the gate server-side, but we
+      // always fetch — fetch is cheap, and getting a token doesn't hurt
+      // those callers either.
+      let onboardingToken: string | undefined;
+      try {
+        onboardingToken = await getOrFetchOnboardingToken(turnstileTokenRef.current);
+      } catch {
+        // Turnstile fail / network blip — fall through and let /onboard/
+        // surface the 401 with a clearer error. Don't block on this call.
+      }
+
       let org;
       try {
-        org = await createOrganization({ name: companyName.trim(), url, email });
+        org = await createOrganization({ name: companyName.trim(), url, email }, onboardingToken);
       } catch (err) {
-        if (axios.isAxiosError(err) && err.response?.status === 409) org = err.response.data;
-        else throw err;
+        if (axios.isAxiosError(err) && err.response?.status === 409) {
+          // Backend says we already have an org for this (email, domain) —
+          // reuse it instead of failing the onboarding step.
+          org = err.response.data.organization ?? err.response.data;
+        } else {
+          throw err;
+        }
       }
       setOrgId(org?.id);
 
