@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import {
@@ -34,6 +35,17 @@ import { authClient, signOut } from "@/lib/auth-client";
 import { routes } from "@/lib/config";
 import { DashboardSettingsNav } from "@/components/settings/dashboard-settings-nav";
 import { cn } from "@/lib/utils";
+
+/** Renders children into document.body so modals escape ancestor transforms (which
+ * otherwise become the containing block for position: fixed). */
+function ModalPortal({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
+  return createPortal(children, document.body);
+}
 
 /** Two-column form row: label + helper on the left, input(s) on the right. */
 function FieldRow({
@@ -688,209 +700,224 @@ export default function ProfileSettingsPage() {
 
       {/* ── Modal dialogs (unchanged behavior) ───────────────────────── */}
       {deleteOrgId !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-sm rounded-lg border border-black/8 bg-white p-6 text-center shadow-[0_24px_64px_-20px_rgba(15,23,42,0.2)]">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-black/8 bg-white text-rose-600 shadow-sm">
-              <Trash2 className="h-6 w-6" strokeWidth={1.75} />
-            </div>
-            <h3 className="mb-2 text-[16px] font-semibold tracking-tight text-neutral-900">
-              Delete project
-            </h3>
-            <p className="mb-4 text-left text-[13px] font-light leading-relaxed text-neutral-600">
-              This will remove all analysis runs and data for this project. Type the project name{" "}
-              <strong className="font-semibold text-neutral-900">
-                &ldquo;{deleteOrgName}&rdquo;
-              </strong>{" "}
-              to confirm.
-            </p>
-            <label className="mb-1.5 block text-left text-[11px] font-semibold tracking-tight text-neutral-600">
-              Project name
-            </label>
-            <input
-              type="text"
-              value={deleteOrgConfirmText}
-              onChange={(e) => setDeleteOrgConfirmText(e.target.value)}
-              autoComplete="off"
-              placeholder={deleteOrgName}
-              className={cn(INPUT_CLS, "mb-4")}
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  if (deleteOrgId === null || deleteOrgConfirmText.trim() !== deleteOrgName.trim())
-                    return;
-                  handleDelete(deleteOrgId);
-                  setDeleteOrgId(null);
-                  setDeleteOrgName("");
-                  setDeleteOrgConfirmText("");
-                }}
-                disabled={
-                  deletingId === deleteOrgId || deleteOrgConfirmText.trim() !== deleteOrgName.trim()
-                }
-                className="flex-1 rounded-md bg-rose-600 py-2.5 text-[13px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-rose-700 disabled:opacity-50"
-              >
-                {deletingId === deleteOrgId ? "Deleting…" : "Delete project"}
-              </button>
-              <button
-                onClick={() => {
-                  setDeleteOrgId(null);
-                  setDeleteOrgName("");
-                  setDeleteOrgConfirmText("");
-                }}
-                className="flex-1 rounded-md border border-black/8 bg-white py-2.5 text-[13px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showTerminateDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-md rounded-lg border border-black/8 bg-white p-6 shadow-[0_24px_64px_-20px_rgba(15,23,42,0.2)]">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md border border-black/8 bg-white text-amber-500 shadow-sm">
-                <Clock className="h-5 w-5" strokeWidth={1.75} />
+        <ModalPortal>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="mx-4 w-full max-w-sm rounded-lg border border-black/8 bg-white p-6 text-center shadow-[0_24px_64px_-20px_rgba(15,23,42,0.2)]">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-black/8 bg-white text-rose-600 shadow-sm">
+                <Trash2 className="h-6 w-6" strokeWidth={1.75} />
               </div>
-              <div>
-                <h3 className="text-[15px] font-semibold tracking-tight text-neutral-900">
-                  Pause account
-                </h3>
-                <p className="text-[12px] font-light text-neutral-500">
-                  Temporarily pause your account
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-5 rounded-md border border-amber-500/20 bg-amber-50 p-4">
-              <p className="text-[12px] font-light leading-relaxed text-amber-700">
-                Your account will be paused. You can{" "}
-                <span className="font-semibold">resume anytime</span> from this settings page. While
-                paused, scheduled analyses and integrations will be disabled.
+              <h3 className="mb-2 text-[16px] font-semibold tracking-tight text-neutral-900">
+                Delete project
+              </h3>
+              <p className="mb-4 text-left text-[13px] font-light leading-relaxed text-neutral-600">
+                This will remove all analysis runs and data for this project. Type the project name{" "}
+                <strong className="font-semibold text-neutral-900">
+                  &ldquo;{deleteOrgName}&rdquo;
+                </strong>{" "}
+                to confirm.
               </p>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={handleTerminate}
-                disabled={terminating}
-                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-amber-500 py-2.5 text-[13px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-amber-600 disabled:opacity-50"
-              >
-                {terminating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Clock className="h-4 w-4" strokeWidth={1.75} />
-                )}
-                {terminating ? "Pausing…" : "Pause account"}
-              </button>
-              <button
-                onClick={() => setShowTerminateDialog(false)}
-                className="rounded-md border border-black/8 bg-white px-5 py-2.5 text-[13px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {deleteStep === 1 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-sm rounded-lg border border-black/8 bg-white p-6 text-center shadow-[0_24px_64px_-20px_rgba(15,23,42,0.2)]">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-black/8 bg-white text-rose-600 shadow-sm">
-              <ShieldX className="h-6 w-6" strokeWidth={1.75} />
-            </div>
-            <h3 className="mb-2 text-[16px] font-semibold tracking-tight text-neutral-900">
-              Are you sure?
-            </h3>
-            <p className="mb-6 text-[13px] font-light leading-relaxed text-neutral-600">
-              You&apos;re about to delete your account. This will remove all your data permanently.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setDeleteStep(2)}
-                className="flex-1 rounded-md bg-rose-600 py-2.5 text-[13px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-rose-700"
-              >
-                Yes, continue
-              </button>
-              <button
-                onClick={() => setDeleteStep(0)}
-                className="flex-1 rounded-md border border-black/8 bg-white py-2.5 text-[13px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
-              >
-                No, go back
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {deleteStep === 2 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-md rounded-lg border border-black/8 bg-white p-6 shadow-[0_24px_64px_-20px_rgba(15,23,42,0.2)]">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-md border border-black/8 bg-white text-rose-600 shadow-sm">
-                <ShieldX className="h-5 w-5" strokeWidth={1.75} />
-              </div>
-              <div>
-                <h3 className="text-[15px] font-semibold tracking-tight text-neutral-900">
-                  Delete account permanently
-                </h3>
-                <p className="text-[12px] font-light text-neutral-500">
-                  This action is irreversible
-                </p>
-              </div>
-            </div>
-
-            <div className="mb-4 rounded-md border border-rose-200 bg-rose-50 p-3">
-              <p className="text-[12px] font-light leading-relaxed text-rose-700">
-                This will permanently delete your account, all analysis runs, organizations,
-                subscription data, and everything associated with{" "}
-                <span className="font-semibold">{email}</span>. This cannot be undone.
-              </p>
-            </div>
-
-            <div className="mb-4">
-              <label className="mb-1.5 block text-[11px] font-semibold tracking-tight text-neutral-600">
-                Type{" "}
-                <span className="font-mono font-semibold text-neutral-900">delete my account</span>{" "}
-                to confirm
+              <label className="mb-1.5 block text-left text-[11px] font-semibold tracking-tight text-neutral-600">
+                Project name
               </label>
               <input
                 type="text"
-                value={deleteConfirmText}
-                onChange={(e) => setDeleteConfirmText(e.target.value)}
-                placeholder="delete my account"
-                autoFocus
-                className={cn(INPUT_CLS, "font-mono")}
+                value={deleteOrgConfirmText}
+                onChange={(e) => setDeleteOrgConfirmText(e.target.value)}
+                autoComplete="off"
+                placeholder={deleteOrgName}
+                className={cn(INPUT_CLS, "mb-4")}
               />
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deleting || deleteConfirmText !== "delete my account"}
-                className="flex flex-1 items-center justify-center gap-2 rounded-md bg-rose-600 py-2.5 text-[13px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {deleting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" strokeWidth={1.75} />
-                )}
-                {deleting ? "Deleting…" : "Delete forever"}
-              </button>
-              <button
-                onClick={() => {
-                  setDeleteStep(0);
-                  setDeleteConfirmText("");
-                }}
-                className="rounded-md border border-black/8 bg-white px-5 py-2.5 text-[13px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
-              >
-                Cancel
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    if (
+                      deleteOrgId === null ||
+                      deleteOrgConfirmText.trim() !== deleteOrgName.trim()
+                    )
+                      return;
+                    handleDelete(deleteOrgId);
+                    setDeleteOrgId(null);
+                    setDeleteOrgName("");
+                    setDeleteOrgConfirmText("");
+                  }}
+                  disabled={
+                    deletingId === deleteOrgId ||
+                    deleteOrgConfirmText.trim() !== deleteOrgName.trim()
+                  }
+                  className="flex-1 rounded-md bg-rose-600 py-2.5 text-[13px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-rose-700 disabled:opacity-50"
+                >
+                  {deletingId === deleteOrgId ? "Deleting…" : "Delete project"}
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteOrgId(null);
+                    setDeleteOrgName("");
+                    setDeleteOrgConfirmText("");
+                  }}
+                  className="flex-1 rounded-md border border-black/8 bg-white py-2.5 text-[13px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
+      )}
+
+      {showTerminateDialog && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="mx-4 w-full max-w-md rounded-lg border border-black/8 bg-white p-6 shadow-[0_24px_64px_-20px_rgba(15,23,42,0.2)]">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-black/8 bg-white text-amber-500 shadow-sm">
+                  <Clock className="h-5 w-5" strokeWidth={1.75} />
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-semibold tracking-tight text-neutral-900">
+                    Pause account
+                  </h3>
+                  <p className="text-[12px] font-light text-neutral-500">
+                    Temporarily pause your account
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-5 rounded-md border border-amber-500/20 bg-amber-50 p-4">
+                <p className="text-[12px] font-light leading-relaxed text-amber-700">
+                  Your account will be paused. You can{" "}
+                  <span className="font-semibold">resume anytime</span> from this settings page.
+                  While paused, scheduled analyses and integrations will be disabled.
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleTerminate}
+                  disabled={terminating}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-md bg-amber-500 py-2.5 text-[13px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-amber-600 disabled:opacity-50"
+                >
+                  {terminating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Clock className="h-4 w-4" strokeWidth={1.75} />
+                  )}
+                  {terminating ? "Pausing…" : "Pause account"}
+                </button>
+                <button
+                  onClick={() => setShowTerminateDialog(false)}
+                  className="rounded-md border border-black/8 bg-white px-5 py-2.5 text-[13px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {deleteStep === 1 && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="mx-4 w-full max-w-sm rounded-lg border border-black/8 bg-white p-6 text-center shadow-[0_24px_64px_-20px_rgba(15,23,42,0.2)]">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md border border-black/8 bg-white text-rose-600 shadow-sm">
+                <ShieldX className="h-6 w-6" strokeWidth={1.75} />
+              </div>
+              <h3 className="mb-2 text-[16px] font-semibold tracking-tight text-neutral-900">
+                Are you sure?
+              </h3>
+              <p className="mb-6 text-[13px] font-light leading-relaxed text-neutral-600">
+                You&apos;re about to delete your account. This will remove all your data
+                permanently.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setDeleteStep(2)}
+                  className="flex-1 rounded-md bg-rose-600 py-2.5 text-[13px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-rose-700"
+                >
+                  Yes, continue
+                </button>
+                <button
+                  onClick={() => setDeleteStep(0)}
+                  className="flex-1 rounded-md border border-black/8 bg-white py-2.5 text-[13px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
+                >
+                  No, go back
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {deleteStep === 2 && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="mx-4 w-full max-w-md rounded-lg border border-black/8 bg-white p-6 shadow-[0_24px_64px_-20px_rgba(15,23,42,0.2)]">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-black/8 bg-white text-rose-600 shadow-sm">
+                  <ShieldX className="h-5 w-5" strokeWidth={1.75} />
+                </div>
+                <div>
+                  <h3 className="text-[15px] font-semibold tracking-tight text-neutral-900">
+                    Delete account permanently
+                  </h3>
+                  <p className="text-[12px] font-light text-neutral-500">
+                    This action is irreversible
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-4 rounded-md border border-rose-200 bg-rose-50 p-3">
+                <p className="text-[12px] font-light leading-relaxed text-rose-700">
+                  This will permanently delete your account, all analysis runs, organizations,
+                  subscription data, and everything associated with{" "}
+                  <span className="font-semibold">{email}</span>. This cannot be undone.
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="mb-1.5 block text-[11px] font-semibold tracking-tight text-neutral-600">
+                  Type{" "}
+                  <span className="font-mono font-semibold text-neutral-900">
+                    delete my account
+                  </span>{" "}
+                  to confirm
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="delete my account"
+                  autoFocus
+                  className={cn(INPUT_CLS, "font-mono")}
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting || deleteConfirmText !== "delete my account"}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-md bg-rose-600 py-2.5 text-[13px] font-semibold tracking-tight text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {deleting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                  )}
+                  {deleting ? "Deleting…" : "Delete forever"}
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteStep(0);
+                    setDeleteConfirmText("");
+                  }}
+                  className="rounded-md border border-black/8 bg-white px-5 py-2.5 text-[13px] font-semibold tracking-tight text-neutral-700 shadow-sm transition hover:bg-neutral-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </div>
   );

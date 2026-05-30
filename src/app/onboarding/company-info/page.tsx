@@ -5,13 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import {
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createOrganization } from "@/lib/api/organizations";
@@ -54,34 +48,6 @@ const STEP_ORDER: Step[] = [
   "launch",
 ];
 
-const STEP_HERO: Record<Step, { headline: string; sub: string }> = {
-  company: {
-    headline: "Set up your workspace",
-    sub: "Tell us your brand name, we use it for your project and default prompts.",
-  },
-  platform: {
-    headline: "Choose your platform",
-    sub: "Connect your stack for auto-fixes, schema, and deeper GEO insights.",
-  },
-  url: { headline: "", sub: "" },
-  install: {
-    headline: "Connect your site",
-    sub: "Install the integration now or skip and add it later from settings.",
-  },
-  prompts: {
-    headline: "Review prompts",
-    sub: "We track these queries across AI engines for your brand.",
-  },
-  analytics: {
-    headline: "Connect Analytics",
-    sub: "Optional, link Google Analytics to see AI referral traffic.",
-  },
-  launch: {
-    headline: "Launch analysis",
-    sub: "We scan your site across six GEO pillars.",
-  },
-};
-
 /** Nested panels inside the main card (install blocks, prompts list, etc.) */
 const PANEL =
   "rounded-xl border border-black/8 bg-white shadow-[0_2px_14px_rgba(0,0,0,0.045)] isolate";
@@ -91,34 +57,6 @@ const ERR_BOX =
 
 const STATUS_BOX =
   "flex items-center gap-2 rounded-md border border-black/6 bg-muted/35 px-3 py-2 text-[12px] text-muted-foreground";
-
-const STEP_CONTENT: Record<Step, { title: string; description: string }> = {
-  company: { title: "", description: "" },
-  platform: {
-    title: "Choose your platform",
-    description: "Pick where your site is built.",
-  },
-  url: {
-    title: "Project URL",
-    description: "This becomes your primary site URL in Signalor.",
-  },
-  install: {
-    title: "Install or skip",
-    description: "OAuth or plugin unlocks auto-fixes; you can finish later.",
-  },
-  prompts: {
-    title: "Tracking prompts",
-    description: "Tap a prompt to edit, or add your own.",
-  },
-  analytics: {
-    title: "Google Analytics",
-    description: "Measure sessions referred from ChatGPT, Perplexity, and more.",
-  },
-  launch: {
-    title: "Summary",
-    description: "Confirm details, then start your first scan.",
-  },
-};
 
 function fmtErr(err: unknown): string {
   if (!axios.isAxiosError(err)) return "Something went wrong. Please try again.";
@@ -150,6 +88,109 @@ type Draft = {
   prompts: string[];
   appInstalled: boolean;
 };
+
+const PLATFORM_META: Record<Platform, { logo: string; starBg: string; label: string }> = {
+  shopify: {
+    logo: "/logos/shopify.svg",
+    starBg:
+      "conic-gradient(from 22.5deg, rgba(150,191,72,0.22), rgba(150,191,72,0.04), rgba(150,191,72,0.22), rgba(150,191,72,0.04), rgba(150,191,72,0.22), rgba(150,191,72,0.04), rgba(150,191,72,0.22), rgba(150,191,72,0.04))",
+    label: "Shopify",
+  },
+  wordpress: {
+    logo: "/logos/wordpress.svg",
+    starBg:
+      "conic-gradient(from 22.5deg, rgba(33,117,155,0.24), rgba(33,117,155,0.04), rgba(33,117,155,0.24), rgba(33,117,155,0.04), rgba(33,117,155,0.24), rgba(33,117,155,0.04), rgba(33,117,155,0.24), rgba(33,117,155,0.04))",
+    label: "WordPress",
+  },
+  webflow: {
+    logo: "/logos/webflow.svg",
+    starBg:
+      "conic-gradient(from 22.5deg, rgba(20,110,245,0.22), rgba(20,110,245,0.04), rgba(20,110,245,0.22), rgba(20,110,245,0.04), rgba(20,110,245,0.22), rgba(20,110,245,0.04), rgba(20,110,245,0.22), rgba(20,110,245,0.04))",
+    label: "Webflow",
+  },
+  framer: {
+    logo: "/logos/framer.svg",
+    starBg:
+      "conic-gradient(from 22.5deg, rgba(0,85,255,0.22), rgba(0,85,255,0.04), rgba(0,85,255,0.22), rgba(0,85,255,0.04), rgba(0,85,255,0.22), rgba(0,85,255,0.04), rgba(0,85,255,0.22), rgba(0,85,255,0.04))",
+    label: "Framer",
+  },
+  nextjs: {
+    logo: "/logos/nextjs.svg",
+    starBg:
+      "conic-gradient(from 22.5deg, rgba(0,0,0,0.10), rgba(0,0,0,0.02), rgba(0,0,0,0.10), rgba(0,0,0,0.02), rgba(0,0,0,0.10), rgba(0,0,0,0.02), rgba(0,0,0,0.10), rgba(0,0,0,0.02))",
+    label: "Next.js",
+  },
+};
+
+const SIGNALOR_STAR_BG =
+  "conic-gradient(from 22.5deg, rgba(220,50,30,0.13), rgba(220,50,30,0.02), rgba(220,50,30,0.13), rgba(220,50,30,0.02), rgba(220,50,30,0.13), rgba(220,50,30,0.02), rgba(220,50,30,0.13), rgba(220,50,30,0.02))";
+
+function IntegrationConnectBanner({ platform }: { platform: Platform }) {
+  const meta = PLATFORM_META[platform];
+  return (
+    <div className="mb-5 flex items-center justify-center gap-3">
+      {/* Platform logo — left */}
+      <div
+        className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl border border-black/8 shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
+        style={{ background: meta.starBg }}
+      >
+        <img src={meta.logo} alt={meta.label} className="h-9 w-9 object-contain" />
+      </div>
+
+      <div className="flex items-center gap-1 text-muted-foreground/40">
+        <span className="block h-px w-5 border-t-2 border-dashed border-current" />
+        <span className="block h-1.5 w-1.5 rounded-full bg-current" />
+        <span className="block h-px w-5 border-t-2 border-dashed border-current" />
+      </div>
+
+      {/* Signalor logo — right */}
+      <div
+        className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl border border-black/8 shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
+        style={{ background: SIGNALOR_STAR_BG }}
+      >
+        <img src="/icon.svg" alt="Signalor" className="h-9 w-9 object-contain" />
+      </div>
+    </div>
+  );
+}
+
+function BrandConnectBanner({ siteUrl }: { siteUrl: string }) {
+  const [failed, setFailed] = useState(false);
+  const domain = siteUrl
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "")
+    .split("/")[0];
+
+  return (
+    <div className="mb-4 flex items-center justify-center gap-3">
+      <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)]">
+        {domain && !failed ? (
+          <img
+            src={`https://www.google.com/s2/favicons?domain=${domain}&sz=64`}
+            alt={domain}
+            className="h-9 w-9 rounded-lg object-contain"
+            onError={() => setFailed(true)}
+          />
+        ) : (
+          <Globe className="h-8 w-8 text-muted-foreground/30" />
+        )}
+      </div>
+
+      <div className="flex items-center gap-1 text-muted-foreground/40">
+        <span className="block h-px w-5 border-t-2 border-dashed border-current" />
+        <span className="block h-1.5 w-1.5 rounded-full bg-current" />
+        <span className="block h-px w-5 border-t-2 border-dashed border-current" />
+      </div>
+
+      <div
+        className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-2xl border border-black/8 shadow-[0_2px_12px_rgba(0,0,0,0.08)]"
+        style={{ background: SIGNALOR_STAR_BG }}
+      >
+        <img src="/icon.svg" alt="Signalor" className="h-9 w-9 object-contain" />
+      </div>
+    </div>
+  );
+}
 
 function SiteFavicon({ url }: { url: string }) {
   const [failed, setFailed] = useState(false);
@@ -255,19 +296,6 @@ export default function RootLayout({ children }) {
   return (
     <div className="space-y-3">
       <div className={`${PANEL} p-4`}>
-        <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-900/5">
-            <img src="/logos/nextjs.svg" alt="Next.js" className="h-5 w-5 object-contain" />
-          </div>
-          <div>
-            <p className="text-[13px] font-medium text-foreground">@signalor/nextjs</p>
-            <p className="text-[11px] leading-relaxed text-muted-foreground">
-              Auto-injects schema, serves <code>/llms.txt</code>, and notifies Signalor on every
-              deploy. Four files, zero runtime deps.
-            </p>
-          </div>
-        </div>
-
         <div className="space-y-2.5">
           {blocks.map((b, i) => (
             <div key={b.id}>
@@ -881,74 +909,16 @@ export default function CompanyInfoPage() {
 
   const totalSteps = STEP_ORDER.length;
   const sn = STEP_ORDER.indexOf(step) + 1;
-  const showStepDetail = step !== "company";
-  const { title: stepTitle, description: stepDescription } = STEP_CONTENT[step];
-
-  const hero =
-    step === "url"
-      ? platform === "shopify"
-        ? {
-            headline: "Your store URL",
-            sub: "Enter your Shopify store domain (e.g. your-store.myshopify.com).",
-          }
-        : platform === "webflow"
-          ? {
-              headline: "Your Webflow site URL",
-              sub: "Enter your published Webflow site (e.g. yoursite.com or yoursite.webflow.io).",
-            }
-          : platform === "framer"
-            ? {
-                headline: "Your Framer site URL",
-                sub: "Enter your published Framer site (e.g. yoursite.com or yoursite.framer.website).",
-              }
-            : platform === "nextjs"
-              ? {
-                  headline: "Your Next.js site URL",
-                  sub: "The public URL of your deployed app (Vercel, Netlify, self-hosted).",
-                }
-              : {
-                  headline: "Your website URL",
-                  sub: "Enter your public WordPress site address.",
-                }
-      : step === "install"
-        ? platform === "shopify"
-          ? {
-              headline: "Install Signalor",
-              sub: "Install the app on your store for schema, meta tags, and llms.txt.",
-            }
-          : platform === "framer"
-            ? {
-                headline: "Install the Framer plugin",
-                sub: "See your GEO score inside the Framer canvas. Takes about 30 seconds.",
-              }
-            : platform === "nextjs"
-              ? {
-                  headline: "Install @signalor/nextjs",
-                  sub: "One pnpm install + four lines of code. Schema, llms.txt, sitemap, deploy notify.",
-                }
-              : {
-                  headline: "Install plugin",
-                  sub: "Add Signalor GEO in WordPress, then connect with your API key.",
-                }
-        : STEP_HERO[step];
 
   if (isPending || !session) {
     return (
       <div aria-busy="true" aria-live="polite">
-        <OnboardingStepper current={sn} total={totalSteps} className="mb-5" />
-        <CardHeader className="space-y-2 border-b border-black/6 px-0 pb-4 pt-0">
-          <CardTitle className="text-xl font-semibold tracking-tight text-foreground">
-            <div className="flex items-center justify-between gap-2">
-              <div>Loading</div>
-              <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
-                Step ,/{totalSteps}
-              </span>
-            </div>
-          </CardTitle>
-          <CardDescription className="text-[13px] leading-relaxed text-muted-foreground">
-            Checking your session…
-          </CardDescription>
-        </CardHeader>
+        <div className="relative mb-5">
+          <OnboardingStepper current={sn} total={totalSteps} />
+          <span className="absolute right-0 top-1/2 -translate-y-1/2 text-[11px] tabular-nums text-muted-foreground">
+            {sn}/{totalSteps}
+          </span>
+        </div>
         <CardContent className="flex flex-col items-center justify-center gap-3 px-0 py-14">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" aria-hidden />
           <p className="text-[12px] text-muted-foreground">One moment</p>
@@ -959,7 +929,12 @@ export default function CompanyInfoPage() {
 
   return (
     <div>
-      <OnboardingStepper current={sn} total={totalSteps} className="mb-5" />
+      <div className="relative mb-5">
+        <OnboardingStepper current={sn} total={totalSteps} />
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 text-[11px] tabular-nums text-muted-foreground">
+          {sn}/{totalSteps}
+        </span>
+      </div>
       <div className="mb-3 flex flex-col items-center gap-1.5">
         <TurnstileWidget
           onToken={(t) => {
@@ -967,30 +942,6 @@ export default function CompanyInfoPage() {
           }}
         />
       </div>
-      <CardHeader className="space-y-2 border-b border-black/6 px-0 pb-4 pt-0">
-        <div className="space-y-1.5">
-          <CardTitle className="text-xl font-semibold tracking-tight text-foreground">
-            <div className="flex items-start justify-between gap-3">
-              <span className="min-w-0 leading-snug">{hero.headline}</span>
-              <span className="shrink-0 pt-0.5 text-[11px] tabular-nums tracking-wide text-muted-foreground">
-                Step {sn}/{totalSteps}
-              </span>
-            </div>
-          </CardTitle>
-          <CardDescription className="text-[13px] leading-relaxed text-muted-foreground">
-            {hero.sub}
-          </CardDescription>
-          {/* {showStepDetail && (
-            <div className="border-t border-black/6 pt-3">
-              <p className="text-[13px] font-medium text-foreground">{stepTitle}</p>
-              <CardDescription className="mt-0.5 text-[12px] leading-relaxed">
-                {stepDescription}
-              </CardDescription>
-            </div>
-          )} */}
-        </div>
-      </CardHeader>
-
       <CardContent className="space-y-4 px-0 pt-5">
         {atLimitNotice ? (
           <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-[12px] leading-relaxed text-amber-900">
@@ -1130,11 +1081,19 @@ export default function CompanyInfoPage() {
 
         {/* ── Step 3: Enter URL ── */}
         {step === "url" && platform === "shopify" && (
-          <form onSubmit={handleUrlNext} className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="onboarding-shop-domain" className="text-[12px] font-medium">
-                Store domain
-              </Label>
+          <form onSubmit={handleUrlNext} className="space-y-5">
+            <div>
+              <IntegrationConnectBanner platform={platform} />
+              <div className="text-center">
+                <p className="text-[15px] font-semibold text-foreground">
+                  Connect your Shopify store
+                </p>
+                <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                  Enter your store domain to start GEO analysis and enable auto-fixes.
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
               <Input
                 id="onboarding-shop-domain"
                 placeholder="your-store.myshopify.com"
@@ -1156,16 +1115,10 @@ export default function CompanyInfoPage() {
                 className={`h-9 rounded-md bg-white text-[13px] ${shopDomainErr ? "border-destructive focus-visible:ring-destructive/20" : "border-neutral-200"}`}
               />
               {shopDomainErr && <p className="text-[11px] text-destructive">{shopDomainErr}</p>}
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="onboarding-store-password" className="text-[12px] font-medium">
-                Storefront password{" "}
-                <span className="font-normal text-muted-foreground">(optional)</span>
-              </Label>
               <Input
                 id="onboarding-store-password"
                 type="password"
-                placeholder="Leave empty if not protected"
+                placeholder="Storefront password (optional)"
                 value={storePassword}
                 onChange={(e) => setStorePassword(e.target.value)}
                 className="h-9 rounded-md border-neutral-200 bg-white text-[13px]"
@@ -1211,11 +1164,29 @@ export default function CompanyInfoPage() {
         )}
 
         {step === "url" && platform !== "shopify" && (
-          <form onSubmit={handleUrlNext} className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="onboarding-wp-url" className="text-[12px] font-medium">
-                Site URL
-              </Label>
+          <form onSubmit={handleUrlNext} className="space-y-5">
+            <div>
+              <IntegrationConnectBanner platform={platform} />
+              <div className="text-center">
+                <p className="text-[15px] font-semibold text-foreground">
+                  {platform === "wordpress" && "Enter your WordPress URL"}
+                  {platform === "webflow" && "Enter your Webflow URL"}
+                  {platform === "framer" && "Enter your Framer site URL"}
+                  {platform === "nextjs" && "Enter your Next.js site URL"}
+                </p>
+                <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                  {platform === "wordpress" &&
+                    "We'll connect your site via the Signalor plugin after verifying your URL."}
+                  {platform === "webflow" &&
+                    "We'll run GEO analysis directly — no plugin required for Webflow."}
+                  {platform === "framer" &&
+                    "We'll verify your site before connecting via the Framer plugin."}
+                  {platform === "nextjs" &&
+                    "We'll verify your site before generating your SDK API key."}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
               <Input
                 id="onboarding-wp-url"
                 placeholder="yoursite.com"
@@ -1284,30 +1255,22 @@ export default function CompanyInfoPage() {
 
         {/* ── Step 4: Install App ── */}
         {step === "install" && platform === "shopify" && (
-          <div className="space-y-3">
-            <p className="text-center text-[12px] text-muted-foreground">
-              Store{" "}
-              <span className="font-medium text-foreground">
-                {shopDomain.replace(/^https?:\/\//, "").replace(/\.myshopify\.com$/, "")}
-              </span>
-            </p>
+          <div className="space-y-4">
+            <BrandConnectBanner siteUrl={shopDomain} />
+            <div className="text-center">
+              <p className="text-[15px] font-semibold text-foreground">
+                Install Signalor on Shopify
+              </p>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                Connecting{" "}
+                <span className="font-medium text-foreground">
+                  {shopDomain.replace(/^https?:\/\//, "").replace(/\.myshopify\.com$/, "")}
+                </span>{" "}
+                — auto-fixes, schema injection &amp; AI meta tags.
+              </p>
+            </div>
 
             <div className={`${PANEL} p-5`}>
-              <div className="mb-5 flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#96bf48]/10">
-                  <img src="/logos/shopify.svg" alt="Shopify" className="h-5 w-5 object-contain" />
-                </div>
-                <div>
-                  <p className="mb-1 text-[13px] font-medium text-foreground">
-                    Signalor GEO for Shopify
-                  </p>
-                  <p className="text-[12px] leading-relaxed text-muted-foreground">
-                    This installs our app on your store to enable auto-fixes, schema injection, AI
-                    meta tags, and llms.txt generation.
-                  </p>
-                </div>
-              </div>
-
               <div className="mb-5 space-y-3">
                 {[
                   "Auto-fix SEO & GEO issues directly on your store",
@@ -1374,7 +1337,16 @@ export default function CompanyInfoPage() {
         )}
 
         {step === "install" && platform === "wordpress" && (
-          <div className="space-y-3">
+          <div className="space-y-4">
+            <BrandConnectBanner siteUrl={wpSiteUrl} />
+            <div className="text-center">
+              <p className="text-[15px] font-semibold text-foreground">
+                Install the Signalor plugin
+              </p>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                Three quick steps to connect your WordPress site.
+              </p>
+            </div>
             <div className="space-y-3">
               <div className={`${PANEL} p-4`}>
                 <div className="mb-3 flex items-center gap-3">
@@ -1487,21 +1459,15 @@ export default function CompanyInfoPage() {
         )}
 
         {step === "install" && platform === "framer" && (
-          <div className="space-y-3">
+          <div className="space-y-4">
+            <BrandConnectBanner siteUrl={wpSiteUrl} />
+            <div className="text-center">
+              <p className="text-[15px] font-semibold text-foreground">Open the Signalor plugin</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                Add the plugin URL in Framer to verify your site connection.
+              </p>
+            </div>
             <div className={`${PANEL} p-4`}>
-              <div className="mb-3 flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0055FF]/10">
-                  <img src="/logos/framer.svg" alt="Framer" className="h-5 w-5 object-contain" />
-                </div>
-                <div>
-                  <p className="text-[13px] font-medium text-foreground">Signalor for Framer</p>
-                  <p className="text-[11px] leading-relaxed text-muted-foreground">
-                    Confirms your site is linked. Your GEO analysis still runs on Signalor — no
-                    setup needed inside the plugin.
-                  </p>
-                </div>
-              </div>
-
               <ol className="mb-3 list-decimal space-y-1.5 pl-4 text-[12px] leading-relaxed text-muted-foreground">
                 <li>
                   In Framer&rsquo;s main menu, open{" "}
@@ -1600,34 +1566,43 @@ export default function CompanyInfoPage() {
         )}
 
         {step === "install" && platform === "nextjs" && (
-          <NextJsInstall
-            apiKey={nextjsApiKey}
-            apiKeyError={nextjsKeyError}
-            minting={mintingNextjsKey}
-            copied={nextjsCopied}
-            onCopy={(label, text) =>
-              navigator.clipboard
-                .writeText(text)
-                .then(() => {
-                  setNextjsCopied(label);
-                  setTimeout(() => setNextjsCopied(null), 2000);
-                })
-                .catch(() => {})
-            }
-            onBack={() => {
-              setStep("url");
-              setError("");
-            }}
-            onSkip={() => {
-              if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
-              setStep("prompts");
-            }}
-            onContinue={() => {
-              setAppInstalled(true);
-              if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
-              setStep("prompts");
-            }}
-          />
+          <div className="space-y-4">
+            <BrandConnectBanner siteUrl={wpSiteUrl} />
+            <div className="text-center">
+              <p className="text-[15px] font-semibold text-foreground">Install @signalor/nextjs</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+                Four files, zero runtime deps — schema injection, llms.txt &amp; deploy hooks.
+              </p>
+            </div>
+            <NextJsInstall
+              apiKey={nextjsApiKey}
+              apiKeyError={nextjsKeyError}
+              minting={mintingNextjsKey}
+              copied={nextjsCopied}
+              onCopy={(label, text) =>
+                navigator.clipboard
+                  .writeText(text)
+                  .then(() => {
+                    setNextjsCopied(label);
+                    setTimeout(() => setNextjsCopied(null), 2000);
+                  })
+                  .catch(() => {})
+              }
+              onBack={() => {
+                setStep("url");
+                setError("");
+              }}
+              onSkip={() => {
+                if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
+                setStep("prompts");
+              }}
+              onContinue={() => {
+                setAppInstalled(true);
+                if (prompts.length === 0) genPrompts(companyName.trim(), siteUrl);
+                setStep("prompts");
+              }}
+            />
+          </div>
         )}
 
         {/* ── Step 5: Prompts ── */}
