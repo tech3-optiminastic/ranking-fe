@@ -260,8 +260,12 @@ export function CompetitorPromptsTable({
                       ) : (
                         <div className="flex items-center gap-2">
                           <CircleProgress pct={visPct} />
-                          <span className="text-[12px] font-semibold tabular-nums text-foreground">
-                            {visPct > 0 ? `${visPct}%` : "—"}
+                          <span
+                            className={`text-[12px] font-semibold tabular-nums ${
+                              visPct > 0 ? "text-foreground" : "text-muted-foreground"
+                            }`}
+                          >
+                            {visPct}%
                           </span>
                         </div>
                       )}
@@ -308,7 +312,9 @@ export function CompetitorPromptsTable({
                           )}
                         </div>
                       ) : (
-                        <span className="text-[11px] text-muted-foreground/50">—</span>
+                        <span className="text-[11px] font-medium text-muted-foreground/70">
+                          Not mentioned
+                        </span>
                       )}
                     </td>
 
