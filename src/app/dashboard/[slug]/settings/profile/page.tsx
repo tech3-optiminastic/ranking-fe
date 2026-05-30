@@ -290,16 +290,9 @@ export default function ProfileSettingsPage() {
     if (!email || deleteConfirmText !== "delete my account") return;
     setDeleting(true);
     setError(null);
-    // Wipe the better-auth user/session/account rows first. Without this,
-    // signing in again with the same Google account silently restores access
-    // even after the Django side is deleted.
-    try {
-      await authClient.deleteUser();
-    } catch {
-      setError("Failed to delete account. Please try again.");
-      setDeleting(false);
-      return;
-    }
+    // Django side FIRST. If this fails, we haven't touched better-auth yet —
+    // user can retry. Doing it the other way around strands orphaned orgs +
+    // analysis runs in the DB when the second call fails.
     try {
       await deleteAccount(email, deleteConfirmText);
     } catch {
@@ -307,12 +300,24 @@ export default function ProfileSettingsPage() {
       setDeleting(false);
       return;
     }
+    // Then wipe the better-auth user/session/account rows so signing in
+    // again with the same Google account can't silently restore access.
+    try {
+      await authClient.deleteUser();
+    } catch {
+      // Non-fatal — Django data is already gone, fall through to sign-out.
+    }
     try {
       await signOut();
     } catch {
       // ignore
     }
-    router.push(routes.signIn);
+    // Hard navigation, NOT router.push. Soft nav leaves Zustand stores
+    // (org-store, analyzer-store) and the TanStack Query cache populated
+    // with the just-deleted org list, so the dashboard kept showing the
+    // old projects and the redirect didn't visually happen until a manual
+    // refresh. window.location.replace tears down the whole React tree.
+    window.location.replace(routes.signIn);
   }
 
   async function handleSignOut() {
