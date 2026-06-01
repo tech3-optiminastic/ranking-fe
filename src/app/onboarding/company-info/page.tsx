@@ -18,6 +18,7 @@ import { TurnstileWidget } from "@/components/onboarding/turnstile-widget";
 import { OnboardingStepper } from "@/components/auth/onboarding-stepper";
 import { config, routes, signalorWpPlugin } from "@/lib/config";
 import { ONBOARDING_DRAFT_KEY, storePendingAnalysisAfterPayment } from "@/lib/internal-nav";
+import { identifyUser, track } from "@/amplitude";
 import axios from "axios";
 import {
   Loader2,
@@ -33,6 +34,7 @@ import {
   CheckCircle2,
   Copy,
   Check,
+  ChevronDown,
 } from "@/components/icons";
 
 type Platform = "shopify" | "wordpress" | "webflow" | "framer" | "nextjs";
@@ -65,6 +67,13 @@ function fmtErr(err: unknown): string {
     const o = d as Record<string, unknown>;
     if (typeof o.error === "string" && o.error.trim()) return o.error;
     if (typeof o.detail === "string" && o.detail.trim()) return o.detail;
+    // DRF field-level validation errors, e.g. { url: ["Enter a valid URL."] }.
+    // Without this they'd fall through to the generic "Failed" message below,
+    // which the URL step then mislabels as "Please use a valid URL".
+    for (const v of Object.values(o)) {
+      if (typeof v === "string" && v.trim()) return v;
+      if (Array.isArray(v) && typeof v[0] === "string" && v[0].trim()) return v[0];
+    }
   }
   if (err.code === "ERR_NETWORK" || err.code === "ECONNREFUSED")
     return "Cannot reach the server. Make sure the backend is running.";
@@ -238,6 +247,8 @@ function NextJsInstall({
   onSkip: () => void;
   onContinue: () => void;
 }) {
+  // Accordion: only one snippet open at a time. Install is open by default.
+  const [openId, setOpenId] = useState<string>("install");
   const blocks: { id: string; label: string; lang: string; code: string }[] = [
     {
       id: "install",
@@ -295,28 +306,64 @@ export default function RootLayout({ children }) {
 
   return (
     <div className="space-y-3">
-      <div className={`${PANEL} p-4`}>
-        <div className="space-y-2.5">
-          {blocks.map((b, i) => (
-            <div key={b.id}>
-              <div className="mb-1 flex items-center justify-between">
-                <span className="text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
-                  {i + 1}. {b.label}
-                </span>
+      <div className={`${PANEL} p-3`}>
+        {/* FAQ-style accordion: click a file to expand its code. Only one stays
+            open at a time; Install is expanded by default. */}
+        <ul className="divide-y divide-black/8">
+          {blocks.map((b, i) => {
+            const open = openId === b.id;
+            const panelId = `nextjs-snippet-${b.id}`;
+            return (
+              <li key={b.id}>
                 <button
                   type="button"
-                  onClick={() => onCopy(b.id, b.code)}
-                  className="text-[10.5px] font-medium text-muted-foreground hover:text-foreground"
+                  aria-expanded={open}
+                  aria-controls={panelId}
+                  onClick={() => setOpenId(open ? "" : b.id)}
+                  className="flex w-full items-center justify-between gap-3 py-3 text-left"
                 >
-                  {copied === b.id ? "Copied" : "Copy"}
+                  <span className="text-[13px] font-medium text-foreground">
+                    <span className="text-muted-foreground">{i + 1}.</span> {b.label}
+                  </span>
+                  <ChevronDown
+                    aria-hidden
+                    className={`h-4 w-4 shrink-0 text-neutral-400 transition-transform duration-200 ${
+                      open ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
-              </div>
-              <pre className="overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2.5 font-mono text-[11px] leading-relaxed text-foreground">
-                <code>{b.code}</code>
-              </pre>
-            </div>
-          ))}
-        </div>
+                <div
+                  id={panelId}
+                  role="region"
+                  className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+                    open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                  }`}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <div className="group relative mb-3">
+                      <pre className="overflow-x-auto rounded-md border border-neutral-200 bg-neutral-50 py-2.5 pl-3 pr-11 font-mono text-[11px] leading-relaxed text-foreground">
+                        <code>{b.code}</code>
+                      </pre>
+                      <button
+                        type="button"
+                        onClick={() => onCopy(b.id, b.code)}
+                        aria-label={`Copy ${b.label}`}
+                        title={copied === b.id ? "Copied" : "Copy"}
+                        className="absolute right-1.5 top-1.5 rounded border border-neutral-200 bg-white/90 p-1.5 text-muted-foreground opacity-0 shadow-sm transition hover:bg-white hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                      >
+                        {copied === b.id ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-600" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
 
         {minting ? (
           <p className="mt-3 flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -382,6 +429,9 @@ export default function CompanyInfoPage() {
   const [nextjsApiKey, setNextjsApiKey] = useState("");
   const [nextjsKeyError, setNextjsKeyError] = useState("");
   const [mintingNextjsKey, setMintingNextjsKey] = useState(false);
+  // Guards the auto-mint effect so it fires at most once per org — otherwise a
+  // failed request resets `mintingNextjsKey` and the effect re-fires forever.
+  const nextjsKeyAttemptedForOrg = useRef<number | null>(null);
   const [nextjsCopied, setNextjsCopied] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<string[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
@@ -537,7 +587,11 @@ export default function CompanyInfoPage() {
   useEffect(() => {
     if (step !== "install" || platform !== "nextjs") return;
     if (!session?.user?.email || !orgId) return;
-    if (nextjsApiKey || mintingNextjsKey) return;
+    if (nextjsApiKey) return;
+    // Only attempt once per org. Without this, a failed request would reset
+    // `mintingNextjsKey` and re-trigger the effect in an endless 404 loop.
+    if (nextjsKeyAttemptedForOrg.current === orgId) return;
+    nextjsKeyAttemptedForOrg.current = orgId;
     const email = session.user.email;
     setMintingNextjsKey(true);
     setNextjsKeyError("");
@@ -549,7 +603,7 @@ export default function CompanyInfoPage() {
         ),
       )
       .finally(() => setMintingNextjsKey(false));
-  }, [step, platform, session?.user?.email, orgId, nextjsApiKey, mintingNextjsKey]);
+  }, [step, platform, session?.user?.email, orgId, nextjsApiKey]);
 
   // Persist draft
   useEffect(() => {
@@ -635,8 +689,10 @@ export default function CompanyInfoPage() {
         }
         url = `https://${domain}`;
       } else {
-        url = wpSiteUrl.trim();
-        if (!url.startsWith("http")) url = `https://${url}`;
+        // Normalize: drop trailing slash(es) and prefix a scheme if missing so
+        // forms like "https://www.abplive.com/" or "abplive.com" are accepted.
+        url = wpSiteUrl.trim().replace(/\/+$/, "");
+        if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
         let urlInvalid = false;
         try {
           const parsed = new URL(url);
@@ -664,6 +720,14 @@ export default function CompanyInfoPage() {
         else throw err;
       }
       setOrgId(org?.id);
+
+      // Amplitude: domain_submitted + identify with cms_platform
+      const cmsPlatform: "shopify" | "wordpress" | "other" =
+        platform === "shopify" ? "shopify" : platform === "wordpress" ? "wordpress" : "other";
+      if (session?.user?.id) {
+        identifyUser(session.user.id, { domain: url, cms_platform: cmsPlatform });
+      }
+      track("domain_submitted", { domain: url });
 
       if (
         platform === "shopify" ||
@@ -1196,9 +1260,9 @@ export default function CompanyInfoPage() {
                   if (wpUrlErr) setWpUrlErr("");
                 }}
                 onBlur={() => {
-                  const raw = wpSiteUrl.trim();
+                  const raw = wpSiteUrl.trim().replace(/\/+$/, "");
                   if (!raw) return;
-                  const url = raw.startsWith("http") ? raw : `https://${raw}`;
+                  const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
                   let invalid = false;
                   try {
                     const parsed = new URL(url);
@@ -1566,11 +1630,11 @@ export default function CompanyInfoPage() {
         )}
 
         {step === "install" && platform === "nextjs" && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <BrandConnectBanner siteUrl={wpSiteUrl} />
             <div className="text-center">
               <p className="text-[15px] font-semibold text-foreground">Install @signalor/nextjs</p>
-              <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">
+              <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
                 Four files, zero runtime deps — schema injection, llms.txt &amp; deploy hooks.
               </p>
             </div>

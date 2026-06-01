@@ -85,15 +85,7 @@ export function LandingHero() {
           <HeroLiveTicker />
         </motion.div>
 
-        {/* Eyebrow tag — matches the creators-program visual pattern */}
-        <motion.p
-          variants={fadeUpVariants}
-          className="mb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500"
-        >
-          now
-        </motion.p>
-
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.65rem] md:leading-[1.05] lg:text-5xl">
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl md:text-[2.65rem] md:leading-[1.05] lg:text-5xl">
           <motion.span variants={wordVariants} className="inline-block will-change-[filter]">
             Audit your site in{" "}
             <span className="underline decoration-primary decoration-dashed decoration-2 underline-offset-[6px]">

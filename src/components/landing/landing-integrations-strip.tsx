@@ -1,58 +1,130 @@
 "use client";
 
+import Image from "next/image";
 import { ScreenHR } from "@/components/ui/intersection-diamonds";
 import { cn } from "@/lib/utils";
 
-type IntegrationTile = {
-  kind: "logo";
+// Orbiting integration nodes laid out left → right across the rings.
+// `tier` controls size + opacity by distance from the centre node, so the
+// graphic fades toward the edges (Linear-style). The two Live integrations
+// (Shopify, WordPress) sit closest to the centre.
+type OrbitNode = {
   name: string;
   src: string;
-  comingSoon?: boolean;
+  tier: 1 | 2 | 3 | 4;
 };
 
-const INTEGRATIONS: IntegrationTile[] = [
-  { kind: "logo", name: "Shopify", src: "/logos/shopify.svg" },
-  { kind: "logo", name: "WordPress", src: "/logos/wordpress.svg" },
-  { kind: "logo", name: "Google Analytics", src: "/logos/google-analytics.svg", comingSoon: true },
-  { kind: "logo", name: "Search Console", src: "/logos/search-console.svg", comingSoon: true },
-  { kind: "logo", name: "Slack", src: "/logos/slack.svg", comingSoon: true },
-  { kind: "logo", name: "Zapier", src: "/logos/zapier.svg", comingSoon: true },
+const LEFT_NODES: OrbitNode[] = [
+  { name: "Framer", src: "/logos/framer.svg", tier: 4 },
+  { name: "Search Console", src: "/logos/search-console.svg", tier: 3 },
+  { name: "Google Analytics", src: "/logos/google-analytics.svg", tier: 2 },
+  { name: "WordPress", src: "/logos/wordpress.svg", tier: 1 },
 ];
+
+const RIGHT_NODES: OrbitNode[] = [
+  { name: "Shopify", src: "/logos/shopify.svg", tier: 1 },
+  { name: "Slack", src: "/logos/slack.svg", tier: 2 },
+  { name: "Next.js", src: "/logos/nextjs.svg", tier: 3 },
+  { name: "Webflow", src: "/logos/webflow.svg", tier: 4 },
+];
+
+const TIER_STYLE: Record<OrbitNode["tier"], { box: number; icon: number; opacity: number }> = {
+  1: { box: 60, icon: 28, opacity: 1 },
+  2: { box: 54, icon: 26, opacity: 0.78 },
+  3: { box: 48, icon: 22, opacity: 0.5 },
+  4: { box: 44, icon: 20, opacity: 0.28 },
+};
+
+// Concentric orbit ring diameters (px).
+const RINGS = [120, 200, 290];
 
 export function LandingIntegrationsStrip() {
   return (
     <section className="relative bg-transparent" aria-labelledby="landing-integrations-heading">
       <ScreenHR />
-      <div className="mx-auto max-w-7xl px-6 pb-12 pt-14 lg:px-12 lg:pb-14 lg:pt-16">
-        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">
-          [ integrations ]
-        </p>
-        <h2
-          id="landing-integrations-heading"
-          className="mt-4 max-w-4xl text-3xl font-bold leading-[1.12] tracking-tight text-foreground sm:text-4xl lg:text-[2.65rem]"
-        >
-          Works where your{" "}
-          <span className="relative whitespace-nowrap text-primary">
-            team already ships
-            <span
-              className="absolute -bottom-1 left-0 right-0 border-b-2 border-dashed border-primary/45"
-              aria-hidden
-            />
-          </span>
-        </h2>
-        <p className="mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
-          Auto-fix schema and meta on Shopify or WordPress today. Analytics, alerts, and workflow
-          tiles land over the next two sprints.
-        </p>
-      </div>
 
-      <ScreenHR />
+      <div className="mx-auto max-w-7xl px-6 pb-12 pt-20 lg:px-12 lg:pb-14 lg:pt-24">
+        {/* Orbital graphic */}
+        <div className="relative mx-auto flex h-[300px] w-full max-w-2xl items-center justify-center overflow-hidden sm:h-[310px]">
+          {/* Concentric rings */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          >
+            {RINGS.map((d) => (
+              <div
+                key={d}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black/[0.07]"
+                style={{ width: d, height: d }}
+              />
+            ))}
+          </div>
 
-      <div className="mx-auto max-w-7xl bg-black-10">
-        <div className="grid grid-cols-2 divide-x divide-y divide-black/6 sm:grid-cols-3 lg:grid-cols-6">
-          {INTEGRATIONS.map((t, i) => (
-            <IntegrationCell key={t.name} tile={t} index={i} />
-          ))}
+          {/* Centre glow */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[180px] w-[180px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, color-mix(in srgb, var(--primary) 32%, transparent) 0%, transparent 68%)",
+            }}
+          />
+
+          {/* Icon row across the rings */}
+          <div className="relative z-10 flex items-center gap-3 sm:gap-5">
+            {LEFT_NODES.map((node) => (
+              <OrbitIcon key={node.name} node={node} />
+            ))}
+
+            {/* Centre node — the “+” hub */}
+            <div className="relative flex shrink-0 items-center justify-center">
+              <span
+                aria-hidden
+                className="absolute inset-0 -z-10 animate-pulse rounded-full bg-primary/30 blur-md"
+              />
+              <span className="flex h-[68px] w-[68px] items-center justify-center rounded-full bg-gradient-to-b from-primary to-[color-mix(in_srgb,var(--primary)_82%,#b83227)] shadow-[0_8px_24px_-6px_rgba(224,74,61,0.6)] ring-4 ring-primary/15">
+                <svg
+                  width="26"
+                  height="26"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  aria-hidden
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </span>
+            </div>
+
+            {RIGHT_NODES.map((node) => (
+              <OrbitIcon key={node.name} node={node} />
+            ))}
+          </div>
+        </div>
+
+        {/* Copy */}
+        <div className="mx-auto mt-4 max-w-4xl text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
+            Integrations
+          </p>
+          <h2
+            id="landing-integrations-heading"
+            className="mt-4 whitespace-nowrap text-2xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-[2.65rem]"
+          >
+            Works where your{" "}
+            <span className="relative text-primary">
+              team already ships
+              <span
+                className="absolute -bottom-1 left-0 right-0 border-b-2 border-dashed border-primary/45"
+                aria-hidden
+              />
+            </span>
+          </h2>
+          <p className="mx-auto mt-5 max-w-2xl text-base font-light leading-relaxed text-accent-foreground lg:text-lg">
+            Auto-fix schema and meta on Shopify and WordPress, with more integrations on the way.
+          </p>
         </div>
       </div>
 
@@ -61,32 +133,24 @@ export function LandingIntegrationsStrip() {
   );
 }
 
-function IntegrationCell({ tile, index }: { tile: IntegrationTile; index: number }) {
-  void index;
+function OrbitIcon({ node }: { node: OrbitNode }) {
+  const { box, icon, opacity } = TIER_STYLE[node.tier];
   return (
     <div
       className={cn(
-        "relative flex flex-col items-center justify-center gap-2 bg-white px-4 py-10 md:py-12",
+        "flex shrink-0 items-center justify-center rounded-full border border-black/[0.06] bg-white shadow-[0_2px_10px_-4px_rgba(0,0,0,0.18)]",
       )}
+      style={{ width: box, height: box, opacity }}
+      title={node.name}
     >
-      <img
-        src={tile.src}
-        alt={tile.name}
-        width={40}
-        height={40}
-        decoding="async"
-        className={`h-10 w-10 object-contain transition ${tile.comingSoon ? "grayscale opacity-60 hover:grayscale-0 hover:opacity-100" : "opacity-80 hover:opacity-100"}`}
+      <Image
+        src={node.src}
+        alt={node.name}
+        width={icon}
+        height={icon}
+        className="object-contain"
+        style={{ width: icon, height: icon }}
       />
-      <p className="text-[11px] font-semibold text-neutral-700">{tile.name}</p>
-      {tile.comingSoon ? (
-        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-neutral-500">
-          Coming soon
-        </span>
-      ) : (
-        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-emerald-700">
-          Live
-        </span>
-      )}
     </div>
   );
 }
