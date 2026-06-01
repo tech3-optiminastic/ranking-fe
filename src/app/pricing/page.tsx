@@ -15,6 +15,9 @@ import { POST_CHECKOUT_REDIRECT_KEY, safeInternalReturnPath } from "@/lib/intern
 import { routes } from "@/lib/config";
 import { Check, Clock, Crown, Rocket, Zap } from "@/components/icons";
 import { useCurrency, formatPrice } from "@/lib/hooks/use-currency";
+import { useOrgStore } from "@/lib/stores/org-store";
+import { track } from "@/amplitude";
+import { pingCheckoutStarted, pingPricingViewed } from "@/lib/api/drip";
 import { SignalorLoader } from "@/components/ui/signalor-loader";
 import { LandingFaq } from "@/components/landing/landing-faq";
 import { LandingFooter } from "@/components/landing/landing-footer";
@@ -148,6 +151,29 @@ function PricingPageInner() {
       });
   }, []);
 
+  // Amplitude: pricing_page_viewed. `geo_score` lives on the user (set during
+  // audit_completed); this marketing-tier page can't read it.
+  useEffect(() => {
+    const activeOrg = useOrgStore.getState().activeOrg;
+    track("pricing_page_viewed", { domain: activeOrg?.url ?? undefined });
+
+    // Drip: enrol authenticated visitors. Anonymous marketing traffic skips
+    // this — the drip is for signed-in users who already have an audit.
+    const email = session?.user?.email;
+    if (email) {
+      const fullName = session.user.name ?? "";
+      const firstName = fullName.trim().split(/\s+/)[0] ?? "";
+      void pingPricingViewed({
+        email,
+        amplitude_user_id: session.user.id,
+        first_name: firstName,
+        domain: activeOrg?.url ?? undefined,
+      }).catch(() => {
+        /* swallow — analytics pings never break UX */
+      });
+    }
+  }, [session?.user?.email, session?.user?.id, session?.user?.name]);
+
   useEffect(() => {
     const email = session?.user?.email;
     if (isPending || !email) {
@@ -183,6 +209,15 @@ function PricingPageInner() {
   const handleSubscribe = useCallback(
     async (planId: string) => {
       if (loadingPlan) return;
+      // Amplitude: checkout_started — fire before the auth gate / API call so
+      // we capture intent even if checkout creation fails or the user is
+      // redirected to sign-in first.
+      const activeOrg = useOrgStore.getState().activeOrg;
+      track("checkout_started", { plan: planId, domain: activeOrg?.url ?? undefined });
+      // Drip: permanently exclude this user from the drip sequence.
+      if (session?.user?.email) {
+        void pingCheckoutStarted(session.user.email).catch(() => {});
+      }
       if (!session) {
         router.push(`${routes.signIn}?returnTo=${encodeURIComponent("/pricing")}`);
         return;

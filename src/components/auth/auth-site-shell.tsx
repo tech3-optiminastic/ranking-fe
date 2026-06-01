@@ -65,15 +65,15 @@ function AuthMarketingPanel() {
         </h2>
       </div>
 
-      <div className="absolute left-7 xl:left-9 top-[11.5rem] bottom-0 right-[-9rem] z-10 overflow-hidden rounded-tl-xl shadow-[0_8px_40px_rgba(0,0,0,0.10)]">
-        <div className="pointer-events-none h-full w-full">
+      <div className="absolute left-7 right-[-9rem] top-[11.5rem] z-10 overflow-hidden rounded-tl-xl shadow-[0_8px_40px_rgba(0,0,0,0.10)] xl:left-9">
+        <div className="pointer-events-none w-full">
           <Image
             src="/carousel1.png"
             alt="AI search surfaces preview"
-            width={3000}
-            height={3000}
+            width={1877}
+            height={892}
             unoptimized
-            className="h-full w-full select-none object-cover object-left-top"
+            className="block h-auto w-full select-none object-top"
           />
         </div>
       </div>

@@ -13,6 +13,8 @@ import {
   type AutoFixResult,
 } from "@/lib/api/analyzer";
 import { useOrgStore } from "@/lib/stores/org-store";
+import { useSession } from "@/lib/auth-client";
+import { identifyUser, track } from "@/amplitude";
 
 type FixResultMap = Record<number, { status: string; message: string }>;
 
@@ -49,6 +51,7 @@ function isAxios404(err: unknown): boolean {
 
 export function RunProvider({ slug, children }: { slug: string; children: React.ReactNode }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [run, setRun] = useState<AnalysisRunDetail | null>(null);
   const [scoreHistory, setScoreHistory] = useState<ScoreHistoryPoint[]>([]);
   const [fixResults, setFixResults] = useState<FixResultMap>({});
@@ -151,6 +154,38 @@ export function RunProvider({ slug, children }: { slug: string; children: React.
       if (completedAgo < 30_000) {
         fireConfetti();
         computeBump();
+      }
+    }
+
+    // Amplitude: audit_completed — fire exactly once per audit run, regardless
+    // of whether we caught the running→complete transition or mounted on an
+    // already-complete run. localStorage guard keeps reloads from re-firing.
+    if (run.status === "complete" && run.slug) {
+      const guardKey = `signalor.audit_completed_fired:${run.slug}`;
+      const alreadyFired = typeof window !== "undefined" && localStorage.getItem(guardKey);
+      if (!alreadyFired) {
+        try {
+          if (typeof window !== "undefined") localStorage.setItem(guardKey, "1");
+        } catch {
+          /* swallow QuotaExceeded etc — event still fires */
+        }
+        const issueCount = run.recommendations?.length ?? 0;
+        // Omit geo_score when null so Amplitude doesn't store a literal null
+        // user property — keeps the analytics surface clean.
+        const score = run.composite_score ?? undefined;
+        if (session?.user?.id) {
+          identifyUser(session.user.id, {
+            domain: run.url,
+            geo_score: score,
+            issue_count: issueCount,
+          });
+        }
+        const evtProps: Record<string, unknown> = {
+          domain: run.url,
+          issue_count: issueCount,
+        };
+        if (score !== undefined) evtProps.geo_score = score;
+        track("audit_completed", evtProps);
       }
     }
 

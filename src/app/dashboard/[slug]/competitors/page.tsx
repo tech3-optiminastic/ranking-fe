@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { CompetitorsSkeleton } from "@/components/dashboard/skeletons";
 import { addCompetitor } from "@/lib/api/analyzer";
+import { useSession } from "@/lib/auth-client";
+import { identifyUser, track } from "@/amplitude";
 import { Globe, Loader2, Plus, Search, X } from "@/components/icons";
 
 // ─── Add Competitor Modal ─────────────────────────────────────────────────────
@@ -29,7 +31,7 @@ function AddCompetitorModal({
   onClose,
 }: {
   slug: string;
-  onSuccess: () => void;
+  onSuccess: (newCompetitorName: string) => void;
   onClose: () => void;
 }) {
   const [url, setUrl] = useState("");
@@ -47,7 +49,7 @@ function AddCompetitorModal({
     setErr("");
     try {
       await addCompetitor(slug, trimName, trimUrl);
-      onSuccess();
+      onSuccess(trimName);
     } catch {
       setErr("Failed to add competitor. Check the URL and try again.");
     } finally {
@@ -166,6 +168,7 @@ function AddCompetitorModal({
 
 export default function CompetitorsPage() {
   const { slug } = useParams<{ slug: string }>();
+  const { data: session } = useSession();
   const { run, loading, error, refetch } = useRun();
   const [query, setQuery] = useState("");
   const [confidence, setConfidence] = useState<ConfidenceFilter>("all");
@@ -295,7 +298,24 @@ export default function CompetitorsPage() {
             confidence={confidence}
             scoreBand={scoreBand}
             slug={slug}
-            onDelete={() => void refetch()}
+            onDelete={(deletedId) => {
+              // Amplitude: refresh competitor_count user property so Email 3
+              // doesn't quote a stale high-water-mark number after deletes.
+              const remaining = (run?.competitors ?? []).filter((c) => c.id !== deletedId);
+              const names = remaining.map((c) => c.name);
+              if (session?.user?.id) {
+                identifyUser(session.user.id, {
+                  competitor_count: names.length,
+                  competitor_list: names.join(", "),
+                  top_competitor: names[0] ?? "",
+                });
+              }
+              track("competitors_removed", {
+                competitor_count: names.length,
+                competitor_list: names.join(", "),
+              });
+              void refetch();
+            }}
           />
         </div>
       ) : (
@@ -309,7 +329,23 @@ export default function CompetitorsPage() {
       {addOpen && slug && (
         <AddCompetitorModal
           slug={slug}
-          onSuccess={() => {
+          onSuccess={(newCompetitorName) => {
+            // Amplitude: competitors_added — fire with the new total based on
+            // the previous list plus the just-added competitor (refetch is
+            // async and we don't await it here).
+            const prev = run?.competitors ?? [];
+            const names = [...prev.map((c) => c.name), newCompetitorName];
+            if (session?.user?.id) {
+              identifyUser(session.user.id, {
+                competitor_count: names.length,
+                competitor_list: names.join(", "),
+                top_competitor: names[0],
+              });
+            }
+            track("competitors_added", {
+              competitor_count: names.length,
+              competitor_list: names.join(", "),
+            });
             setAddOpen(false);
             void refetch();
           }}

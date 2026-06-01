@@ -12,11 +12,15 @@ interface OAuthButtonProps {
 }
 
 export function OAuthButton({ provider }: OAuthButtonProps) {
-  const { authMode } = useOnboardingStore();
+  const { authMode, setSignupMethod } = useOnboardingStore();
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
     setLoading(true);
+    // Record the chosen auth method so the post-signup useEffect can attribute
+    // the Amplitude `signup_completed` event correctly without falling back to
+    // the fragile session.user.image heuristic.
+    setSignupMethod(provider === "google" ? "google" : "email");
     try {
       await authClient.signIn.social({
         provider,
@@ -43,10 +47,7 @@ export function OAuthButton({ provider }: OAuthButtonProps) {
   );
 }
 
-const providerConfig: Record<
-  OAuthProvider,
-  { label: string; icon: () => React.ReactNode }
-> = {
+const providerConfig: Record<OAuthProvider, { label: string; icon: () => React.ReactNode }> = {
   google: {
     label: "Google",
     icon: () => <GoogleIcon />,
@@ -75,4 +76,3 @@ function GoogleIcon() {
     </svg>
   );
 }
-

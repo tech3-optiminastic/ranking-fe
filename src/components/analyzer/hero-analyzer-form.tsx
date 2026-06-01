@@ -27,12 +27,6 @@ function flagSrc(code: string): string {
   return `https://flagcdn.com/${code.toLowerCase()}.svg`;
 }
 
-const QUICK_CHIPS: { label: string; icon: typeof Sparkles }[] = [
-  { label: "Audit", icon: Sparkles },
-  { label: "GEO Score", icon: BarChart3 },
-  { label: "Find Gaps", icon: Target },
-];
-
 const slideVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
   center: { x: 0, opacity: 1 },
@@ -124,7 +118,7 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
               >
                 {/* Input row with left accent bar */}
                 <div className="relative flex flex-1 items-start gap-2 px-4 pt-4">
-                  <span aria-hidden className="mt-0.5 h-4 w-px shrink-0 bg-primary" />
+                  {/* <span aria-hidden className="mt-0.5 h-4 w-px shrink-0 bg-primary" /> */}
                   <input
                     ref={inputRef}
                     type="text"
@@ -141,20 +135,8 @@ export function HeroAnalyzerForm({ initialUrl = "" }: { initialUrl?: string }) {
                 </div>
 
                 {/* Bottom toolbar — chips + country dropdown + submit */}
-                <div className="flex items-center justify-between gap-2 px-3 pb-3 pt-4">
+                <div className="flex items-center justify-end gap-2 px-3 pb-3 pt-4">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {QUICK_CHIPS.map(({ label, icon: Icon }) => (
-                      <button
-                        key={label}
-                        type="button"
-                        onClick={() => inputRef.current?.focus()}
-                        className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-black/10 bg-white px-2 py-1 text-xs font-medium text-neutral-700 transition-colors hover:border-black/20 hover:bg-neutral-50 hover:text-neutral-900"
-                      >
-                        <Icon className="h-3 w-3" strokeWidth={2} aria-hidden />
-                        {label}
-                      </button>
-                    ))}
-
                     <Select value={country} onValueChange={setCountry}>
                       <SelectTrigger
                         size="sm"
