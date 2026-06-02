@@ -29,23 +29,23 @@ const RIGHT_NODES: OrbitNode[] = [
 ];
 
 const TIER_STYLE: Record<OrbitNode["tier"], { box: number; icon: number; opacity: number }> = {
-  1: { box: 60, icon: 28, opacity: 1 },
-  2: { box: 54, icon: 26, opacity: 0.78 },
-  3: { box: 48, icon: 22, opacity: 0.5 },
-  4: { box: 44, icon: 20, opacity: 0.28 },
+  1: { box: 74, icon: 34, opacity: 1 },
+  2: { box: 66, icon: 32, opacity: 0.78 },
+  3: { box: 58, icon: 27, opacity: 0.5 },
+  4: { box: 52, icon: 24, opacity: 0.28 },
 };
 
 // Concentric orbit ring diameters (px).
-const RINGS = [120, 200, 290];
+const RINGS = [150, 250, 360];
 
 export function LandingIntegrationsStrip() {
   return (
     <section className="relative bg-transparent" aria-labelledby="landing-integrations-heading">
       <ScreenHR />
 
-      <div className="mx-auto max-w-7xl px-6 pb-12 pt-20 lg:px-12 lg:pb-14 lg:pt-24">
+      <div className="mx-auto max-w-7xl px-6 pb-12 pt-6 lg:px-12 lg:pb-14 lg:pt-8">
         {/* Orbital graphic */}
-        <div className="relative mx-auto flex h-[300px] w-full max-w-2xl items-center justify-center overflow-hidden sm:h-[310px]">
+        <div className="relative mx-auto flex h-[370px] w-full max-w-3xl items-center justify-center overflow-hidden sm:h-[390px]">
           {/* Concentric rings */}
           <div
             aria-hidden
@@ -63,7 +63,7 @@ export function LandingIntegrationsStrip() {
           {/* Centre glow */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 h-[180px] w-[180px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[230px] w-[230px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
             style={{
               background:
                 "radial-gradient(circle, color-mix(in srgb, var(--primary) 32%, transparent) 0%, transparent 68%)",
@@ -71,7 +71,7 @@ export function LandingIntegrationsStrip() {
           />
 
           {/* Icon row across the rings */}
-          <div className="relative z-10 flex items-center gap-3 sm:gap-5">
+          <div className="relative z-10 flex items-center gap-4 sm:gap-6">
             {LEFT_NODES.map((node) => (
               <OrbitIcon key={node.name} node={node} />
             ))}
@@ -82,10 +82,10 @@ export function LandingIntegrationsStrip() {
                 aria-hidden
                 className="absolute inset-0 -z-10 animate-pulse rounded-full bg-primary/30 blur-md"
               />
-              <span className="flex h-[68px] w-[68px] items-center justify-center rounded-full bg-gradient-to-b from-primary to-[color-mix(in_srgb,var(--primary)_82%,#b83227)] shadow-[0_8px_24px_-6px_rgba(224,74,61,0.6)] ring-4 ring-primary/15">
+              <span className="flex h-[84px] w-[84px] items-center justify-center rounded-full bg-gradient-to-b from-primary to-[color-mix(in_srgb,var(--primary)_82%,#b83227)] shadow-[0_8px_24px_-6px_rgba(224,74,61,0.6)] ring-4 ring-primary/15">
                 <svg
-                  width="26"
-                  height="26"
+                  width="32"
+                  height="32"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="white"

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check } from "@/components/icons";
+import { ArrowRight, Check, Info } from "@/components/icons";
 
 import { ScreenHR } from "@/components/ui/intersection-diamonds";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useCurrency, formatPrice } from "@/lib/hooks/use-currency";
 import { getPlanPrices, type DodoPlanPrice } from "@/lib/api/payments";
@@ -163,6 +164,20 @@ export function LandingPricingTeaser() {
       <div className="mx-auto max-w-7xl px-6 pt-8 pb-4 lg:px-12">
         <div className="flex items-center gap-3">
           <CurrencyToggle currency={currency} onSelect={selectCurrency} />
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href="/pricing"
+                  aria-label="See the full plans and feature comparison"
+                  className="ml-auto flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted/60 hover:text-primary"
+                >
+                  <Info className="h-4 w-4" aria-hidden />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="left">See full plan</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -231,11 +246,16 @@ export function LandingPricingTeaser() {
                   ))}
                 </ul>
                 <Link
-                  href="/pricing"
-                  className="mt-auto inline-flex items-center gap-1 text-[12px] font-semibold text-primary hover:underline"
+                  href={`/pricing?checkout=${p.id}`}
+                  className={cn(
+                    "mt-auto inline-flex h-10 items-center justify-center gap-1.5 rounded-md px-4 text-[13px] font-semibold transition",
+                    p.popular
+                      ? "bg-primary text-primary-foreground shadow-[0_4px_14px_-4px_rgba(224,74,61,0.5)] hover:opacity-90"
+                      : "border border-primary/25 bg-primary/5 text-primary hover:bg-primary/10",
+                  )}
                 >
-                  See full plan
-                  <ArrowRight className="h-3 w-3" aria-hidden />
+                  Get {p.label}
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden />
                 </Link>
               </div>
             );

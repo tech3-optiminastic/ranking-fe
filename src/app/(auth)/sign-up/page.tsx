@@ -18,6 +18,7 @@ import { useSession } from "@/lib/auth-client";
 import { routes } from "@/lib/config";
 import { redeemReferralCode } from "@/lib/api/referrals";
 import { attributePartner } from "@/lib/api/partners";
+import { identifyUser, track } from "@/amplitude";
 
 const REFERRAL_PENDING_KEY = "signalor.referral.pendingCode";
 const AFFILIATE_KEY = "signalor.partner.code";
@@ -99,6 +100,22 @@ function SignUpContent() {
     if (!isPending && signedInEmail) {
       if (postSignupRan.current) return;
       postSignupRan.current = true;
+
+      // Amplitude: identify + signup_completed. Read the chosen method from
+      // the onboarding store (set when the user clicked Google or submitted
+      // the email form). Falls back to the session.user.image heuristic only
+      // if the store value is missing — e.g., if the session resolved on a
+      // page that didn't go through AuthMethodForm or OAuthButton.
+      const userId = session?.user?.id;
+      const fullName = session?.user?.name ?? "";
+      const firstName = fullName.trim().split(/\s+/)[0] ?? "";
+      const storedMethod = useOnboardingStore.getState().signupMethod;
+      const method: "email" | "google" =
+        storedMethod ?? (session?.user?.image ? "google" : "email");
+      if (userId) {
+        identifyUser(userId, { email: signedInEmail, first_name: firstName });
+      }
+      track("signup_completed", { method });
 
       // Sign-up complete, fire any pending referral redeem AND affiliate
       // attribution in parallel. Failures are non-blocking; the user still

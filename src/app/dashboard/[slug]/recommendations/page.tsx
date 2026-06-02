@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { useRun } from "../_components/run-context";
+import { identifyUser, track } from "@/amplitude";
 import { RecommendationsPanel } from "@/components/analyzer/recommendations-panel";
 import { getIntegrationStatus } from "@/lib/api/integrations";
 import {
@@ -25,7 +26,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-function detectPlatform(url?: string, integrations?: { provider: string; is_active: boolean }[]): "shopify" | "wordpress" | undefined {
+function detectPlatform(
+  url?: string,
+  integrations?: { provider: string; is_active: boolean }[],
+): "shopify" | "wordpress" | undefined {
   if (integrations) {
     if (integrations.some((i) => i.provider === "shopify" && i.is_active)) return "shopify";
     if (integrations.some((i) => i.provider === "wordpress" && i.is_active)) return "wordpress";
@@ -53,11 +57,23 @@ export default function RecommendationsPage() {
 
   const filteredRecommendations = useMemo(
     () =>
-      filterRecommendations(allRecs, fixResults, searchQuery, pillarFilter, priorityFilter, statusFilter),
+      filterRecommendations(
+        allRecs,
+        fixResults,
+        searchQuery,
+        pillarFilter,
+        priorityFilter,
+        statusFilter,
+      ),
     [allRecs, fixResults, searchQuery, pillarFilter, priorityFilter, statusFilter],
   );
 
-  const filtersActive = recommendationFiltersActive(searchQuery, pillarFilter, priorityFilter, statusFilter);
+  const filtersActive = recommendationFiltersActive(
+    searchQuery,
+    pillarFilter,
+    priorityFilter,
+    statusFilter,
+  );
 
   useEffect(() => {
     if (!email) return;
@@ -65,6 +81,25 @@ export default function RecommendationsPage() {
       .then((integrations) => setPlatform(detectPlatform(run?.url, integrations)))
       .catch(() => setPlatform(detectPlatform(run?.url)));
   }, [email, run?.url]);
+
+  // Amplitude: recommendations_viewed (once per mount, after recs are populated).
+  const recsFired = useRef(false);
+  useEffect(() => {
+    if (recsFired.current || !run || allRecs.length === 0) return;
+    recsFired.current = true;
+    const topTitle = allRecs[0]?.title ?? "";
+    if (session?.user?.id) {
+      identifyUser(session.user.id, {
+        fix_count: allRecs.length,
+        top_recommendation_title: topTitle,
+      });
+    }
+    track("recommendations_viewed", {
+      domain: run.url,
+      fix_count: allRecs.length,
+      top_recommendation_title: topTitle,
+    });
+  }, [run, allRecs, session?.user?.id]);
 
   return (
     <div className="space-y-6 px-2 py-2">
@@ -79,7 +114,9 @@ export default function RecommendationsPage() {
               {filtersActive ? (
                 <>
                   Showing{" "}
-                  <span className="font-medium text-foreground">{filteredRecommendations.length}</span>
+                  <span className="font-medium text-foreground">
+                    {filteredRecommendations.length}
+                  </span>
                   {" of "}
                   {allRecs.length} items to improve your GEO score
                 </>
@@ -214,7 +251,9 @@ export default function RecommendationsPage() {
       )}
 
       {run && !loading && allRecs.length === 0 && (
-        <div className="py-16 text-center text-sm text-muted-foreground">No recommendations found for this analysis run.</div>
+        <div className="py-16 text-center text-sm text-muted-foreground">
+          No recommendations found for this analysis run.
+        </div>
       )}
     </div>
   );

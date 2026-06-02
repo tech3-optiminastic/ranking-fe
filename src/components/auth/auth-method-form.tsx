@@ -15,7 +15,7 @@ const authEmailSchema = z.object({
 });
 
 export function AuthMethodForm() {
-  const { authMode, setEmail, setStep } = useOnboardingStore();
+  const { authMode, setEmail, setStep, setSignupMethod } = useOnboardingStore();
   const [emailInput, setEmailInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -52,6 +52,7 @@ export function AuthMethodForm() {
         type: "sign-in",
       });
       setEmail(email);
+      setSignupMethod("email");
       setStep("otp-verify");
     } catch {
       setError("Failed to send verification code. Please try again.");
