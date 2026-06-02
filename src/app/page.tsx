@@ -11,7 +11,6 @@ import { LandingFaq } from "@/components/landing/landing-faq";
 import { LandingPartnersProgram } from "@/components/landing/landing-partners-program";
 import { LandingFooter } from "@/components/landing/landing-footer";
 import { LandingMarketingShell } from "@/components/landing/landing-marketing-shell";
-import { CornerDiamonds } from "@/components/ui/intersection-diamonds";
 import { JsonLd } from "@/components/seo/json-ld";
 import {
   AGGREGATE_RATING,
@@ -22,30 +21,6 @@ import {
   SITE_BRAND,
   SITE_URL,
 } from "@/lib/seo";
-
-const LLM_LOGOS = [
-  {
-    name: "ChatGPT",
-    src: "/logos/chatgpt.svg",
-    href: "https://chatgpt.com/?prompt=what+is+signalorai",
-  },
-  {
-    name: "Perplexity",
-    src: "/logos/perplexity.svg",
-    href: "https://www.perplexity.ai/search?q=what+is+signalorai",
-  },
-  {
-    name: "Gemini",
-    src: "/logos/gemini.svg",
-    href: "https://gemini.google.com/app?q=What+is+signalorai",
-  },
-  {
-    name: "Google AI",
-    src: "/logos/google.svg",
-    href: "https://www.google.com/search?q=What+is+Signalorai",
-  },
-  { name: "Claude", src: "/logos/claude.svg", href: "https://claude.ai/new?q=What+is+signalorai" },
-] as const;
 
 const HOMEPAGE_FAQ = [
   {
@@ -121,46 +96,12 @@ export default function Home() {
 
       <LandingHero />
 
-      <section
-        className="relative border-t border-border/60 bg-transparent py-12"
-        aria-label="Supported AI engines"
-      >
-        <CornerDiamonds top />
-        <div className="mx-auto max-w-7xl px-6 lg:px-12">
-          <p className="text-center text-[11px] font-medium uppercase tracking-[0.22em] text-neutral-400">
-            [ works with every major AI engine ]
-          </p>
-          <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-8 md:gap-x-16">
-            {LLM_LOGOS.map(({ name, src, href }) => (
-              <li key={name} className="group shrink-0">
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={`Search "${name}" for Signalor`}
-                  className="flex flex-col items-center gap-2"
-                >
-                  <img
-                    src={src}
-                    alt={`${name} logo, supported by Signalor`}
-                    width={160}
-                    height={48}
-                    decoding="async"
-                    className="h-9 w-auto max-w-40 object-contain object-center transition duration-300 ease-out group-hover:scale-[1.04] md:h-10 md:max-w-44"
-                  />
-                  <span className="sr-only">{name}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      <LandingIntegrationsStrip />
 
       <LandingHowItWorks />
       <LandingFeaturesGrid />
       <LandingTestimonials />
       <LandingWhySignalor />
-      <LandingIntegrationsStrip />
       <LandingPricingTeaser />
       <LandingFaq items={HOMEPAGE_FAQ} />
       <LandingPartnersProgram />

@@ -40,6 +40,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
       { href: "/pricing", label: "Pricing" },
       { href: "/integration", label: "Integrations" },
       { href: "/prompt-tracking", label: "Prompt tracking" },
+      { href: "/creators-program", label: "Creators program" },
     ],
   },
   {

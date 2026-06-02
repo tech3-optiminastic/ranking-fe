@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import {
@@ -263,6 +263,23 @@ function PricingPageInner() {
     },
     [session, loadingPlan, router, returnTo, detectedCountry, currency.code],
   );
+
+  // Direct checkout from the landing pricing teaser: a ?checkout=<planId> param
+  // auto-starts checkout for that plan. Anonymous visitors are sent to sign-in
+  // with a returnTo that preserves the intent so checkout resumes afterwards.
+  const autoCheckoutDone = useRef(false);
+  useEffect(() => {
+    if (autoCheckoutDone.current || isPending) return;
+    const planParam = searchParams.get("checkout");
+    if (!planParam || !PLANS.some((p) => p.id === planParam)) return;
+    autoCheckoutDone.current = true;
+    if (!session) {
+      const back = `/pricing?checkout=${planParam}`;
+      router.push(`${routes.signIn}?returnTo=${encodeURIComponent(back)}`);
+      return;
+    }
+    void handleSubscribe(planParam);
+  }, [isPending, session, searchParams, router, handleSubscribe]);
 
   if (isPending) {
     return <PricingPageFallback />;
